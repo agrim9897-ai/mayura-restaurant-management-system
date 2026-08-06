@@ -1,0 +1,195 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    background-color: #0f1f15; /* Fallback deep green, matching visual style */
+    background-image: radial-gradient(circle at top right, rgba(233, 193, 118, 0.05), transparent 40%),
+                      radial-gradient(circle at bottom left, rgba(233, 193, 118, 0.05), transparent 40%);
+    background-attachment: fixed;
+    color: #e6e2dd;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: #0f1f15;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(233, 193, 118, 0.3);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(233, 193, 118, 0.6);
+}
+
+/* Modern Scroll Reveal System */
+.reveal {
+    opacity: 0;
+    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+}
+.reveal-up {
+    transform: translateY(50px);
+}
+.reveal-down {
+    transform: translateY(-50px);
+}
+.reveal-left {
+    transform: translateX(-50px);
+}
+.reveal-right {
+    transform: translateX(50px);
+}
+.reveal-scale {
+    transform: scale(0.95);
+}
+.reveal.active {
+    opacity: 1;
+    transform: translate(0) scale(1);
+}
+
+/* Nav link underline slide animation */
+.nav-link {
+    position: relative;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    transform: scaleX(0);
+    height: 1.5px;
+    bottom: -2px;
+    left: 0;
+    background-color: #e9c176;
+    transform-origin: bottom right;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+}
+
+/* Premium Glow and Border Treatment */
+.gold-border {
+    border: 1px solid rgba(233, 193, 118, 0.3);
+    transition: border-color 0.4s ease;
+}
+
+.gold-glow {
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.gold-glow:hover {
+    box-shadow: 0 12px 30px rgba(233, 193, 118, 0.06), 0 0 18px rgba(233, 193, 118, 0.12);
+    border-color: rgba(233, 193, 118, 0.8);
+    transform: translateY(-8px);
+}
+
+/* Image treatment and overlays */
+.cinematic-img {
+    border-radius: 12px;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.image-vignette {
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px;
+}
+.image-vignette::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    box-shadow: inset 0 0 45px rgba(15, 31, 21, 0.7);
+    pointer-events: none;
+    transition: box-shadow 0.4s ease;
+}
+.image-vignette:hover::after {
+    box-shadow: inset 0 0 30px rgba(15, 31, 21, 0.4);
+}
+
+/* Scroll Progress Bar */
+#scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #c5a059 0%, #e9c176 50%, #ffdea5 100%);
+    z-index: 100;
+    width: 0%;
+    transition: width 0.1s ease-out;
+}
+
+/* Header Blur on Scroll */
+nav.nav-scrolled {
+    background-color: rgba(15, 31, 21, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(233, 193, 118, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Bounce Animation override */
+@keyframes floatUpDown {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+.animate-float {
+    animation: floatUpDown 3s ease-in-out infinite;
+}
+
+/* Icon rotation hover effect */
+.icon-rotate-hover:hover span.material-symbols-outlined {
+    transform: rotate(360deg);
+}
+.icon-rotate-hover span.material-symbols-outlined {
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Custom Scrollbar for Time Picker and Calendar */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #0f1f15;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(233, 193, 118, 0.4);
+    border-radius: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(233, 193, 118, 0.7);
+}
+
+/* Custom Calendar / Timepicker Transitions */
+#custom-calendar-popup.open,
+#custom-time-popup.open {
+    display: block !important;
+    opacity: 1 !important;
+    transform: scale(1) !important;
+}
+
+/* Custom autofill style override */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #e6e2dd !important;
+    -webkit-box-shadow: 0 0 0px 1000px #0f0e0c inset !important;
+    box-shadow: 0 0 0px 1000px #0f0e0c inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Beautiful Focus Glowing Ring */
+.custom-focus:focus-within {
+    border-color: #e9c176 !important;
+    box-shadow: 0 0 12px rgba(233, 193, 118, 0.15), inset 0 0 4px rgba(233, 193, 118, 0.05);
+}

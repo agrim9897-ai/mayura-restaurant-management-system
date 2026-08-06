@@ -1,0 +1,82 @@
+// Prisma Schema for Mayura Restaurant Backend
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Admin ──────────────────────────────────────
+model Admin {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+// ─── Reservation ────────────────────────────────
+model Reservation {
+  id                String            @id @default(uuid())
+  name              String
+  email             String
+  phone             String
+  reservationDate   DateTime
+  reservationTime   String
+  guests            Int
+  occasion          String?
+  seatingPreference String?
+  status            ReservationStatus @default(PENDING)
+  createdAt         DateTime          @default(now())
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+// ─── Menu ───────────────────────────────────────
+model MenuCategory {
+  id    String     @id @default(uuid())
+  name  String
+  items MenuItem[]
+}
+
+model MenuItem {
+  id          String       @id @default(uuid())
+  categoryId  String
+  category    MenuCategory @relation(fields: [categoryId], references: [id])
+  name        String
+  description String?
+  price       Float
+  isVeg       Boolean      @default(false)
+  imageUrl    String?
+  isAvailable Boolean      @default(true)
+}
+
+// ─── Contact ────────────────────────────────────
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  createdAt DateTime @default(now())
+}
+
+// ─── Settings ───────────────────────────────────
+model RestaurantSettings {
+  id             String  @id @default(uuid())
+  restaurantName String
+  phone          String?
+  email          String?
+  address        String?
+  instagram      String?
+  facebook       String?
+  openingTime    String?
+  closingTime    String?
+}

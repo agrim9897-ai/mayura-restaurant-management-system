@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Menu — Mayura Fine Cuisine</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&amp;family=Playfair+Display:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed": "#1c1b1b",
+                        "primary-fixed-dim": "#e9c176",
+                        "surface-tint": "#e9c176",
+                        "surface-container-lowest": "#0f0e0c",
+                        "primary": "#e9c176",
+                        "on-primary-container": "#4e3700",
+                        "error-container": "#93000a",
+                        "secondary-fixed": "#d4e7d7",
+                        "on-background": "#e6e2dd",
+                        "surface-container-high": "#2b2a27",
+                        "surface-container-highest": "#363532",
+                        "inverse-surface": "#e6e2dd",
+                        "error": "#ffb4ab",
+                        "on-primary-fixed": "#261900",
+                        "surface-variant": "#363532",
+                        "on-secondary-container": "#a7baaa",
+                        "on-surface-variant": "#d1c5b4",
+                        "inverse-primary": "#775a19",
+                        "on-tertiary-fixed-variant": "#474646",
+                        "on-surface": "#e6e2dd",
+                        "outline-variant": "#4e4639",
+                        "on-secondary-fixed": "#0f1f15",
+                        "surface-container-low": "#1c1c19",
+                        "inverse-on-surface": "#31302d",
+                        "on-tertiary": "#313030",
+                        "surface": "#141311",
+                        "secondary": "#b8cbbb",
+                        "on-secondary": "#243429",
+                        "tertiary": "#c8c6c5",
+                        "secondary-fixed-dim": "#b8cbbb",
+                        "on-error-container": "#ffdad6",
+                        "on-tertiary-container": "#3c3b3b",
+                        "tertiary-fixed": "#e5e2e1",
+                        "on-primary": "#412d00",
+                        "primary-fixed": "#ffdea5",
+                        "outline": "#9a8f80",
+                        "tertiary-fixed-dim": "#c8c6c5",
+                        "on-error": "#690005",
+                        "surface-container": "#20201d",
+                        "primary-container": "#c5a059",
+                        "surface-dim": "#141311",
+                        "surface-bright": "#3a3936",
+                        "on-secondary-fixed-variant": "#3a4b3e",
+                        "on-primary-fixed-variant": "#5d4201",
+                        "secondary-container": "#3a4b3e",
+                        "background": "#141311",
+                        "tertiary-container": "#a7a5a5"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "12": "12px"
+                    },
+                    "spacing": {
+                        "container-max": "1200px",
+                        "margin-mobile": "24px",
+                        "margin-desktop": "80px",
+                        "gutter": "32px",
+                        "section-padding": "120px",
+                        "unit": "8px",
+                        "160": "160px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Playfair Display"],
+                        "body-lg": ["Montserrat"],
+                        "display-lg": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"],
+                        "body-md": ["Montserrat"],
+                        "label-caps": ["Montserrat"],
+                        "button": ["Montserrat"],
+                        "headline-md": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "letterSpacing": "0.01em", "fontWeight": "400" }],
+                        "display-lg": ["72px", { "lineHeight": "84px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-lg": ["48px", { "lineHeight": "56px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.15em", "fontWeight": "600" }],
+                        "button": ["14px", { "lineHeight": "20px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="antialiased overflow-x-hidden">
+
+<div id="scroll-progress"></div>
+
+<nav id="navbar" class="fixed w-full top-0 z-50 transition-all duration-500 py-6">
+    <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto">
+        <a class="font-display-lg text-headline-md text-primary-fixed-dim hover:text-primary transition-colors duration-300" href="index.html">Mayura</a>
+        <div class="hidden md:flex items-center gap-gutter">
+            <a class="nav-link font-button text-button uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="index.html">Home</a>
+            <a class="nav-link font-button text-button uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="experience.html">Experience</a>
+            <a class="nav-link font-button text-button uppercase tracking-[0.1em] text-primary" href="menu.html">Our Menu</a>
+            <a class="nav-link font-button text-button uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-300" href="index.html#contact">Contact</a>
+        </div>
+        <div class="hidden md:block">
+            <a class="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary font-button text-button uppercase tracking-[0.1em] rounded-12 hover:bg-primary hover:text-on-primary hover:shadow-[0_0_15px_rgba(233,193,118,0.3)] transition-all duration-300 hover:scale-[1.03]" href="index.html#reserve">Reserve a Table</a>
+        </div>
+        <button id="mobile-menu-btn" class="md:hidden text-primary focus:outline-none transition-transform duration-300 active:scale-90" aria-label="Toggle Menu">
+            <span class="material-symbols-outlined text-3xl">menu</span>
+        </button>
+    </div>
+</nav>
+
+<div id="mobile-menu" class="fixed inset-0 bg-[#0f1f15] z-40 translate-x-full transition-transform duration-500 ease-in-out flex flex-col justify-center items-center">
+    <button id="mobile-menu-close" class="absolute top-8 right-margin-mobile text-primary focus:outline-none" aria-label="Close Menu">
+        <span class="material-symbols-outlined text-4xl">close</span>
+    </button>
+    <div class="flex flex-col items-center gap-8 text-center">
+        <a class="mobile-nav-link text-2xl uppercase tracking-[0.2em] font-display-lg text-on-surface-variant hover:text-primary" href="index.html">Home</a>
+        <a class="mobile-nav-link text-2xl uppercase tracking-[0.2em] font-display-lg text-on-surface-variant hover:text-primary" href="experience.html">Experience</a>
+        <a class="mobile-nav-link text-2xl uppercase tracking-[0.2em] font-display-lg text-primary" href="menu.html">Our Menu</a>
+        <a class="mobile-nav-link text-2xl uppercase tracking-[0.2em] font-display-lg text-on-surface-variant hover:text-primary" href="index.html#contact">Contact</a>
+        <a class="mt-4 inline-flex items-center justify-center px-8 py-4 border border-primary text-primary font-button text-button uppercase tracking-[0.15em] rounded-12 hover:bg-primary hover:text-on-primary transition-all duration-300" href="index.html#reserve">Reserve a Table</a>
+    </div>
+</div>
+
+<main>
+    <section class="relative min-h-screen flex items-center pt-32 pb-section-padding px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-gutter items-center w-full">
+            <div class="z-10 reveal reveal-left pr-0 md:pr-12">
+                <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-primary mb-6 leading-tight">Our Menu</h1>
+                <p class="font-body-lg text-body-lg text-on-surface-variant mb-10 max-w-md">Experience the perfect blend of tradition and taste. Where every dish tells a story, meticulously prepared to evoke an emotional response.</p>
+                <a class="inline-flex items-center justify-center px-8 py-4 bg-primary text-on-primary font-button text-button uppercase tracking-[0.1em] rounded-12 hover:bg-primary-fixed hover:shadow-[0_0_20px_rgba(233,193,118,0.4)] hover:scale-[1.03] transition-all duration-300 group" href="#menu-section">
+                    Explore Dishes
+                    <span class="material-symbols-outlined ml-2 text-sm transform group-hover:translate-x-1 transition-transform duration-300">arrow_forward_ios</span>
+                </a>
+            </div>
+            <div class="relative w-full h-[60vh] md:h-[80vh] reveal reveal-right image-vignette">
+                <img alt="Gourmet Indian dish" class="w-full h-full object-cover cinematic-img hover:scale-[1.05]" src="images/hero_dish.png"/>
+                <div class="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0f1f15] to-transparent hidden md:block"></div>
+            </div>
+        </div>
+        <div id="scroll-indicator" class="absolute bottom-12 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-float opacity-70 transition-opacity duration-300">
+            <span class="material-symbols-outlined text-primary font-light text-3xl">keyboard_double_arrow_down</span>
+        </div>
+    </section>
+
+    <section id="menu-section" class="py-160 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto relative">
+        <div class="absolute right-0 bottom-10 w-96 h-96 bg-primary opacity-5 rounded-full blur-[120px] pointer-events-none"></div>
+        
+        <div class="sticky top-[80px] z-30 bg-[#0f1f15]/95 backdrop-filter backdrop-blur-md py-6 border-b border-outline-variant/60 mb-16 reveal reveal-up">
+            <div class="flex flex-col lg:flex-row gap-6 justify-between items-stretch lg:items-center">
+                <div class="relative flex-1 max-w-md">
+                    <span class="absolute inset-y-0 left-4 flex items-center text-primary-fixed-dim">
+                        <span class="material-symbols-outlined text-xl">search</span>
+                    </span>
+                    <input id="menu-search" type="text" placeholder="Search menu..." class="w-full bg-surface-container-lowest text-on-surface border border-outline-variant focus:border-primary focus:ring-0 focus:outline-none pl-12 pr-4 py-3 rounded-none font-button text-sm tracking-wide placeholder-outline" />
+                </div>
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex border border-outline-variant rounded-none overflow-hidden bg-surface-container-lowest shrink-0">
+                        <button class="filter-toggle-btn px-5 py-3 bg-primary text-on-primary font-button text-xs uppercase tracking-[0.1em] transition-all duration-300" data-filter="all">All</button>
+                        <button class="filter-toggle-btn px-5 py-3 text-on-surface-variant hover:text-primary font-button text-xs uppercase tracking-[0.1em] transition-all duration-300 border-l border-outline-variant" data-filter="veg">Veg</button>
+                        <button class="filter-toggle-btn px-5 py-3 text-on-surface-variant hover:text-primary font-button text-xs uppercase tracking-[0.1em] transition-all duration-300 border-l border-outline-variant" data-filter="non-veg">Non-Veg</button>
+                    </div>
+                    <div class="relative select-container shrink-0">
+                        <select id="category-filter" class="bg-surface-container-lowest text-on-surface border border-outline-variant rounded-none pl-4 pr-10 py-3 font-button text-xs uppercase tracking-[0.1em] focus:border-primary focus:ring-0 focus:outline-none appearance-none cursor-pointer">
+                            <option value="all">All Categories</option>
+                            <option value="signature-starters">Signature Starters</option>
+                            <option value="soups">Soups</option>
+                            <option value="salads">Salads</option>
+                            <option value="indian-main">Indian Main Course</option>
+                            <option value="italian">Italian</option>
+                            <option value="chinese-asian">Chinese & Asian</option>
+                            <option value="continental">Continental</option>
+                            <option value="seafood">Seafood</option>
+                            <option value="breads">Breads</option>
+                            <option value="rice-biryani">Rice & Biryani</option>
+                            <option value="desserts">Desserts</option>
+                            <option value="mocktails">Mocktails</option>
+                            <option value="fresh-juices">Fresh Juices</option>
+                            <option value="hot-beverages">Hot Beverages</option>
+                            <option value="cold-beverages">Cold Beverages</option>
+                            <option value="coffee-selection">Coffee Selection</option>
+                            <option value="tea-collection">Tea Collection</option>
+                            <option value="milkshakes">Milkshakes</option>
+                            <option value="chef-signatures">Chef's Signature Specials</option>
+                            <option value="seasonal-specials">Seasonal Specials</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-3 flex items-center text-primary-fixed-dim pointer-events-none">
+                            <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+                        </span>
+                    </div>
+                    <div class="relative select-container shrink-0">
+                        <select id="sort-filter" class="bg-surface-container-lowest text-on-surface border border-outline-variant rounded-none pl-4 pr-10 py-3 font-button text-xs uppercase tracking-[0.1em] focus:border-primary focus:ring-0 focus:outline-none appearance-none cursor-pointer">
+                            <option value="default">Default Sort</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="alpha">Name: A to Z</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-3 flex items-center text-primary-fixed-dim pointer-events-none">
+                            <span class="material-symbols-outlined text-sm">keyboard_arrow_down</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="menu-container" class="space-y-24"></div>
+    </section>
+</main>
+
+<footer id="contact" class="bg-surface border-t border-outline-variant mt-section-padding">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-padding w-full max-w-container-max mx-auto">
+        <div class="md:col-span-1 reveal reveal-up">
+            <a class="font-display-lg text-headline-md text-primary block mb-4" href="index.html">Mayura</a>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-2">Good Food | Good Mood</p>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-6">Experience the art of fine dining.</p>
+            <div class="flex gap-4 text-primary">
+                <a class="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300" href="#" aria-label="QR Code"><span class="material-symbols-outlined">qr_code_2</span></a>
+                <a class="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300" href="#" aria-label="Gallery"><span class="material-symbols-outlined">photo_camera</span></a>
+            </div>
+        </div>
+        <div class="reveal reveal-up" style="transition-delay: 100ms;">
+            <h4 class="font-button text-button text-primary mb-6 uppercase tracking-[0.1em]">Quick Links</h4>
+            <ul class="flex flex-col gap-3 font-body-md text-body-md">
+                <li><a class="text-on-surface-variant hover:text-primary transition-colors duration-300" href="index.html">Home</a></li>
+                <li><a class="text-on-surface-variant hover:text-primary transition-colors duration-300" href="index.html#specialties">Specialties</a></li>
+                <li><a class="text-on-surface-variant hover:text-primary transition-colors duration-300" href="menu.html">Our Menu</a></li>
+                <li><a class="text-on-surface-variant hover:text-primary transition-colors duration-300" href="index.html#flavors">Flavors</a></li>
+                <li><a class="text-on-surface-variant hover:text-primary transition-colors duration-300" href="index.html#reserve">Reservations</a></li>
+            </ul>
+        </div>
+        <div class="reveal reveal-up" style="transition-delay: 200ms;">
+            <h4 class="font-button text-button text-primary mb-6 uppercase tracking-[0.1em]">Opening Hours</h4>
+            <ul class="flex flex-col gap-3 font-body-md text-body-md text-on-surface-variant">
+                <li>Mon - Fri: 11:00 AM - 11:00 PM</li>
+                <li>Sat - Sun: 10:00 AM - 12:00 AM</li>
+                <li class="mt-2 text-primary-fixed-dim">We are open all days.</li>
+            </ul>
+        </div>
+        <div class="reveal reveal-up" style="transition-delay: 300ms;">
+            <h4 class="font-button text-button text-primary mb-6 uppercase tracking-[0.1em]">Contact Us</h4>
+            <ul class="flex flex-col gap-3 font-body-md text-body-md text-on-surface-variant">
+                <li>+91 98765 43210</li>
+                <li>hello@mayurafinecuisine.com</li>
+                <li class="mt-2">123, Green Avenue, New Delhi, India - 110001</li>
+            </ul>
+        </div>
+    </div>
+    <div class="border-t border-outline-variant px-margin-mobile md:px-margin-desktop py-6 w-full max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center font-body-md text-body-md text-on-surface-variant text-sm">
+        <p>© 2025 Mayura Fine Cuisine. All Rights Reserved.</p>
+        <a class="hover:text-primary transition-colors mt-4 md:mt-0 flex items-center gap-1 group" href="#">
+            Back to Top 
+            <span class="material-symbols-outlined text-sm transform group-hover:translate-y-[-2px] transition-transform duration-300">keyboard_arrow_up</span>
+        </a>
+    </div>
+</footer>
+
+<script src="script.js"></script>
+<script src="menu.js"></script>
+</body>
+</html>
