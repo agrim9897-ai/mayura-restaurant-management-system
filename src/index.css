@@ -7,58 +7,88 @@ html {
 }
 
 body {
-    background-color: #0f1f15;
-    background-image: radial-gradient(circle at top right, rgba(233, 193, 118, 0.05), transparent 40%),
-                      radial-gradient(circle at bottom left, rgba(233, 193, 118, 0.05), transparent 40%);
+    background-color: #050d08;
+    background-image: radial-gradient(circle at top right, rgba(233, 193, 118, 0.04), transparent 45%),
+                      radial-gradient(circle at bottom left, rgba(233, 193, 118, 0.03), transparent 45%);
     background-attachment: fixed;
     color: #e6e2dd;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
+    height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #0f1f15;
+    background: #06100a;
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(233, 193, 118, 0.3);
+    background: rgba(233, 193, 118, 0.2);
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(233, 193, 118, 0.6);
+    background: rgba(233, 193, 118, 0.4);
 }
 
-/* Modern Scroll Reveal System — Subtle & Ultra-Smooth */
+/* Commercial SaaS Panel Card Style */
+.saas-card {
+    background-color: #0a160f;
+    border: 1px solid rgba(233, 193, 118, 0.12);
+    border-radius: 16px;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.saas-card:hover {
+    border-color: rgba(233, 193, 118, 0.25);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Slide-Over Drawer Keyframe Animations */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeInBackdrop {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.animate-drawer-in {
+    animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.animate-backdrop-in {
+    animation: fadeInBackdrop 0.25s ease forwards;
+}
+
+/* Shimmer Skeleton Loader */
+@keyframes skeletonShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+.skeleton-box {
+    background: linear-gradient(90deg, #0b1810 25%, #132419 37%, #0b1810 63%);
+    background-size: 200% 100%;
+    animation: skeletonShimmer 1.8s infinite ease-in-out;
+    border-radius: 8px;
+}
+
+/* Modern Scroll Reveal System */
 .reveal {
     opacity: 0;
     transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     will-change: transform, opacity;
 }
-.reveal-up {
-    transform: translateY(14px);
-}
-.reveal-down {
-    transform: translateY(-14px);
-}
-.reveal-left {
-    transform: translateX(-14px);
-}
-.reveal-right {
-    transform: translateX(14px);
-}
-.reveal-scale {
-    transform: scale(0.985);
-}
+.reveal-up { transform: translateY(14px); }
+.reveal-down { transform: translateY(-14px); }
+.reveal-left { transform: translateX(-14px); }
+.reveal-right { transform: translateX(14px); }
+.reveal-scale { transform: scale(0.985); }
 .reveal.active {
     opacity: 1;
     transform: translate(0) scale(1);
 }
 
 /* Nav link underline slide animation */
-.nav-link {
-    position: relative;
-}
+.nav-link { position: relative; }
 .nav-link::after {
     content: '';
     position: absolute;
@@ -76,104 +106,16 @@ body {
     transform-origin: bottom left;
 }
 
-/* Premium Glow and Border Treatment */
+/* Subtle Gold Border */
 .gold-border {
-    border: 1px solid rgba(233, 193, 118, 0.3);
-    transition: border-color 0.4s ease;
+    border: 1px solid rgba(233, 193, 118, 0.15);
+    transition: border-color 0.3s ease;
 }
 
-.gold-glow {
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.gold-glow:hover {
-    box-shadow: 0 12px 30px rgba(233, 193, 118, 0.06), 0 0 18px rgba(233, 193, 118, 0.12);
-    border-color: rgba(233, 193, 118, 0.8);
-    transform: translateY(-8px);
-}
-
-/* Image treatment and overlays */
-.cinematic-img {
-    border-radius: 12px;
-    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
-    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.image-vignette {
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-}
-.image-vignette::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 12px;
-    box-shadow: inset 0 0 45px rgba(15, 31, 21, 0.7);
-    pointer-events: none;
-    transition: box-shadow 0.4s ease;
-}
-.image-vignette:hover::after {
-    box-shadow: inset 0 0 30px rgba(15, 31, 21, 0.4);
-}
-
-/* Scroll Progress Bar */
-#scroll-progress {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 3px;
-    background: linear-gradient(90deg, #c5a059 0%, #e9c176 50%, #ffdea5 100%);
-    z-index: 100;
-    width: 0%;
-    transition: width 0.1s ease-out;
-}
-
-/* Header Blur on Scroll */
-nav.nav-scrolled {
-    background-color: rgba(15, 31, 21, 0.85);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(233, 193, 118, 0.1);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* Bounce Animation override */
-@keyframes floatUpDown {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-.animate-float {
-    animation: floatUpDown 3s ease-in-out infinite;
-}
-
-/* Icon rotation hover effect */
-.icon-rotate-hover:hover span.material-symbols-outlined {
-    transform: rotate(360deg);
-}
-.icon-rotate-hover span.material-symbols-outlined {
-    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-/* Custom Scrollbar for Time Picker and Calendar */
-.custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-    background: #0f1f15;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(233, 193, 118, 0.4);
-    border-radius: 3px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(233, 193, 118, 0.7);
-}
-
-/* Custom Calendar / Timepicker Transitions */
-#custom-calendar-popup.open,
-#custom-time-popup.open {
-    display: block !important;
-    opacity: 1 !important;
-    transform: scale(1) !important;
+/* Focus Ring */
+.custom-focus:focus-within {
+    border-color: #e9c176 !important;
+    box-shadow: 0 0 0 3px rgba(233, 193, 118, 0.12);
 }
 
 /* Custom autofill style override */
@@ -187,13 +129,7 @@ select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
     -webkit-text-fill-color: #e6e2dd !important;
-    -webkit-box-shadow: 0 0 0px 1000px #0f0e0c inset !important;
-    box-shadow: 0 0 0px 1000px #0f0e0c inset !important;
+    -webkit-box-shadow: 0 0 0px 1000px #06100a inset !important;
+    box-shadow: 0 0 0px 1000px #06100a inset !important;
     transition: background-color 5000s ease-in-out 0s;
-}
-
-/* Beautiful Focus Glowing Ring */
-.custom-focus:focus-within {
-    border-color: #e9c176 !important;
-    box-shadow: 0 0 12px rgba(233, 193, 118, 0.15), inset 0 0 4px rgba(233, 193, 118, 0.05);
 }

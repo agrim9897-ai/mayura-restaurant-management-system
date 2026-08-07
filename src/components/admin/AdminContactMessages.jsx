@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { markMessageAsRead, deleteMessage, replyToMessage } from '../../services/api/messages.service';
+import AdminSkeleton from './AdminSkeleton';
 
 export default function AdminContactMessages({ messages, setMessages }) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [replyModalOpen, setReplyModalOpen] = useState(false);
+  const [activeMessage, setActiveMessage] = useState(messages[0] || null);
   const [replyText, setReplyText] = useState('');
   const [replySubject, setReplySubject] = useState('');
   const [isSendingReply, setIsSendingReply] = useState(false);
@@ -15,46 +15,43 @@ export default function AdminContactMessages({ messages, setMessages }) {
     setTimeout(() => setToastMessage(''), 3500);
   };
 
-  const filtered = messages.filter((m) =>
+  const filteredMessages = messages.filter((m) =>
     (m.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (m.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (m.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (m.message || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleOpenView = async (msg) => {
-    setSelectedMessage(msg);
-    try {
-      await markMessageAsRead(msg.id);
-      setMessages((prev) =>
-        prev.map((item) => (item.id === msg.id ? { ...item, isRead: true } : item))
-      );
-    } catch {
-      // Keep local state update
-    }
-  };
-
-  const handleOpenReply = (msg) => {
-    setSelectedMessage(msg);
+  const handleSelectMessage = async (msg) => {
+    setActiveMessage(msg);
     setReplySubject(`Re: ${msg.subject || 'Inquiry regarding Mayura Fine Cuisine'}`);
     setReplyText(`Dear ${msg.name},\n\nThank you for reaching out to Mayura Fine Cuisine.\n\nWarm regards,\nMayura Management Team`);
-    setReplyModalOpen(true);
+
+    if (!msg.isRead) {
+      try {
+        await markMessageAsRead(msg.id);
+        setMessages((prev) =>
+          prev.map((item) => (item.id === msg.id ? { ...item, isRead: true } : item))
+        );
+      } catch {
+        // Fallback local update
+      }
+    }
   };
 
   const handleSendReply = async (e) => {
     e.preventDefault();
-    if (!selectedMessage || !replyText.trim()) return;
+    if (!activeMessage || !replyText.trim()) return;
 
     setIsSendingReply(true);
     try {
-      const result = await replyToMessage(selectedMessage.id, {
-        email: selectedMessage.email,
+      const result = await replyToMessage(activeMessage.id, {
+        email: activeMessage.email,
         subject: replySubject,
         replyText: replyText.trim(),
       });
 
-      showToast(result.message || `Reply sent to ${selectedMessage.email}`);
-      setReplyModalOpen(false);
+      showToast(result.message || `Reply dispatched to ${activeMessage.email}`);
     } catch (err) {
       showToast(`Failed to send reply: ${err.message}`);
     } finally {
@@ -64,280 +61,202 @@ export default function AdminContactMessages({ messages, setMessages }) {
 
   const handleDelete = async (id, e) => {
     if (e) e.stopPropagation();
-    if (!window.confirm('Are you sure you want to delete this message permanently?')) return;
+    if (!window.confirm('Are you sure you want to delete this message?')) return;
 
     try {
       await deleteMessage(id);
-      setMessages((prev) => prev.filter((item) => item.id !== id));
-      if (selectedMessage && selectedMessage.id === id) {
-        setSelectedMessage(null);
-        setReplyModalOpen(false);
+      const remaining = messages.filter((item) => item.id !== id);
+      setMessages(remaining);
+      if (activeMessage && activeMessage.id === id) {
+        setActiveMessage(remaining[0] || null);
       }
-      showToast('Message deleted successfully');
+      showToast('Message deleted');
     } catch (err) {
       showToast(`Failed to delete message: ${err.message}`);
     }
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn pb-8 select-none">
       {/* Toast Feedback */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-[#e9c176] text-[#0f1f15] font-semibold text-xs px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 animate-bounce">
+        <div className="fixed bottom-6 right-6 bg-[#e9c176] text-[#050d08] font-bold text-xs px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 animate-bounce">
           <span className="material-symbols-outlined text-sm">check_circle</span>
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Control Search Header */}
-      <div className="bg-[#0d1c13] gold-border rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
-        <div className="relative flex-1 max-w-md">
-          <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
-            search
-          </span>
-          <input
-            type="text"
-            placeholder="Search contact messages..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-[#07140c] border border-[#e9c176]/30 rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#e6e2dd] focus:outline-none custom-focus"
-          />
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="font-serif text-2xl text-[#e9c176] font-bold">Customer Communications</h2>
+          <p className="text-xs text-[#a0998e]">
+            Review inquiries, guest feedback, and dispatch direct email replies.
+          </p>
         </div>
 
         <div className="text-xs text-[#a0998e]">
-          Total Messages: <strong className="text-[#e9c176]">{messages.length}</strong>
+          Total Inquiries: <strong className="text-[#e9c176]">{messages.length}</strong>
         </div>
       </div>
 
-      {/* Messages Table Card */}
-      <div className="bg-[#0d1c13] gold-border rounded-2xl overflow-hidden shadow-xl">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[#09160e] border-b border-[#e9c176]/15 text-[11px] uppercase tracking-wider text-[#e9c176]">
-                <th className="py-4 px-4 font-semibold">Name</th>
-                <th className="py-4 px-4 font-semibold">Email</th>
-                <th className="py-4 px-4 font-semibold">Subject</th>
-                <th className="py-4 px-4 font-semibold">Message Preview</th>
-                <th className="py-4 px-4 font-semibold">Date</th>
-                <th className="py-4 px-4 font-semibold text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#e9c176]/10 text-xs text-[#c8c2b7]">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-12 text-[#a0998e]">
-                    <span className="material-symbols-outlined text-4xl block mb-2 text-[#e9c176]/40">
-                      mail
-                    </span>
-                    No contact messages match your search.
-                  </td>
-                </tr>
+      {/* Split-Pane Inbox Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-[680px]">
+        {/* Left Pane: Message List (4 cols) */}
+        <div className="lg:col-span-5 saas-card p-4 flex flex-col justify-between overflow-hidden">
+          <div className="space-y-3 flex-1 flex flex-col min-h-0">
+            {/* Search Input */}
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-xs text-[#a0998e]">
+                search
+              </span>
+              <input
+                type="text"
+                placeholder="Search inbox messages..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl pl-9 pr-4 py-2 text-xs text-[#e6e2dd] placeholder-[#a0998e]/60 focus:outline-none custom-focus"
+              />
+            </div>
+
+            {/* List */}
+            <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+              {filteredMessages.length === 0 ? (
+                <div className="py-12 text-center text-[#a0998e] text-xs">No messages match search.</div>
               ) : (
-                filtered.map((m) => (
-                  <tr key={m.id} className="hover:bg-[#122419] transition-colors">
-                    {/* Name */}
-                    <td className="py-4 px-4 font-semibold text-[#e6e2dd] whitespace-nowrap">
-                      <div className="flex items-center gap-2">
-                        {!m.isRead && (
-                          <span className="w-2 h-2 rounded-full bg-[#e9c176]" title="Unread" />
-                        )}
-                        <span>{m.name}</span>
+                filteredMessages.map((m) => {
+                  const isSelected = activeMessage && activeMessage.id === m.id;
+                  return (
+                    <div
+                      key={m.id}
+                      onClick={() => handleSelectMessage(m)}
+                      className={`p-3.5 rounded-xl border transition-all cursor-pointer space-y-1 relative ${
+                        isSelected
+                          ? 'bg-[#102418] border-[#e9c176]/40 shadow-sm'
+                          : 'bg-[#08170e] border-[#e9c176]/10 hover:border-[#e9c176]/25'
+                      }`}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          {!m.isRead && (
+                            <span className="w-2 h-2 rounded-full bg-[#e9c176]" title="Unread" />
+                          )}
+                          <span className="font-semibold text-xs text-[#e6e2dd]">{m.name}</span>
+                        </div>
+                        <span className="text-[10px] text-[#a0998e]">{m.date ? m.date.split(' ')[0] : ''}</span>
                       </div>
-                    </td>
 
-                    {/* Email */}
-                    <td className="py-4 px-4 text-[#a0998e]">{m.email}</td>
-
-                    {/* Subject */}
-                    <td className="py-4 px-4 font-medium text-[#e9c176]">{m.subject || 'General Inquiry'}</td>
-
-                    {/* Message Preview */}
-                    <td className="py-4 px-4 max-w-xs truncate text-[#c8c2b7]">{m.message}</td>
-
-                    {/* Date */}
-                    <td className="py-4 px-4 text-[#a0998e] whitespace-nowrap">{m.date}</td>
-
-                    {/* Actions */}
-                    <td className="py-4 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleOpenView(m)}
-                          className="px-3 py-1.5 rounded-lg bg-[#122419] border border-[#e9c176]/30 text-[#e9c176] hover:bg-[#e9c176] hover:text-[#0f1f15] text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer inline-flex items-center gap-1"
-                        >
-                          <span className="material-symbols-outlined text-sm">visibility</span>
-                          <span>View</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleOpenReply(m)}
-                          className="p-1.5 rounded-lg bg-[#122419] border border-[#e9c176]/30 text-[#e9c176] hover:bg-[#e9c176] hover:text-[#0f1f15] transition-all cursor-pointer"
-                          title="Reply to Message"
-                        >
-                          <span className="material-symbols-outlined text-sm">reply</span>
-                        </button>
-
-                        <button
-                          onClick={(e) => handleDelete(m.id, e)}
-                          className="p-1.5 rounded-lg bg-[#122419] border border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-white transition-all cursor-pointer"
-                          title="Delete Message"
-                        >
-                          <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
+                      <div className="text-[11px] text-[#e9c176] font-medium truncate">
+                        {m.subject || 'General Inquiry'}
                       </div>
-                    </td>
-                  </tr>
-                ))
+
+                      <p className="text-[11px] text-[#a0998e] line-clamp-1">{m.message}</p>
+                    </div>
+                  );
+                })
               )}
-            </tbody>
-          </table>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Pane: Reading & Reply View (7 cols) */}
+        <div className="lg:col-span-7 saas-card p-6 flex flex-col justify-between overflow-y-auto custom-scrollbar">
+          {activeMessage ? (
+            <div className="space-y-6">
+              {/* Message Header */}
+              <div className="border-b border-[#e9c176]/10 pb-4 flex items-start justify-between">
+                <div>
+                  <h3 className="font-serif text-xl text-[#e6e2dd] font-bold">
+                    {activeMessage.subject || 'General Inquiry'}
+                  </h3>
+                  <div className="flex items-center gap-3 text-xs text-[#a0998e] mt-1">
+                    <span className="font-bold text-[#e9c176]">{activeMessage.name}</span>
+                    <span>•</span>
+                    <span>{activeMessage.email}</span>
+                    {activeMessage.phone && (
+                      <>
+                        <span>•</span>
+                        <span className="font-mono">{activeMessage.phone}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                <button
+                  onClick={(e) => handleDelete(activeMessage.id, e)}
+                  className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors"
+                  title="Delete Message"
+                >
+                  <span className="material-symbols-outlined text-base">delete</span>
+                </button>
+              </div>
+
+              {/* Message Body */}
+              <div className="bg-[#08170e] border border-[#e9c176]/15 rounded-xl p-4 text-xs text-[#e6e2dd] leading-relaxed whitespace-pre-line">
+                {activeMessage.message}
+              </div>
+
+              {/* Reply Form */}
+              <form onSubmit={handleSendReply} className="space-y-3 pt-4 border-t border-[#e9c176]/10 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[#e9c176]">
+                    Dispatch Email Reply
+                  </span>
+                  <span className="text-[11px] text-[#a0998e]">To: {activeMessage.email}</span>
+                </div>
+
+                <div>
+                  <input
+                    type="text"
+                    required
+                    value={replySubject}
+                    onChange={(e) => setReplySubject(e.target.value)}
+                    placeholder="Subject line..."
+                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2.5 text-[#e6e2dd] focus:outline-none custom-focus"
+                  />
+                </div>
+
+                <div>
+                  <textarea
+                    rows="5"
+                    required
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    placeholder="Type your reply message..."
+                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-3 text-[#e6e2dd] focus:outline-none custom-focus leading-relaxed resize-none"
+                  />
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    disabled={isSendingReply}
+                    className="px-6 py-2.5 rounded-xl bg-[#e9c176] text-[#050d08] font-bold text-xs uppercase tracking-wider hover:bg-[#ffdea5] transition-all cursor-pointer shadow-lg flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {isSendingReply ? (
+                      <>
+                        <div className="w-4 h-4 rounded-full border-2 border-[#050d08]/20 border-t-[#050d08] animate-spin" />
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="material-symbols-outlined text-sm">send</span>
+                        <span>Send Reply Email</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : (
+            <div className="py-24 text-center text-[#a0998e] space-y-2">
+              <span className="material-symbols-outlined text-4xl text-[#e9c176]/30">mark_email_read</span>
+              <h3 className="font-serif text-lg text-[#e6e2dd] font-bold">Select a Message</h3>
+              <p className="text-xs">Choose an inquiry from the left pane to view details and reply.</p>
+            </div>
+          )}
         </div>
       </div>
-
-      {/* View Message Modal */}
-      {selectedMessage && !replyModalOpen && (
-        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0d1c13] gold-border rounded-2xl max-w-xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative animate-scale">
-            <div className="flex items-center justify-between border-b border-[#e9c176]/15 pb-4">
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-[#e9c176] font-bold">
-                  INQUIRY #{selectedMessage.id.slice(0, 8)}
-                </span>
-                <h3 className="font-serif text-xl text-[#e6e2dd] font-bold mt-1">
-                  {selectedMessage.subject || 'General Inquiry'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setSelectedMessage(null)}
-                className="text-[#a0998e] hover:text-[#e9c176]"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <div className="bg-[#07140c] rounded-xl p-4 border border-[#e9c176]/10 text-xs space-y-2 text-[#a0998e]">
-              <p>
-                From: <strong className="text-[#e6e2dd]">{selectedMessage.name}</strong> ({selectedMessage.email})
-              </p>
-              {selectedMessage.phone && <p>Phone: <span className="font-mono text-[#e6e2dd]">{selectedMessage.phone}</span></p>}
-              <p>Received: {selectedMessage.date}</p>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-xs uppercase tracking-wider text-[#e9c176] font-semibold block">
-                Message Content:
-              </label>
-              <div className="bg-[#07140c] border border-[#e9c176]/15 rounded-xl p-5 text-sm text-[#e6e2dd] leading-relaxed whitespace-pre-line">
-                {selectedMessage.message}
-              </div>
-            </div>
-
-            <div className="flex justify-between items-center pt-2">
-              <button
-                onClick={() => handleOpenReply(selectedMessage)}
-                className="px-5 py-2.5 rounded-xl bg-[#e9c176] text-[#0f1f15] font-semibold text-xs uppercase tracking-wider hover:bg-[#ffdea5] transition-all cursor-pointer flex items-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-sm">reply</span>
-                <span>Send Reply</span>
-              </button>
-
-              <button
-                onClick={() => setSelectedMessage(null)}
-                className="px-5 py-2.5 rounded-xl border border-[#e9c176]/30 text-xs text-[#a0998e] hover:text-[#e6e2dd]"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Send Reply Email Modal */}
-      {replyModalOpen && selectedMessage && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0d1c13] gold-border rounded-2xl max-w-xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative animate-scale">
-            <div className="flex items-center justify-between border-b border-[#e9c176]/15 pb-4">
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-[#e9c176] font-bold">
-                  REPLY TO GUEST INQUIRY
-                </span>
-                <h3 className="font-serif text-xl text-[#e6e2dd] font-bold mt-1">
-                  Reply to {selectedMessage.name}
-                </h3>
-              </div>
-              <button
-                onClick={() => setReplyModalOpen(false)}
-                className="text-[#a0998e] hover:text-[#e9c176]"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-
-            <form onSubmit={handleSendReply} className="space-y-4 text-xs">
-              <div>
-                <label className="block text-[#a0998e] mb-1 font-medium">To Email</label>
-                <input
-                  type="email"
-                  readOnly
-                  value={selectedMessage.email}
-                  className="w-full bg-[#07140c] border border-[#e9c176]/20 rounded-xl p-3 text-[#e9c176] font-mono focus:outline-none cursor-not-allowed"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[#a0998e] mb-1 font-medium">Subject Line</label>
-                <input
-                  type="text"
-                  required
-                  value={replySubject}
-                  onChange={(e) => setReplySubject(e.target.value)}
-                  className="w-full bg-[#07140c] border border-[#e9c176]/30 rounded-xl p-3 text-[#e6e2dd] focus:outline-none custom-focus"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[#a0998e] mb-1 font-medium">Email Reply Content</label>
-                <textarea
-                  rows="6"
-                  required
-                  value={replyText}
-                  onChange={(e) => setReplyText(e.target.value)}
-                  placeholder="Type your response message here..."
-                  className="w-full bg-[#07140c] border border-[#e9c176]/30 rounded-xl p-3 text-[#e6e2dd] focus:outline-none custom-focus leading-relaxed resize-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#e9c176]/15">
-                <button
-                  type="button"
-                  onClick={() => setReplyModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl border border-[#e9c176]/30 text-[#a0998e] hover:text-[#e6e2dd]"
-                >
-                  Cancel
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={isSendingReply}
-                  className="px-6 py-2.5 rounded-xl bg-[#e9c176] text-[#0f1f15] font-bold uppercase tracking-wider hover:bg-[#ffdea5] transition-all cursor-pointer shadow-lg flex items-center gap-2 disabled:opacity-50"
-                >
-                  {isSendingReply ? (
-                    <>
-                      <div className="w-4 h-4 rounded-full border-2 border-[#0f1f15]/20 border-t-[#0f1f15] animate-spin" />
-                      <span>Sending Email...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-base">send</span>
-                      <span>Send Email Reply</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

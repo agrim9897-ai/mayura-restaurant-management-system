@@ -10,6 +10,7 @@ export default function AdminLogin() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState(location.state?.message || '');
@@ -121,16 +122,26 @@ export default function AdminLogin() {
             </div>
             <div className="relative custom-focus border border-[#e9c176]/30 rounded-xl bg-[#08140c] transition-all">
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full h-12 bg-transparent px-4 pl-11 text-on-surface text-sm focus:outline-none"
+                className="w-full h-12 bg-transparent px-4 pl-11 pr-11 text-on-surface text-sm focus:outline-none"
               />
               <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
                 lock
               </span>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3.5 top-3 text-sm text-[#a0998e] hover:text-[#e9c176] transition-colors cursor-pointer"
+                title={showPassword ? "Hide password" : "Show password"}
+              >
+                <span className="material-symbols-outlined">
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+              </button>
             </div>
           </div>
 
