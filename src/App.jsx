@@ -12,6 +12,8 @@ import Experience from './pages/Experience';
 import Reservation from './pages/Reservation';
 import Contact from './pages/Contact';
 import AdminLogin from './components/admin/AdminLogin';
+import AdminForgotPassword from './components/admin/AdminForgotPassword';
+import AdminResetPassword from './components/admin/AdminResetPassword';
 import Admin from './pages/Admin';
 
 function ScrollToTop() {
@@ -51,8 +53,10 @@ function MainLayout() {
           <Route path="/reservation" element={<Reservation />} />
           <Route path="/contact" element={<Contact />} />
 
-          {/* Admin Login Route (public) */}
+          {/* Admin Auth Routes (public) */}
           <Route path="/admin" element={<AdminLogin />} />
+          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+          <Route path="/admin/reset-password" element={<AdminResetPassword />} />
 
           {/* Admin Dashboard Routes (protected) */}
           <Route

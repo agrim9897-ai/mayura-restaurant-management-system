@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { loginAdmin } from '../../services/api/auth.service';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated, login, isLoading } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState(location.state?.message || '');
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -22,11 +25,11 @@ export default function AdminLogin() {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg('');
+    setSuccessMsg('');
 
     try {
       const response = await loginAdmin({ email, password });
       if (response && response.success && response.data) {
-        // Store token and user in AuthContext + localStorage
         login(response.data.token, response.data.user);
         navigate('/admin/dashboard', { replace: true });
       } else {
@@ -39,7 +42,6 @@ export default function AdminLogin() {
     }
   };
 
-  // Show nothing while checking existing session
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4">
@@ -71,6 +73,13 @@ export default function AdminLogin() {
           </p>
         </div>
 
+        {successMsg && (
+          <div className="mb-4 bg-emerald-950/50 border border-emerald-500/40 rounded-xl p-3 text-emerald-400 text-xs text-center flex items-center justify-center gap-2 font-medium">
+            <span className="material-symbols-outlined text-sm">check_circle</span>
+            <span>{successMsg}</span>
+          </div>
+        )}
+
         {errorMsg && (
           <div className="mb-4 bg-red-950/40 border border-red-500/30 rounded-xl p-3 text-red-400 text-xs text-center">
             {errorMsg}
@@ -99,9 +108,17 @@ export default function AdminLogin() {
           </div>
 
           <div>
-            <label className="block text-xs uppercase tracking-wider text-[#e9c176] mb-2 font-medium">
-              Password
-            </label>
+            <div className="flex justify-between items-center mb-2">
+              <label className="text-xs uppercase tracking-wider text-[#e9c176] font-medium">
+                Password
+              </label>
+              <Link
+                to="/admin/forgot-password"
+                className="text-xs text-[#e9c176] hover:underline font-medium"
+              >
+                Forgot Password?
+              </Link>
+            </div>
             <div className="relative custom-focus border border-[#e9c176]/30 rounded-xl bg-[#08140c] transition-all">
               <input
                 type="password"

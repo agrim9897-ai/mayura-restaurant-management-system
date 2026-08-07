@@ -159,9 +159,9 @@ export default function AdminTables() {
       {/* Header & Title */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="font-serif text-2xl text-[#e9c176] font-bold">Table & Capacity Management</h2>
+          <h2 className="font-serif text-2xl text-[#e9c176] font-bold">Table & Availability Management</h2>
           <p className="text-xs text-[#a0998e]">
-            Manage dining tables, track real-time occupancy, and configure capacity.
+            Real-time table occupancy, 2-hour reservation window tracking, and seating management.
           </p>
         </div>
 
@@ -272,50 +272,84 @@ export default function AdminTables() {
           {tables.map((table) => (
             <div
               key={table.id}
-              className="bg-[#0d1c13] gold-border rounded-2xl p-5 space-y-4 hover:border-[#e9c176]/50 transition-all shadow-md group relative"
+              className="bg-[#0d1c13] gold-border rounded-2xl p-5 space-y-4 hover:border-[#e9c176]/50 transition-all shadow-md group relative flex flex-col justify-between"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-[#e9c176]/10 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-xl bg-[#07140c] border border-[#e9c176]/30 flex items-center justify-center font-serif text-lg text-[#e9c176] font-bold">
-                    {table.tableNumber}
+              <div className="space-y-3">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-[#e9c176]/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-10 h-10 rounded-xl bg-[#07140c] border border-[#e9c176]/30 flex items-center justify-center font-serif text-lg text-[#e9c176] font-bold">
+                      {table.tableNumber}
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-[#e6e2dd]">{table.capacity} Seats</div>
+                      <div className="text-[10px] text-[#a0998e] uppercase tracking-wider">{table.location}</div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-[#e6e2dd]">{table.capacity} Guests Max</div>
-                    <div className="text-[10px] text-[#a0998e] uppercase tracking-wider">{table.location}</div>
-                  </div>
+
+                  <span
+                    className={`text-[10px] uppercase font-bold px-2.5 py-1 rounded-full border ${getStatusBadgeClass(
+                      table.status
+                    )}`}
+                  >
+                    {table.status}
+                  </span>
                 </div>
 
-                <span
-                  className={`text-[10px] uppercase font-bold px-2.5 py-1 rounded-full border ${getStatusBadgeClass(
-                    table.status
-                  )}`}
-                >
-                  {table.status}
-                </span>
-              </div>
-
-              {/* Active Reservations Info */}
-              <div className="text-xs space-y-1">
-                <div className="text-[#a0998e] text-[11px]">Assigned Reservations:</div>
-                {table.reservations && table.reservations.length > 0 ? (
-                  <div className="bg-[#07140c] border border-[#e9c176]/20 rounded-xl p-2.5 space-y-1">
-                    {table.reservations.map((r) => (
-                      <div key={r.id} className="flex justify-between items-center text-[11px] text-[#e6e2dd]">
-                        <span className="font-semibold text-[#e9c176]">{r.name}</span>
-                        <span>
-                          {r.reservationTime} ({r.guests} guests)
-                        </span>
+                {/* Current / Active Reservation Details */}
+                <div className="space-y-2 text-xs">
+                  {/* Current Reservation */}
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-[#a0998e] font-semibold block">
+                      Current Reservation:
+                    </span>
+                    {table.currentReservation ? (
+                      <div className="bg-blue-950/40 border border-blue-500/30 rounded-xl p-2.5 mt-1 text-[11px]">
+                        <div className="font-bold text-[#e6e2dd]">{table.currentReservation.name}</div>
+                        <div className="text-blue-300 flex justify-between items-center mt-0.5">
+                          <span>{table.currentReservation.guests} Guests</span>
+                          <span className="font-mono text-[10px]">{table.currentReservation.timeSlot || table.currentReservation.reservationTime}</span>
+                        </div>
                       </div>
-                    ))}
+                    ) : (
+                      <span className="text-[#a0998e]/60 italic text-[11px] block mt-0.5">None (Currently Free)</span>
+                    )}
                   </div>
-                ) : (
-                  <div className="text-[11px] text-[#a0998e]/70 italic">No upcoming reservations</div>
-                )}
+
+                  {/* Reserved Time Slot (2-Hour Block) */}
+                  {table.reservedTimeSlot && (
+                    <div className="pt-1">
+                      <span className="text-[10px] uppercase tracking-wider text-[#e9c176] font-semibold block">
+                        Blocked Time Window:
+                      </span>
+                      <span className="font-mono text-[11px] text-[#e9c176] bg-[#07140c] border border-[#e9c176]/20 px-2 py-0.5 rounded-lg inline-block mt-0.5">
+                        {table.reservedTimeSlot}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Next Reservation */}
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-[#a0998e] font-semibold block pt-1">
+                      Next Reservation:
+                    </span>
+                    {table.nextReservation ? (
+                      <div className="bg-[#07140c] border border-[#e9c176]/20 rounded-xl p-2.5 mt-1 text-[11px]">
+                        <div className="font-semibold text-[#e6e2dd]">{table.nextReservation.name}</div>
+                        <div className="text-[#a0998e] flex justify-between items-center mt-0.5">
+                          <span>{table.nextReservation.guests} Guests</span>
+                          <span className="font-mono text-[#e9c176]">{table.nextReservation.reservationTime}</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <span className="text-[#a0998e]/60 italic text-[11px] block mt-0.5">No upcoming bookings today</span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="pt-2 border-t border-[#e9c176]/10 flex items-center justify-between gap-2">
+              <div className="pt-3 border-t border-[#e9c176]/10 flex items-center justify-between gap-2">
                 {/* Status Dropdown */}
                 <select
                   value={table.status}

@@ -6,6 +6,8 @@ import {
   findAdminById,
   comparePassword,
   signToken,
+  requestPasswordReset,
+  resetAdminPassword,
 } from "../services/auth.service.js";
 
 // Cookie options for httpOnly JWT cookie
@@ -18,7 +20,7 @@ const COOKIE_OPTIONS = {
 };
 
 /**
- * POST /api/auth/login
+ * POST /api/auth/login or /api/admin/login
  * Authenticate admin and return JWT via httpOnly cookie + response body.
  */
 export const loginAdmin = asyncHandler(async (req, res) => {
@@ -46,7 +48,7 @@ export const loginAdmin = asyncHandler(async (req, res) => {
   // 4. Set httpOnly cookie
   res.cookie("token", token, COOKIE_OPTIONS);
 
-  // 5. Return success with token in body (for localStorage fallback)
+  // 5. Return success with token in body
   res.status(200).json(
     new ApiResponse(200, {
       token,
@@ -60,7 +62,7 @@ export const loginAdmin = asyncHandler(async (req, res) => {
 });
 
 /**
- * POST /api/auth/logout
+ * POST /api/auth/logout or /api/admin/logout
  * Clear the JWT cookie.
  */
 export const logoutAdmin = asyncHandler(async (req, res) => {
@@ -75,9 +77,8 @@ export const logoutAdmin = asyncHandler(async (req, res) => {
 });
 
 /**
- * GET /api/auth/me
+ * GET /api/auth/me or /api/admin/profile
  * Return the currently authenticated admin's profile.
- * Requires auth middleware to set req.admin.
  */
 export const getMe = asyncHandler(async (req, res) => {
   const admin = await findAdminById(req.admin.id);
@@ -86,4 +87,32 @@ export const getMe = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json(new ApiResponse(200, admin, "Profile fetched"));
+});
+
+/**
+ * POST /api/admin/forgot-password or /api/auth/forgot-password
+ * Send password reset link to admin email.
+ */
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    throw new ApiError(400, "Email address is required");
+  }
+
+  const message = await requestPasswordReset(email);
+  res.status(200).json(new ApiResponse(200, null, message));
+});
+
+/**
+ * POST /api/admin/reset-password or /api/auth/reset-password
+ * Reset admin password using token.
+ */
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { token, newPassword } = req.body;
+  if (!token || !newPassword) {
+    throw new ApiError(400, "Token and new password are required");
+  }
+
+  const message = await resetAdminPassword({ token, newPassword });
+  res.status(200).json(new ApiResponse(200, null, message));
 });

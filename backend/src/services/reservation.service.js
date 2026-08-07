@@ -3,34 +3,62 @@ import { ReservationStatus } from "@prisma/client";
 import { findAvailableTableForReservation } from "./table.service.js";
 
 /**
- * Create a new reservation with automatic table assignment & double-booking prevention.
+ * Create a new reservation with automatic table assignment, validation, & 2-hour double-booking prevention.
  */
 export async function createReservation(data) {
   const guests = Number(data.guests);
-  const reservationDate = data.reservationDate || data.date;
+  const reservationDateStr = data.reservationDate || data.date;
   const reservationTime = data.reservationTime || data.time;
   const seatingPreference = data.seatingPreference;
 
-  // Find best available table or throw error
+  // 1. Validate Guest Count
+  if (isNaN(guests) || guests <= 0 || guests > 20) {
+    throw new Error("Invalid guest count. Party size must be between 1 and 20 guests.");
+  }
+
+  // 2. Validate Reservation Date
+  if (!reservationDateStr) {
+    throw new Error("Invalid reservation date.");
+  }
+  const targetDate = new Date(reservationDateStr);
+  if (isNaN(targetDate.getTime())) {
+    throw new Error("Invalid reservation date.");
+  }
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const resStart = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate());
+
+  if (resStart < todayStart) {
+    throw new Error("Invalid reservation date. Please select a future date.");
+  }
+
+  // 3. Validate Reservation Time
+  if (!reservationTime) {
+    throw new Error("Invalid reservation time.");
+  }
+
+  // 4. Find best-fit available table or throw clear error
   const availableTable = await findAvailableTableForReservation({
     guests,
-    reservationDate,
+    reservationDate: reservationDateStr,
     reservationTime,
     seatingPreference,
   });
 
   if (!availableTable) {
     throw new Error(
-      "No available tables match your requested party size, date, time slot, and seating preference. Please select another time or date."
+      "Sorry, no tables are available for your requested party size, date, time slot, and seating preference. Please select another time or date."
     );
   }
 
+  // 5. Create reservation and associate with table
   const reservation = await prisma.reservation.create({
     data: {
       name: data.name,
       email: data.email,
       phone: data.phone,
-      reservationDate: new Date(reservationDate),
+      reservationDate: targetDate,
       reservationTime: reservationTime,
       guests: guests,
       occasion: data.occasion || null,

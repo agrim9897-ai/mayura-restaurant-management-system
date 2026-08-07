@@ -1,7 +1,51 @@
 import prisma from "../config/database.js";
 
 /**
- * Get all tables with filters and occupancy info
+ * Parse time string (e.g. "19:00", "7:00 PM", "07:30 PM") into minutes from midnight (0 to 1439).
+ */
+export function parseTimeToMinutes(timeStr) {
+  if (!timeStr) return null;
+  const str = String(timeStr).trim().toUpperCase();
+
+  // 12-Hour format e.g. "7:30 PM", "11:00 AM"
+  const match12 = str.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/);
+  if (match12) {
+    let hours = parseInt(match12[1], 10);
+    const minutes = parseInt(match12[2], 10);
+    const ampm = match12[3];
+
+    if (ampm === "PM" && hours < 12) hours += 12;
+    if (ampm === "AM" && hours === 12) hours = 0;
+
+    return hours * 60 + minutes;
+  }
+
+  // 24-Hour format e.g. "19:30", "07:00"
+  const match24 = str.match(/^(\d{1,2}):(\d{2})$/);
+  if (match24) {
+    const hours = parseInt(match24[1], 10);
+    const minutes = parseInt(match24[2], 10);
+    return hours * 60 + minutes;
+  }
+
+  return null;
+}
+
+/**
+ * Convert minute offset back to readable 12-hour format string (e.g., 1140 -> "7:00 PM").
+ */
+export function formatMinutesToTime(minutes) {
+  if (minutes === null || minutes === undefined) return "";
+  let hours = Math.floor(minutes / 60) % 24;
+  const mins = minutes % 60;
+  const ampm = hours >= 12 ? "PM" : "AM";
+  hours = hours % 12 || 12;
+  const minsFormatted = String(mins).padStart(2, "0");
+  return `${hours}:${minsFormatted} ${ampm}`;
+}
+
+/**
+ * Get all tables with filters, current/next reservation info, and occupancy.
  */
 export async function getAllTables(filters = {}) {
   const where = {};
@@ -16,16 +60,23 @@ export async function getAllTables(filters = {}) {
     where.tableNumber = { contains: filters.search, mode: "insensitive" };
   }
 
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+
   const tables = await prisma.table.findMany({
     where,
     include: {
       reservations: {
         where: {
+          reservationDate: { gte: startOfToday },
           status: { in: ["PENDING", "CONFIRMED"] },
         },
+        orderBy: { reservationTime: "asc" },
         select: {
           id: true,
           name: true,
+          email: true,
+          phone: true,
           reservationDate: true,
           reservationTime: true,
           guests: true,
@@ -36,7 +87,57 @@ export async function getAllTables(filters = {}) {
     orderBy: { tableNumber: "asc" },
   });
 
-  return tables;
+  // Annotate each table with active reservation, reserved time slot (2-hr block), next reservation, and dynamic status
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  return tables.map((table) => {
+    let currentReservation = null;
+    let nextReservation = null;
+    let reservedTimeSlot = null;
+
+    // Filter today's reservations
+    const todayResList = table.reservations.filter((r) => {
+      const rDate = new Date(r.reservationDate);
+      return rDate.toDateString() === now.toDateString();
+    });
+
+    for (const r of todayResList) {
+      const startMins = parseTimeToMinutes(r.reservationTime);
+      if (startMins !== null) {
+        const endMins = startMins + 120; // 2 hour default block
+        const formattedSlot = `${formatMinutesToTime(startMins)} - ${formatMinutesToTime(endMins)}`;
+
+        // Check if current time falls within reservation slot
+        if (currentMinutes >= startMins && currentMinutes < endMins) {
+          currentReservation = { ...r, timeSlot: formattedSlot };
+          reservedTimeSlot = formattedSlot;
+        } else if (startMins > currentMinutes && !nextReservation) {
+          nextReservation = { ...r, timeSlot: formattedSlot };
+          if (!reservedTimeSlot) reservedTimeSlot = formattedSlot;
+        }
+      }
+    }
+
+    // Auto-update table status dynamically if not MAINTENANCE
+    let computedStatus = table.status;
+    if (table.status !== "MAINTENANCE") {
+      if (currentReservation) {
+        computedStatus = "OCCUPIED";
+      } else if (todayResList.length > 0) {
+        computedStatus = "RESERVED";
+      } else {
+        computedStatus = "AVAILABLE";
+      }
+    }
+
+    return {
+      ...table,
+      status: computedStatus,
+      currentReservation,
+      nextReservation,
+      reservedTimeSlot,
+    };
+  });
 }
 
 /**
@@ -105,15 +206,21 @@ export async function deleteTable(id) {
 }
 
 /**
- * Find the best available table for a reservation and prevent double-booking
+ * Find the best available table for a reservation and prevent 2-hour double booking overlap.
  */
 export async function findAvailableTableForReservation({ guests, reservationDate, reservationTime, seatingPreference }) {
   const reqGuests = Number(guests);
   const targetDate = new Date(reservationDate);
-  const dateStart = new Date(targetDate.setHours(0, 0, 0, 0));
-  const dateEnd = new Date(targetDate.setHours(23, 59, 59, 999));
+  const dateStart = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 0, 0, 0, 0);
+  const dateEnd = new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate(), 23, 59, 59, 999);
 
-  // Determine requested location
+  const reqStartMins = parseTimeToMinutes(reservationTime);
+  if (reqStartMins === null) {
+    throw new Error("Invalid reservation time format.");
+  }
+  const reqEndMins = reqStartMins + 120; // 2 Hours (120 mins) block
+
+  // Determine requested location preference
   let preferredLocation = null;
   if (seatingPreference) {
     const prefLower = seatingPreference.toLowerCase();
@@ -125,35 +232,43 @@ export async function findAvailableTableForReservation({ guests, reservationDate
   }
 
   // 1. Fetch tables with capacity >= guests and status != MAINTENANCE
-  const tableWhere = {
-    capacity: { gte: reqGuests },
-    status: { not: "MAINTENANCE" },
-  };
-
-  let candidateTables = await prisma.table.findMany({
-    where: tableWhere,
+  const candidateTables = await prisma.table.findMany({
+    where: {
+      capacity: { gte: reqGuests },
+      status: { not: "MAINTENANCE" },
+    },
     include: {
       reservations: {
         where: {
           reservationDate: { gte: dateStart, lte: dateEnd },
-          reservationTime: reservationTime,
           status: { in: ["PENDING", "CONFIRMED"] },
         },
       },
     },
-    orderBy: { capacity: "asc" }, // Best fit (smallest sufficient capacity)
+    orderBy: { capacity: "asc" }, // Best fit (smallest suitable capacity first)
   });
 
-  // 2. Filter out double-booked tables
-  let availableTables = candidateTables.filter((t) => t.reservations.length === 0);
+  // 2. Filter out tables that overlap during the 2-hour window
+  const availableTables = candidateTables.filter((table) => {
+    const hasOverlap = table.reservations.some((r) => {
+      const rStartMins = parseTimeToMinutes(r.reservationTime);
+      if (rStartMins === null) return false;
+      const rEndMins = rStartMins + 120;
 
-  // 3. Try location preference first
+      // Interval overlap check: reqStart < rEnd AND rStart < reqEnd
+      return reqStartMins < rEndMins && rStartMins < reqEndMins;
+    });
+
+    return !hasOverlap;
+  });
+
+  // 3. Try matching preferred location first
   if (preferredLocation) {
     const preferredMatch = availableTables.find((t) => t.location === preferredLocation);
     if (preferredMatch) return preferredMatch;
   }
 
-  // 4. Fallback to any available table that fits
+  // 4. Fallback to smallest suitable available table regardless of location
   return availableTables[0] || null;
 }
 

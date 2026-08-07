@@ -283,3 +283,83 @@ export async function sendReplyEmail({ to, subject, replyText }) {
     return false;
   }
 }
+
+/**
+ * Sends a password reset email to an administrator.
+ */
+export async function sendPasswordResetEmail({ to, resetUrl }) {
+  try {
+    const transporter = createTransporter();
+
+    if (!transporter) {
+      console.warn(`⚠️ Email service notice: EMAIL_USER / EMAIL_PASS not configured. Skipping password reset email for ${to}.`);
+      console.log(`🔑 Reset Link for testing: ${resetUrl}`);
+      return false;
+    }
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Reset Your Password — Mayura Fine Cuisine</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0f0e0c; color: #e5e0d8; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #171614; border: 1px solid #d4af37; border-radius: 12px; padding: 40px 30px; }
+    .header { text-align: center; border-bottom: 1px solid #2a2721; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo-text { color: #d4af37; font-size: 26px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
+    .subtitle { color: #a0998e; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; }
+    h2 { color: #f0e6d2; font-size: 20px; margin-top: 0; }
+    p { line-height: 1.6; color: #c5beb3; font-size: 14px; }
+    .btn-container { text-align: center; margin: 30px 0; }
+    .btn { display: inline-block; padding: 14px 32px; background-color: #d4af37; color: #0f0e0c !important; font-weight: bold; font-size: 14px; text-decoration: none; border-radius: 8px; text-transform: uppercase; letter-spacing: 1px; }
+    .notice { background-color: #0f0e0c; border-left: 3px solid #d4af37; padding: 12px 16px; margin: 20px 0; font-size: 13px; color: #a0998e; }
+    .footer { text-align: center; margin-top: 35px; padding-top: 20px; border-top: 1px solid #2a2721; color: #8a8377; font-size: 12px; }
+    .gold-accent { color: #d4af37; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-text">MAYURA</div>
+      <div class="subtitle">Admin Security Center</div>
+    </div>
+    <h2>Password Reset Request</h2>
+    <p>Hello Administrator,</p>
+    <p>We received a request to reset the password for your Mayura Admin Portal account. Click the button below to set a new password:</p>
+    
+    <div class="btn-container">
+      <a href="${resetUrl}" target="_blank" class="btn">Reset Password</a>
+    </div>
+
+    <div class="notice">
+      <strong>⚠️ Expiration Notice:</strong> This password reset link is valid for <strong>15 minutes</strong> only and can be used once.
+    </div>
+
+    <p style="font-size: 13px; color: #8a8377;">
+      If you did not request this password reset, please ignore this email. Your password will remain unchanged and your account stays secure.
+    </p>
+
+    <div class="footer">
+      <p>Mayura Fine Cuisine — Executive Portal<br><strong class="gold-accent">Automated Security Service</strong></p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const mailOptions = {
+      from: `"Mayura Security" <${config.email.user}>`,
+      to,
+      subject: `Reset Your Admin Password — Mayura Fine Cuisine`,
+      html: htmlContent,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`📧 Password reset email sent to ${to} (Message ID: ${info.messageId})`);
+    return true;
+  } catch (error) {
+    console.error(`⚠️ Failed to send password reset email to ${to}:`, error.message);
+    return false;
+  }
+}
