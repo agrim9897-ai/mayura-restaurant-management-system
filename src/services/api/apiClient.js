@@ -1,36 +1,51 @@
 import { getStoredToken } from '../../context/AuthContext';
 
 /**
- * Production Render Backend API URL.
+ * Production Render Backend API URL (always includes /api).
  */
 const RENDER_PROD_API_URL = 'https://mayura-restaurant-management-system.onrender.com/api';
+
+/**
+ * Helper to guarantee that any API base URL ends with '/api' (without trailing slash).
+ * Protects against VITE_API_URL environment variables set without the '/api' prefix.
+ */
+function normalizeApiBaseUrl(url) {
+  if (!url) return RENDER_PROD_API_URL;
+  let cleanUrl = url.trim().replace(/\/$/, '');
+  if (!cleanUrl.endsWith('/api')) {
+    cleanUrl += '/api';
+  }
+  return cleanUrl;
+}
 
 /**
  * Dynamically resolves the API Base URL.
  * - In Vercel / Production builds, forces production Render API endpoint unless a valid non-localhost VITE_API_URL is supplied.
  * - In Development mode, uses VITE_API_URL if provided, else falls back to local/production backend.
+ * - Always normalizes the URL to guarantee it includes the '/api' route prefix.
  */
 function resolveApiBaseUrl() {
   const envUrl = import.meta.env.VITE_API_URL;
 
   // If VITE_API_URL is provided and is a valid remote URL (not localhost/127.0.0.1)
   if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
-    return envUrl.replace(/\/$/, '');
+    return normalizeApiBaseUrl(envUrl);
   }
 
-  // In production builds (Vercel deployment), guarantee production Render API URL
+  // In production builds (Vercel deployment), guarantee production Render API URL with /api suffix
   if (import.meta.env.PROD || import.meta.env.MODE === 'production') {
     return RENDER_PROD_API_URL;
   }
 
   // Fallback for local development
-  return envUrl ? envUrl.replace(/\/$/, '') : 'http://localhost:5000/api';
+  return envUrl ? normalizeApiBaseUrl(envUrl) : 'http://localhost:5000/api';
 }
 
 export const API_BASE_URL = resolveApiBaseUrl();
 
 /**
  * Helper to build full backend endpoint URLs.
+ * Example: getApiUrl('/admin/login') -> 'https://mayura-restaurant-management-system.onrender.com/api/admin/login'
  */
 export function getApiUrl(endpoint = '') {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
