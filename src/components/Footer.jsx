@@ -31,31 +31,31 @@ export default function Footer() {
   const copyright = settings?.footerCopyright || `© ${new Date().getFullYear()} ${brandName}. All Rights Reserved.`;
 
   return (
-    <footer id="footer-section" className="bg-white border-t border-[#E8E4DE] select-none text-xs">
-      {/* Compressed 40% Height Footer Container */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-6 md:px-12 py-10 w-full max-w-7xl mx-auto items-start">
-        {/* Column 1: Restaurant Info */}
-        <div className="space-y-2.5">
-          <Link to="/" className="font-serif text-xl font-bold text-[#1A1A1A] block tracking-tight">
+    <footer id="footer-section" className="bg-surface border-t border-outline-variant select-none">
+      {/* 40% Vertically Compressed Footer Container */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-10 md:py-12 w-full max-w-container-max mx-auto items-start">
+        {/* Brand & Info */}
+        <div className="md:col-span-1 reveal reveal-up">
+          <Link to="/" className="font-display-lg text-headline-md text-primary block mb-2">
             {brandName}
           </Link>
-          <p className="text-[#C5A059] font-medium text-[11px] uppercase tracking-wider">
-            {settings?.tagline || 'Authentic Fine Dining'}
+          <p className="font-body-md text-body-md text-on-surface-variant mb-1">
+            {settings?.tagline || 'Good Food | Good Mood'}
           </p>
-          <p className="text-[#666666] leading-relaxed text-xs">
-            {settings?.footerAbout || 'Experience the art of authentic royal Indian cuisine.'}
+          <p className="font-body-md text-body-md text-on-surface-variant mb-4 leading-relaxed">
+            {settings?.footerAbout || 'Experience the art of authentic royal Indian dining.'}
           </p>
 
-          <div className="flex gap-3 text-[#1A1A1A] pt-1">
+          <div className="flex gap-4 text-primary">
             {settings?.instagram && (
               <a
                 href={settings.instagram}
                 target="_blank"
                 rel="noreferrer"
-                className="w-7 h-7 rounded-lg bg-[#FAF8F4] border border-[#E8E4DE] flex items-center justify-center hover:text-[#C5A059] hover:border-[#C5A059] transition-colors"
+                className="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300"
                 aria-label="Instagram"
               >
-                <span className="material-symbols-outlined text-sm">photo_camera</span>
+                <span className="material-symbols-outlined">photo_camera</span>
               </a>
             )}
             {settings?.facebook && (
@@ -63,77 +63,73 @@ export default function Footer() {
                 href={settings.facebook}
                 target="_blank"
                 rel="noreferrer"
-                className="w-7 h-7 rounded-lg bg-[#FAF8F4] border border-[#E8E4DE] flex items-center justify-center hover:text-[#C5A059] hover:border-[#C5A059] transition-colors"
+                className="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300"
                 aria-label="Facebook"
               >
-                <span className="material-symbols-outlined text-sm">share</span>
+                <span className="material-symbols-outlined">share</span>
               </a>
             )}
           </div>
         </div>
 
-        {/* Column 2: Quick Links */}
-        <div className="space-y-3">
-          <h4 className="font-bold text-[#1A1A1A] uppercase tracking-wider text-[11px]">Quick Navigation</h4>
-          <ul className="space-y-1.5 text-[#666666]">
+        {/* Quick Links */}
+        <div className="reveal reveal-up" style={{ transitionDelay: '100ms' }}>
+          <h4 className="font-button text-button text-primary mb-3 uppercase tracking-[0.1em]">Quick Links</h4>
+          <ul className="flex flex-col gap-2 font-body-md text-body-md">
             <li>
-              <Link to="/" className="hover:text-[#C5A059] transition-colors">
+              <Link to="/" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Home
               </Link>
             </li>
             <li>
-              <Link to="/experience" className="hover:text-[#C5A059] transition-colors">
+              <Link to="/experience" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Experience
               </Link>
             </li>
             <li>
-              <Link to="/menu" className="hover:text-[#C5A059] transition-colors">
+              <Link to="/menu" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Our Menu
               </Link>
             </li>
             <li>
-              <Link to="/reservation" className="hover:text-[#C5A059] transition-colors">
+              <Link to="/reservation" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Reservations
               </Link>
             </li>
             <li>
-              <Link to="/contact" className="hover:text-[#C5A059] transition-colors">
+              <Link to="/contact" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Contact Us
               </Link>
             </li>
           </ul>
         </div>
 
-        {/* Column 3: Opening Hours */}
-        <div className="space-y-3">
-          <h4 className="font-bold text-[#1A1A1A] uppercase tracking-wider text-[11px]">Operating Hours</h4>
-          <ul className="space-y-1.5 text-[#666666]">
+        {/* Hours */}
+        <div className="reveal reveal-up" style={{ transitionDelay: '200ms' }}>
+          <h4 className="font-button text-button text-primary mb-3 uppercase tracking-[0.1em]">Opening Hours</h4>
+          <ul className="flex flex-col gap-2 font-body-md text-body-md text-on-surface-variant">
             <li>Mon - Fri: {openingTime} - {closingTime}</li>
             <li>Sat - Sun: {weekendHours}</li>
-            <li className="text-[#C5A059] font-medium pt-1">Open 7 days a week</li>
+            <li className="mt-1 text-primary-fixed-dim">We are open all days.</li>
           </ul>
         </div>
 
-        {/* Column 4: Contact Info */}
-        <div className="space-y-3">
-          <h4 className="font-bold text-[#1A1A1A] uppercase tracking-wider text-[11px]">Contact & Address</h4>
-          <ul className="space-y-1.5 text-[#666666]">
-            <li className="font-mono">{phone}</li>
+        {/* Contact */}
+        <div className="reveal reveal-up" style={{ transitionDelay: '300ms' }}>
+          <h4 className="font-button text-button text-primary mb-3 uppercase tracking-[0.1em]">Contact Us</h4>
+          <ul className="flex flex-col gap-2 font-body-md text-body-md text-on-surface-variant">
+            <li>{phone}</li>
             <li>{email}</li>
-            <li className="leading-relaxed pt-1">{address}</li>
+            <li className="mt-1 leading-relaxed">{address}</li>
           </ul>
         </div>
       </div>
 
-      {/* Thin Bottom Bar */}
-      <div className="border-t border-[#E8E4DE] px-6 md:px-12 py-4 w-full max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center text-[#666666] text-[11px] gap-2">
+      <div className="border-t border-outline-variant px-margin-mobile md:px-margin-desktop py-4 w-full max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center font-body-md text-body-md text-on-surface-variant text-sm">
         <p>{copyright}</p>
-        <button
-          onClick={scrollToTop}
-          className="hover:text-[#C5A059] transition-colors flex items-center gap-1 group font-semibold cursor-pointer"
-        >
-          <span>Back to Top</span>
-          <span className="material-symbols-outlined text-sm transform group-hover:-translate-y-0.5 transition-transform duration-200">
+        <button onClick={scrollToTop} className="hover:text-primary transition-colors mt-2 md:mt-0 flex items-center gap-1 group">
+          Back to Top
+          <span className="material-symbols-outlined text-sm transform group-hover:translate-y-[-2px] transition-transform duration-300">
             keyboard_arrow_up
           </span>
         </button>

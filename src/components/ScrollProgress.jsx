@@ -18,7 +18,7 @@ export default function ScrollProgress() {
   return (
     <div
       id="scroll-progress"
-      className="fixed top-0 left-0 h-[2px] bg-[#C5A059] z-50 pointer-events-none transition-[width] duration-150 ease-out shadow-xs"
+      className="fixed top-0 left-0 h-[2px] bg-[#e9c176] z-50 pointer-events-none transition-[width] duration-150 ease-out shadow-[0_0_8px_rgba(233,193,118,0.4)]"
       style={{ width: `${scrollWidth}%` }}
     />
   );
