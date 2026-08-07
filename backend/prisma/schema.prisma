@@ -6,21 +6,13 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
-
 // ─── Admin ──────────────────────────────────────
 model Admin {
   id                   String    @id @default(uuid())
   name                 String
   email                String    @unique
   password             String
-  createdAt            DateTime  @default(now())
-  resetPasswordExpires DateTime?
-  resetPasswordToken   String?
-  avatarUrl            String?
-  emailNotifications   Boolean   @default(true)
-  lastLogin            DateTime?
   phone                String?   @default("+91 98765 00000")
   avatarUrl            String?
   role                 String    @default("Admin")
