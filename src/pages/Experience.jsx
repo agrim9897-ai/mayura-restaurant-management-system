@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
 
-import grandArrivalImg from '../../images/grand_arrival.png';
-import theWelcomeImg from '../../images/the_welcome.png';
-import diningRoomImg from '../../images/dining_room.png';
+import grandArrivalImg from '../../images/4.jpg';
+import theWelcomeImg from '../../images/reception.jpg';
+import diningRoomImg from '../../images/dining.jpg';
 import chefPlatingImg from '../../images/chef_plating.png';
 import whyChooseTableImg from '../../images/why_choose_table.png';
 import privateDiningImg from '../../images/private_dining.png';
-import craftedBeveragesImg from '../../images/crafted_beverages.png';
-import dessertSphereImg from '../../images/dessert_sphere.png';
+import craftedBeveragesImg from '../../images/beverages.jpg';
+import dessertSphereImg from '../../images/6.jpg';
 import eveningAmbienceImg from '../../images/evening_ambience.png';
 
 export default function Experience() {
@@ -179,7 +179,7 @@ export default function Experience() {
             Join us for an unforgettable evening of luxury culinary craftsmanship. Reserve your dining experience today.
           </p>
           <Link
-            to="/#reserve"
+            to="/reservation"
             className="inline-flex items-center justify-center px-10 py-4 bg-primary text-on-primary font-button text-button uppercase tracking-[0.1em] rounded-12 hover:bg-primary-fixed hover:scale-[1.03] hover:shadow-[0_0_20px_rgba(233,193,118,0.4)] transition-all duration-300 relative z-10"
           >
             Reserve a Table

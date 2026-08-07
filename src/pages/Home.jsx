@@ -4,15 +4,15 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
 import { fetchSettings } from '../services/api/settings.service';
 
-import heroDishImg from '../../images/hero_dish.png';
+import receptionImg from '../../images/reception.jpg';
 import chefPlatingImg from '../../images/chef_plating.png';
-import dessertSphereImg from '../../images/dessert_sphere.png';
-import diningRoomImg from '../../images/dining_room.png';
+import dessertSphereImg from '../../images/6.jpg';
+import diningRoomImg from '../../images/dining.jpg';
 import whyChooseTableImg from '../../images/why_choose_table.png';
-import grandArrivalImg from '../../images/grand_arrival.png';
-import theWelcomeImg from '../../images/the_welcome.png';
+import grandArrivalImg from '../../images/4.jpg';
+import theWelcomeImg from '../../images/2nd.jpg';
 import privateDiningImg from '../../images/private_dining.png';
-import craftedBeveragesImg from '../../images/crafted_beverages.png';
+import craftedBeveragesImg from '../../images/beverages.jpg';
 
 export default function Home() {
   const [settings, setSettings] = useState(null);
@@ -36,7 +36,7 @@ export default function Home() {
   const heroSubtitle =
     settings?.heroSubtitle ||
     'Experience the perfect blend of tradition and taste. Where every dish tells a story, meticulously prepared to evoke an emotional response.';
-  const heroImg = settings?.heroImageUrl || heroDishImg;
+  const heroImg = settings?.heroImageUrl || receptionImg;
 
   return (
     <main>
@@ -63,7 +63,7 @@ export default function Home() {
 
           <div className="relative w-full h-[60vh] md:h-[80vh] reveal reveal-right image-vignette">
             <img
-              alt="Gourmet Indian dish"
+              alt="Mayura Reception Foyer"
               className="w-full h-full object-cover cinematic-img hover:scale-[1.05]"
               src={heroImg}
             />

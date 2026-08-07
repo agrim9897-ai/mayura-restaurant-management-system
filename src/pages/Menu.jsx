@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { fetchMenuItems } from '../services/api/menu.service';
 import { menuData as fallbackMenuData, categoryTitles } from '../data/menuData';
 import { useScrollReveal } from '../hooks/useScrollReveal';
-import heroDishImg from '../../images/hero_dish.png';
+import heroDishImg from '../../images/reception.jpg';
 
 export default function Menu() {
   const [searchQuery, setSearchQuery] = useState('');
