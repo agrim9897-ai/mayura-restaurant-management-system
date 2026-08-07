@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { markMessageAsRead, deleteMessage, replyToMessage } from '../../services/api/messages.service';
-import AdminSkeleton from './AdminSkeleton';
 
 export default function AdminContactMessages({ messages, setMessages }) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -77,37 +76,39 @@ export default function AdminContactMessages({ messages, setMessages }) {
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-8 select-none">
+    <div className="space-y-6 animate-fadeIn pb-12 select-none max-w-7xl mx-auto">
       {/* Toast Feedback */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-[#e9c176] text-[#050d08] font-bold text-xs px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 animate-bounce">
-          <span className="material-symbols-outlined text-sm">check_circle</span>
+        <div className="fixed bottom-6 right-6 bg-[#C5A059] text-white font-semibold text-xs px-5 py-3 rounded-xl shadow-xl z-50 flex items-center gap-2 border border-white/20 animate-bounce">
+          <span className="material-symbols-outlined text-base">check_circle</span>
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex justify-between items-center">
+      {/* Title Header */}
+      <div className="flex justify-between items-baseline border-b border-[#E8E4DE]/60 pb-5">
         <div>
-          <h2 className="font-serif text-2xl text-[#e9c176] font-bold">Customer Communications</h2>
-          <p className="text-xs text-[#a0998e]">
-            Review inquiries, guest feedback, and dispatch direct email replies.
+          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A] tracking-tight">
+            Messages & Inquiries
+          </h1>
+          <p className="text-xs text-[#666666] font-medium mt-1">
+            Review guest inquiries, private event requests, and dispatch email replies.
           </p>
         </div>
 
-        <div className="text-xs text-[#a0998e]">
-          Total Inquiries: <strong className="text-[#e9c176]">{messages.length}</strong>
+        <div className="text-xs text-[#666666]">
+          Total Inquiries: <strong className="text-[#1A1A1A]">{messages.length}</strong>
         </div>
       </div>
 
-      {/* Split-Pane Inbox Layout */}
+      {/* Notion/Linear Style Split-Pane Inbox */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 h-[680px]">
-        {/* Left Pane: Message List (4 cols) */}
+        {/* Left Pane: Message List (5 cols) */}
         <div className="lg:col-span-5 saas-card p-4 flex flex-col justify-between overflow-hidden">
           <div className="space-y-3 flex-1 flex flex-col min-h-0">
             {/* Search Input */}
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-3 top-2.5 text-xs text-[#a0998e]">
+              <span className="material-symbols-outlined absolute left-3 top-2.5 text-xs text-[#666666]">
                 search
               </span>
               <input
@@ -115,14 +116,14 @@ export default function AdminContactMessages({ messages, setMessages }) {
                 placeholder="Search inbox messages..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl pl-9 pr-4 py-2 text-xs text-[#e6e2dd] placeholder-[#a0998e]/60 focus:outline-none custom-focus"
+                className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl pl-9 pr-4 py-2 text-xs text-[#1A1A1A] placeholder-[#666666]/60 focus:outline-none custom-focus"
               />
             </div>
 
-            {/* List */}
+            {/* Message Item List */}
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1">
               {filteredMessages.length === 0 ? (
-                <div className="py-12 text-center text-[#a0998e] text-xs">No messages match search.</div>
+                <div className="py-12 text-center text-[#666666] text-xs">No messages match search.</div>
               ) : (
                 filteredMessages.map((m) => {
                   const isSelected = activeMessage && activeMessage.id === m.id;
@@ -132,25 +133,25 @@ export default function AdminContactMessages({ messages, setMessages }) {
                       onClick={() => handleSelectMessage(m)}
                       className={`p-3.5 rounded-xl border transition-all cursor-pointer space-y-1 relative ${
                         isSelected
-                          ? 'bg-[#102418] border-[#e9c176]/40 shadow-sm'
-                          : 'bg-[#08170e] border-[#e9c176]/10 hover:border-[#e9c176]/25'
+                          ? 'bg-[#EFE9DF] border-[#E0D7C8] shadow-2xs'
+                          : 'bg-[#FAF8F4] border-[#E8E4DE] hover:border-[#C5A059]/40'
                       }`}
                     >
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           {!m.isRead && (
-                            <span className="w-2 h-2 rounded-full bg-[#e9c176]" title="Unread" />
+                            <span className="w-2 h-2 rounded-full bg-[#C5A059]" title="Unread" />
                           )}
-                          <span className="font-semibold text-xs text-[#e6e2dd]">{m.name}</span>
+                          <span className="font-semibold text-xs text-[#1A1A1A]">{m.name}</span>
                         </div>
-                        <span className="text-[10px] text-[#a0998e]">{m.date ? m.date.split(' ')[0] : ''}</span>
+                        <span className="text-[10px] text-[#666666]">{m.date ? m.date.split(' ')[0] : ''}</span>
                       </div>
 
-                      <div className="text-[11px] text-[#e9c176] font-medium truncate">
+                      <div className="text-[11px] text-[#C5A059] font-semibold truncate">
                         {m.subject || 'General Inquiry'}
                       </div>
 
-                      <p className="text-[11px] text-[#a0998e] line-clamp-1">{m.message}</p>
+                      <p className="text-[11px] text-[#666666] line-clamp-1">{m.message}</p>
                     </div>
                   );
                 })
@@ -159,18 +160,18 @@ export default function AdminContactMessages({ messages, setMessages }) {
           </div>
         </div>
 
-        {/* Right Pane: Reading & Reply View (7 cols) */}
+        {/* Right Pane: Reading & Inline Reply View (7 cols) */}
         <div className="lg:col-span-7 saas-card p-6 flex flex-col justify-between overflow-y-auto custom-scrollbar">
           {activeMessage ? (
             <div className="space-y-6">
               {/* Message Header */}
-              <div className="border-b border-[#e9c176]/10 pb-4 flex items-start justify-between">
+              <div className="border-b border-[#E8E4DE] pb-4 flex items-start justify-between">
                 <div>
-                  <h3 className="font-serif text-xl text-[#e6e2dd] font-bold">
+                  <h3 className="font-serif text-2xl text-[#1A1A1A] font-bold">
                     {activeMessage.subject || 'General Inquiry'}
                   </h3>
-                  <div className="flex items-center gap-3 text-xs text-[#a0998e] mt-1">
-                    <span className="font-bold text-[#e9c176]">{activeMessage.name}</span>
+                  <div className="flex items-center gap-3 text-xs text-[#666666] mt-1.5 font-medium">
+                    <span className="font-bold text-[#1A1A1A]">{activeMessage.name}</span>
                     <span>•</span>
                     <span>{activeMessage.email}</span>
                     {activeMessage.phone && (
@@ -184,7 +185,7 @@ export default function AdminContactMessages({ messages, setMessages }) {
 
                 <button
                   onClick={(e) => handleDelete(activeMessage.id, e)}
-                  className="p-1.5 rounded-lg text-rose-400 hover:bg-rose-500/10 hover:text-rose-300 transition-colors"
+                  className="p-1.5 rounded-lg text-gray-500 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                   title="Delete Message"
                 >
                   <span className="material-symbols-outlined text-base">delete</span>
@@ -192,17 +193,17 @@ export default function AdminContactMessages({ messages, setMessages }) {
               </div>
 
               {/* Message Body */}
-              <div className="bg-[#08170e] border border-[#e9c176]/15 rounded-xl p-4 text-xs text-[#e6e2dd] leading-relaxed whitespace-pre-line">
+              <div className="bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-5 text-xs text-[#1A1A1A] leading-relaxed whitespace-pre-line">
                 {activeMessage.message}
               </div>
 
-              {/* Reply Form */}
-              <form onSubmit={handleSendReply} className="space-y-3 pt-4 border-t border-[#e9c176]/10 text-xs">
+              {/* Inline Email Reply Form */}
+              <form onSubmit={handleSendReply} className="space-y-3 pt-4 border-t border-[#E8E4DE] text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-[#e9c176]">
-                    Dispatch Email Reply
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#C5A059]">
+                    Email Reply
                   </span>
-                  <span className="text-[11px] text-[#a0998e]">To: {activeMessage.email}</span>
+                  <span className="text-[11px] text-[#666666]">To: {activeMessage.email}</span>
                 </div>
 
                 <div>
@@ -212,7 +213,7 @@ export default function AdminContactMessages({ messages, setMessages }) {
                     value={replySubject}
                     onChange={(e) => setReplySubject(e.target.value)}
                     placeholder="Subject line..."
-                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2.5 text-[#e6e2dd] focus:outline-none custom-focus"
+                    className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-2.5 text-[#1A1A1A] focus:outline-none custom-focus font-medium"
                   />
                 </div>
 
@@ -223,7 +224,7 @@ export default function AdminContactMessages({ messages, setMessages }) {
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     placeholder="Type your reply message..."
-                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-3 text-[#e6e2dd] focus:outline-none custom-focus leading-relaxed resize-none"
+                    className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-3 text-[#1A1A1A] focus:outline-none custom-focus leading-relaxed resize-none"
                   />
                 </div>
 
@@ -231,11 +232,11 @@ export default function AdminContactMessages({ messages, setMessages }) {
                   <button
                     type="submit"
                     disabled={isSendingReply}
-                    className="px-6 py-2.5 rounded-xl bg-[#e9c176] text-[#050d08] font-bold text-xs uppercase tracking-wider hover:bg-[#ffdea5] transition-all cursor-pointer shadow-lg flex items-center gap-2 disabled:opacity-50"
+                    className="px-6 py-2.5 rounded-xl bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#B59049] transition-all cursor-pointer shadow-2xs flex items-center gap-2 disabled:opacity-50"
                   >
                     {isSendingReply ? (
                       <>
-                        <div className="w-4 h-4 rounded-full border-2 border-[#050d08]/20 border-t-[#050d08] animate-spin" />
+                        <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                         <span>Sending...</span>
                       </>
                     ) : (
@@ -249,10 +250,10 @@ export default function AdminContactMessages({ messages, setMessages }) {
               </form>
             </div>
           ) : (
-            <div className="py-24 text-center text-[#a0998e] space-y-2">
-              <span className="material-symbols-outlined text-4xl text-[#e9c176]/30">mark_email_read</span>
-              <h3 className="font-serif text-lg text-[#e6e2dd] font-bold">Select a Message</h3>
-              <p className="text-xs">Choose an inquiry from the left pane to view details and reply.</p>
+            <div className="py-24 text-center text-[#666666] space-y-2">
+              <span className="material-symbols-outlined text-4xl text-[#666666]/30">mark_email_read</span>
+              <h3 className="font-serif text-lg text-[#1A1A1A] font-bold">Select a Message</h3>
+              <p className="text-xs text-[#666666]">Choose an inquiry from the left pane to view details and reply.</p>
             </div>
           )}
         </div>
