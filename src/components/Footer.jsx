@@ -31,9 +31,9 @@ export default function Footer() {
   const copyright = settings?.footerCopyright || `© ${new Date().getFullYear()} ${brandName}. All Rights Reserved.`;
 
   return (
-    <footer id="footer-section" className="bg-surface border-t border-outline-variant select-none">
+    <footer id="footer-section" className="bg-surface border-t border-outline-variant select-none mt-auto">
       {/* 40% Vertically Compressed Footer Container */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-10 md:py-12 w-full max-w-container-max mx-auto items-start">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-8 md:py-10 w-full max-w-container-max mx-auto items-start">
         {/* Brand & Info */}
         <div className="md:col-span-1 reveal reveal-up">
           <Link to="/" className="font-display-lg text-headline-md text-primary block mb-2">

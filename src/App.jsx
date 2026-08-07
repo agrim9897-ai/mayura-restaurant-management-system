@@ -39,20 +39,11 @@ function MainLayout() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
-  return (
-    <>
-      {!isAdminRoute && <ScrollProgress />}
-      {!isAdminRoute && <Navbar />}
-      <ScrollToTop />
-      <PageTransition>
+  if (isAdminRoute) {
+    return (
+      <>
+        <ScrollToTop />
         <Routes>
-          {/* Public Customer Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/experience" element={<Experience />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/reservation" element={<Reservation />} />
-          <Route path="/contact" element={<Contact />} />
-
           {/* Admin Auth Routes (public) */}
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
@@ -67,13 +58,33 @@ function MainLayout() {
               </ProtectedRoute>
             }
           />
-
-          {/* Fallback Catch-all */}
-          <Route path="*" element={<Home />} />
         </Routes>
-      </PageTransition>
-      {!isAdminRoute && <Footer />}
-    </>
+      </>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col justify-between bg-surface">
+      <ScrollProgress />
+      <Navbar />
+      <ScrollToTop />
+      <div className="flex-1 flex flex-col">
+        <PageTransition>
+          <Routes>
+            {/* Public Customer Routes */}
+            <Route path="/" element={<Home />} />
+            <Route path="/experience" element={<Experience />} />
+            <Route path="/menu" element={<Menu />} />
+            <Route path="/reservation" element={<Reservation />} />
+            <Route path="/contact" element={<Contact />} />
+
+            {/* Fallback Catch-all */}
+            <Route path="*" element={<Home />} />
+          </Routes>
+        </PageTransition>
+      </div>
+      <Footer />
+    </div>
   );
 }
 

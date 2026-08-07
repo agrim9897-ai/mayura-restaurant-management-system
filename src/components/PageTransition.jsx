@@ -35,7 +35,7 @@ export default function PageTransition({ children }) {
   }, [location.pathname]);
 
   return (
-    <div ref={containerRef} className="w-full">
+    <div ref={containerRef} className="w-full flex-1 flex flex-col">
       {children}
     </div>
   );
