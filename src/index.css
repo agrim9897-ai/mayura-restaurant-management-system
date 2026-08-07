@@ -10,6 +10,7 @@ body {
     background-color: #FAF8F4;
     color: #1A1A1A;
     font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
 }
 
 /* Custom Minimal Scrollbar */
@@ -34,11 +35,35 @@ body {
     border: 1px solid #E8E4DE;
     border-radius: 16px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
-    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 .saas-card:hover {
     border-color: #D9D2C7;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+}
+
+/* Page Reveal & Premium Micro-Motion (Apple Style 600-900ms) */
+@keyframes revealUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+        filter: blur(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+    }
+}
+
+.reveal {
+    animation: revealUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: transform, opacity;
+}
+
+.reveal-up {
+    animation: revealUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: transform, opacity;
 }
 
 /* Slide-Over Drawer Keyframe Animations */
@@ -89,4 +114,16 @@ select:-webkit-autofill:focus {
     -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
     box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
     transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Accessibility: OS Prefers Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

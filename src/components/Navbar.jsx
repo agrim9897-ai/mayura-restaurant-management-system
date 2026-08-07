@@ -10,13 +10,13 @@ export default function Navbar() {
 
   useEffect(() => {
     function handleScroll() {
-      if (window.scrollY > 50) {
+      if (window.scrollY > 30) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
     }
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -42,77 +42,63 @@ export default function Navbar() {
     <>
       <nav
         id="navbar"
-        className={`fixed w-full top-0 z-50 transition-all duration-500 py-6 ${
-          isScrolled ? 'nav-scrolled' : ''
+        className={`fixed w-full top-0 z-40 transition-all duration-400 ease-out select-none ${
+          isScrolled
+            ? 'py-4 bg-[#FAF8F4]/80 backdrop-blur-xl backdrop-saturate-150 border-b border-[#E8E4DE]/60 shadow-2xs'
+            : 'py-6 bg-transparent border-b border-transparent'
         }`}
       >
-        <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto">
+        <div className="flex justify-between items-center px-6 md:px-12 w-full max-w-7xl mx-auto">
           {/* Brand Logo */}
           <Link
             to="/"
             onClick={closeMobileMenu}
-            className="font-display-lg text-headline-md text-primary-fixed-dim hover:text-primary transition-colors duration-300 flex items-center gap-3"
+            className="font-serif text-2xl font-bold text-[#1A1A1A] hover:text-[#C5A059] transition-colors duration-300 flex items-center gap-3 tracking-tight"
           >
             {settings?.logoUrl ? (
-              <img src={settings.logoUrl} alt={brandName} className="h-10 w-auto object-contain" />
+              <img src={settings.logoUrl} alt={brandName} className="h-9 w-auto object-contain" />
             ) : (
               <span>{brandName}</span>
             )}
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-gutter">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) =>
-                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
-                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-                }`
-              }
-            >
-              Home
-            </NavLink>
-
-            <NavLink
-              to="/experience"
-              className={({ isActive }) =>
-                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
-                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-                }`
-              }
-            >
-              Experience
-            </NavLink>
-
-            <NavLink
-              to="/menu"
-              className={({ isActive }) =>
-                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
-                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-                }`
-              }
-            >
-              Our Menu
-            </NavLink>
-
-            <NavLink
-              to="/contact"
-              className={({ isActive }) =>
-                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
-                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-                }`
-              }
-            >
-              Contact
-            </NavLink>
+          {/* Desktop Navigation Links */}
+          <div className="hidden md:flex items-center gap-8">
+            {[
+              { to: '/', label: 'Home' },
+              { to: '/experience', label: 'Experience' },
+              { to: '/menu', label: 'Our Menu' },
+              { to: '/contact', label: 'Contact' },
+            ].map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                end={link.to === '/'}
+                className={({ isActive }) =>
+                  `relative py-1 text-xs uppercase tracking-widest font-semibold transition-colors duration-200 group ${
+                    isActive ? 'text-[#C5A059]' : 'text-[#666666] hover:text-[#1A1A1A]'
+                  }`
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <span>{link.label}</span>
+                    <span
+                      className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-[1.5px] bg-[#C5A059] transition-all duration-300 ease-out ${
+                        isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                      }`}
+                    />
+                  </>
+                )}
+              </NavLink>
+            ))}
           </div>
 
-          {/* CTA Reserve Table */}
+          {/* CTA Reserve Table Button */}
           <div className="hidden md:block">
             <button
               onClick={() => navigate('/reservation')}
-              className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary font-button text-button uppercase tracking-[0.1em] rounded-12 hover:bg-primary hover:text-on-primary hover:shadow-[0_0_15px_rgba(233,193,118,0.3)] transition-all duration-300 hover:scale-[1.03]"
+              className="inline-flex items-center justify-center px-5 py-2.5 bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#B59049] hover:-translate-y-0.5 shadow-2xs hover:shadow-md active:scale-95 transition-all duration-200 cursor-pointer"
             >
               Reserve a Table
             </button>
@@ -121,84 +107,56 @@ export default function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden text-primary focus:outline-none transition-transform duration-300 active:scale-90"
+            className="md:hidden text-[#1A1A1A] focus:outline-none transition-transform duration-200 active:scale-90"
             aria-label="Toggle Menu"
           >
-            <span className="material-symbols-outlined text-3xl">menu</span>
+            <span className="material-symbols-outlined text-2xl">menu</span>
           </button>
         </div>
       </nav>
 
-      {/* Mobile Navigation Menu Overlay */}
+      {/* Mobile Navigation Overlay */}
       <div
-        className={`fixed inset-0 bg-[#0f1f15] z-40 transition-transform duration-500 ease-in-out flex flex-col justify-center items-center ${
+        className={`fixed inset-0 bg-[#FAF8F4] z-50 transition-transform duration-400 ease-in-out flex flex-col justify-center items-center ${
           mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
         <button
           onClick={closeMobileMenu}
-          className="absolute top-8 right-margin-mobile text-primary focus:outline-none"
+          className="absolute top-6 right-6 text-[#1A1A1A] focus:outline-none"
           aria-label="Close Menu"
         >
-          <span className="material-symbols-outlined text-4xl">close</span>
+          <span className="material-symbols-outlined text-3xl">close</span>
         </button>
 
-        <div className="flex flex-col items-center gap-8 text-center">
-          <NavLink
-            to="/"
-            end
-            onClick={closeMobileMenu}
-            className={({ isActive }) =>
-              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
-                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`
-            }
-          >
-            Home
-          </NavLink>
-
-          <NavLink
-            to="/experience"
-            onClick={closeMobileMenu}
-            className={({ isActive }) =>
-              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
-                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`
-            }
-          >
-            Experience
-          </NavLink>
-
-          <NavLink
-            to="/menu"
-            onClick={closeMobileMenu}
-            className={({ isActive }) =>
-              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
-                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`
-            }
-          >
-            Our Menu
-          </NavLink>
-
-          <NavLink
-            to="/contact"
-            onClick={closeMobileMenu}
-            className={({ isActive }) =>
-              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
-                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-              }`
-            }
-          >
-            Contact
-          </NavLink>
+        <div className="flex flex-col items-center gap-7 text-center">
+          {[
+            { to: '/', label: 'Home' },
+            { to: '/experience', label: 'Experience' },
+            { to: '/menu', label: 'Our Menu' },
+            { to: '/contact', label: 'Contact' },
+          ].map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.to === '/'}
+              onClick={closeMobileMenu}
+              className={({ isActive }) =>
+                `text-xl uppercase tracking-widest font-serif font-bold ${
+                  isActive ? 'text-[#C5A059]' : 'text-[#1A1A1A] hover:text-[#C5A059]'
+                }`
+              }
+            >
+              {link.label}
+            </NavLink>
+          ))}
 
           <button
             onClick={() => {
               closeMobileMenu();
               navigate('/reservation');
             }}
-            className="mt-4 inline-flex items-center justify-center px-8 py-4 border border-primary text-primary font-button text-button uppercase tracking-[0.15em] rounded-12 hover:bg-primary hover:text-on-primary transition-all duration-300"
+            className="mt-4 inline-flex items-center justify-center px-7 py-3 bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#B59049] active:scale-95 transition-all duration-200"
           >
             Reserve a Table
           </button>
