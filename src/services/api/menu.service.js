@@ -1,7 +1,4 @@
 import { apiClient } from './apiClient';
-import { getStoredToken } from '../../context/AuthContext';
-
-const BASE_URL = 'http://localhost:5000/api';
 
 /**
  * Menu API Service
@@ -40,22 +37,6 @@ export async function fetchCategories() {
 }
 
 export async function createMenuItem(formDataOrObject) {
-  // If formDataOrObject is FormData (for file uploads with Multer)
-  if (formDataOrObject instanceof FormData) {
-    const token = getStoredToken();
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-    const response = await fetch(`${BASE_URL}/menu`, {
-      method: 'POST',
-      headers,
-      body: formDataOrObject,
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.message || 'Failed to create dish');
-    return data.data;
-  }
-
   const response = await apiClient('/menu', {
     method: 'POST',
     body: formDataOrObject,
@@ -64,21 +45,6 @@ export async function createMenuItem(formDataOrObject) {
 }
 
 export async function updateMenuItem(id, formDataOrObject) {
-  if (formDataOrObject instanceof FormData) {
-    const token = getStoredToken();
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-    const response = await fetch(`${BASE_URL}/menu/${id}`, {
-      method: 'PUT',
-      headers,
-      body: formDataOrObject,
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.message || 'Failed to update dish');
-    return data.data;
-  }
-
   const response = await apiClient(`/menu/${id}`, {
     method: 'PUT',
     body: formDataOrObject,

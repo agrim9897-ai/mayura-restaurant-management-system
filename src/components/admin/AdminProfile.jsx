@@ -462,7 +462,7 @@ export default function AdminProfile() {
                         <span className="w-2 h-2 rounded-full bg-emerald-500" title="Active Now" />
                       </div>
                       <div className="text-[11px] text-[#666666]">
-                        {navigator.userAgent.includes('Chrome') ? 'Google Chrome' : 'Web Browser'} • Localhost (127.0.0.1)
+                        {navigator.userAgent.includes('Chrome') ? 'Google Chrome' : 'Web Browser'} • Active Session
                       </div>
                     </div>
                   </div>

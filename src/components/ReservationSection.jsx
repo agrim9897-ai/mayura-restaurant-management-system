@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CustomDatePicker from './CustomDatePicker';
 import CustomTimePicker from './CustomTimePicker';
 import reservationTableImg from '../../images/dining.jpg';
+import { createReservation } from '../services/api/reservations.service';
 
 export default function ReservationSection() {
   const [formData, setFormData] = useState({
@@ -33,27 +34,16 @@ export default function ReservationSection() {
     setSubmitError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/reservations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          reservationDate: formData.date,
-          reservationTime: formData.time,
-          guests: Number(formData.guests),
-          occasion: formData.occasion || undefined,
-          seatingPreference: formData.seating || undefined,
-        }),
+      await createReservation({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        reservationDate: formData.date,
+        reservationTime: formData.time,
+        guests: Number(formData.guests),
+        occasion: formData.occasion || undefined,
+        seatingPreference: formData.seating || undefined,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        // Use the server's validation message or a fallback
-        throw new Error(data.message || 'Something went wrong. Please try again.');
-      }
 
       setIsSubmitted(true);
     } catch (error) {

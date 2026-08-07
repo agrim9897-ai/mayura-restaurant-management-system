@@ -1,11 +1,46 @@
 import { getStoredToken } from '../../context/AuthContext';
 
 /**
- * Centralized API Client for Mayura Backend & Service Layer.
- * Wraps native fetch() with base URL, JWT auth header, and error handling.
+ * Production Render Backend API URL.
  */
-const BASE_URL = 'http://localhost:5000/api';
+const RENDER_PROD_API_URL = 'https://mayura-restaurant-management-system.onrender.com/api';
 
+/**
+ * Dynamically resolves the API Base URL.
+ * - In Vercel / Production builds, forces production Render API endpoint unless a valid non-localhost VITE_API_URL is supplied.
+ * - In Development mode, uses VITE_API_URL if provided, else falls back to local/production backend.
+ */
+function resolveApiBaseUrl() {
+  const envUrl = import.meta.env.VITE_API_URL;
+
+  // If VITE_API_URL is provided and is a valid remote URL (not localhost/127.0.0.1)
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl.replace(/\/$/, '');
+  }
+
+  // In production builds (Vercel deployment), guarantee production Render API URL
+  if (import.meta.env.PROD || import.meta.env.MODE === 'production') {
+    return RENDER_PROD_API_URL;
+  }
+
+  // Fallback for local development
+  return envUrl ? envUrl.replace(/\/$/, '') : 'http://localhost:5000/api';
+}
+
+export const API_BASE_URL = resolveApiBaseUrl();
+
+/**
+ * Helper to build full backend endpoint URLs.
+ */
+export function getApiUrl(endpoint = '') {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${API_BASE_URL}${cleanEndpoint}`;
+}
+
+/**
+ * Centralized API Client for Mayura Backend & Service Layer.
+ * Wraps native fetch() with base URL, JWT auth header, automatic FormData handling, and error handling.
+ */
 export async function apiClient(endpoint, options = {}) {
   const { body, headers, ...customConfig } = options;
 
@@ -13,10 +48,12 @@ export async function apiClient(endpoint, options = {}) {
   const token = getStoredToken();
   const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
+  const isFormData = body instanceof FormData;
+
   const config = {
-    method: body ? 'POST' : 'GET',
+    method: options.method || (body ? 'POST' : 'GET'),
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...authHeaders,
       ...headers,
     },
@@ -24,15 +61,17 @@ export async function apiClient(endpoint, options = {}) {
   };
 
   if (body) {
-    config.body = typeof body === 'string' ? body : JSON.stringify(body);
+    config.body = isFormData ? body : typeof body === 'string' ? body : JSON.stringify(body);
   }
 
+  const url = getApiUrl(endpoint);
+
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, config);
+    const response = await fetch(url, config);
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      // If 401, the token is expired/invalid
+      // Handle expired or invalid JWT (401)
       if (response.status === 401) {
         try {
           localStorage.removeItem('mayura_admin_token');
@@ -46,7 +85,7 @@ export async function apiClient(endpoint, options = {}) {
 
     return data;
   } catch (error) {
-    // Re-throw so caller services can handle fallback or UI errors
+    // Re-throw so caller services can handle errors or display UI feedback
     throw error;
   }
 }

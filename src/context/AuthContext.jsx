@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { getAdminProfile, logoutAdmin } from '../services/api/auth.service';
 
 const AuthContext = createContext(null);
 
@@ -33,7 +34,7 @@ export function AuthProvider({ children }) {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // On mount, validate stored token against backend /api/admin/profile
+  // On mount, validate stored token against backend via central API client
   useEffect(() => {
     async function validateSession() {
       const storedToken = getStoredToken();
@@ -43,25 +44,21 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/admin/profile', {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          setUser(result.data);
+        const userData = await getAdminProfile();
+        if (userData) {
+          setUser(userData);
           setToken(storedToken);
         } else {
-          // Token expired or invalid — clear session
           clearStorage();
           setToken(null);
           setUser(null);
         }
       } catch {
-        // Network error — preserve session state
+        // Token invalid or network error — clear session if 401 occurred
+        if (!getStoredToken()) {
+          setToken(null);
+          setUser(null);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -83,13 +80,7 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(async () => {
     try {
-      await fetch('http://localhost:5000/api/admin/logout', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      await logoutAdmin();
     } catch {
       // Ignore network errors during logout
     }
@@ -97,7 +88,7 @@ export function AuthProvider({ children }) {
     clearStorage();
     setToken(null);
     setUser(null);
-  }, [token]);
+  }, []);
 
   const isAuthenticated = !!token && !!user;
 
