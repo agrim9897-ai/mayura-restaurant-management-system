@@ -172,41 +172,44 @@ export default function AdminReservations({ setReservations: setParentReservatio
   const getStatusBadge = (status) => {
     switch (status) {
       case 'CONFIRMED':
-        return 'bg-emerald-950/60 text-emerald-400 border-emerald-500/30';
+        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
       case 'PENDING':
-        return 'bg-amber-950/60 text-amber-400 border-amber-500/30';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'COMPLETED':
-        return 'bg-sky-950/60 text-sky-400 border-sky-500/30';
+        return 'bg-blue-50 text-blue-700 border-blue-200';
       case 'CANCELLED':
-        return 'bg-rose-950/60 text-rose-400 border-rose-500/30';
+        return 'bg-rose-50 text-rose-700 border-rose-200';
       default:
-        return 'bg-gray-900 text-gray-400 border-gray-800';
+        return 'bg-gray-50 text-gray-600 border-gray-200';
     }
   };
 
   return (
-    <div className="space-y-6 animate-fadeIn pb-8 select-none">
+    <div className="space-y-6 animate-fadeIn pb-12 select-none max-w-7xl mx-auto">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 bg-[#e9c176] text-[#050d08] font-bold text-xs px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 animate-bounce">
-          <span className="material-symbols-outlined text-sm">check_circle</span>
+        <div className="fixed bottom-6 right-6 bg-[#C5A059] text-white font-semibold text-xs px-5 py-3 rounded-xl shadow-xl z-50 flex items-center gap-2 border border-white/20 animate-bounce">
+          <span className="material-symbols-outlined text-base">check_circle</span>
           <span>{toastMessage}</span>
         </div>
       )}
 
-      {/* CRM Control Header */}
-      <div className="saas-card p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 className="font-serif text-2xl text-[#e9c176] font-bold">Reservations CRM</h2>
-            <p className="text-xs text-[#a0998e]">
-              Manage customer table bookings, assign seating, and issue automatic status updates.
-            </p>
-          </div>
+      {/* Editorial Title & Overview */}
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-2 border-b border-[#E8E4DE]/60 pb-5">
+        <div>
+          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A] tracking-tight">
+            Reservations
+          </h1>
+          <p className="text-xs text-[#666666] font-medium mt-1">
+            Enterprise booking management, seating allocations, and guest statuses.
+          </p>
         </div>
+      </div>
 
-        {/* Status Pill Filters */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-[#e9c176]/10 pb-3">
+      {/* Clean Toolbar: Search & Filter Panel (HubSpot / Stripe Style) */}
+      <div className="saas-card p-5 space-y-4 sticky top-16 z-20 shadow-2xs">
+        {/* Status Filter Pills */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-[#E8E4DE] pb-3">
           {['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'].map((st) => (
             <button
               key={st}
@@ -214,10 +217,10 @@ export default function AdminReservations({ setReservations: setParentReservatio
                 setStatusFilter(st);
                 setCurrentPage(1);
               }}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer border ${
                 statusFilter === st
-                  ? 'bg-[#e9c176] text-[#050d08] border-[#e9c176]'
-                  : 'bg-[#08170e] text-[#a0998e] border-[#e9c176]/20 hover:text-[#e6e2dd] hover:border-[#e9c176]/40'
+                  ? 'bg-[#1A1A1A] text-white border-[#1A1A1A] shadow-2xs'
+                  : 'bg-[#FAF8F4] text-[#666666] border-[#E8E4DE] hover:text-[#1A1A1A] hover:bg-[#EFE9DF]'
               }`}
             >
               {st}
@@ -225,11 +228,11 @@ export default function AdminReservations({ setReservations: setParentReservatio
           ))}
         </div>
 
-        {/* Search & Filter Toolbar */}
+        {/* Search, Date & Sort Controls */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
-          {/* Search */}
+          {/* Search Input */}
           <div className="lg:col-span-6 relative">
-            <span className="material-symbols-outlined absolute left-3.5 top-2.5 text-sm text-[#a0998e]">
+            <span className="material-symbols-outlined absolute left-3.5 top-2.5 text-sm text-[#666666]">
               search
             </span>
             <input
@@ -240,7 +243,7 @@ export default function AdminReservations({ setReservations: setParentReservatio
                 setSearchTerm(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl pl-10 pr-4 py-2 text-xs text-[#e6e2dd] focus:outline-none custom-focus"
+              className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl pl-10 pr-4 py-2 text-xs text-[#1A1A1A] placeholder-[#666666]/60 focus:outline-none custom-focus"
             />
           </div>
 
@@ -253,11 +256,11 @@ export default function AdminReservations({ setReservations: setParentReservatio
                 setDateFilter(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl px-3 py-2 text-xs text-[#e6e2dd] focus:outline-none custom-focus cursor-pointer"
+              className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl px-3 py-2 text-xs text-[#1A1A1A] focus:outline-none custom-focus cursor-pointer font-medium"
             />
           </div>
 
-          {/* Sort Dropdown */}
+          {/* Sort Select */}
           <div className="lg:col-span-3">
             <select
               value={sortBy}
@@ -265,7 +268,7 @@ export default function AdminReservations({ setReservations: setParentReservatio
                 setSortBy(e.target.value);
                 setCurrentPage(1);
               }}
-              className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl px-3 py-2 text-xs text-[#e6e2dd] focus:outline-none custom-focus cursor-pointer"
+              className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl px-3 py-2 text-xs text-[#1A1A1A] focus:outline-none custom-focus cursor-pointer font-medium"
             >
               <option value="NEWEST">Newest First</option>
               <option value="OLDEST">Oldest First</option>
@@ -278,77 +281,77 @@ export default function AdminReservations({ setReservations: setParentReservatio
         </div>
       </div>
 
-      {/* CRM Data Table Card */}
+      {/* Large Professional Table Container */}
       <div className="saas-card overflow-hidden">
         {isLoading ? (
           <div className="p-6">
             <AdminSkeleton type="table" count={6} />
           </div>
         ) : items.length === 0 ? (
-          <div className="py-16 text-center text-[#a0998e] space-y-3">
-            <span className="material-symbols-outlined text-4xl text-[#e9c176]/40 block">book_online</span>
-            <h3 className="font-serif text-lg text-[#e6e2dd] font-bold">No Reservations Found</h3>
-            <p className="text-xs text-[#a0998e]">No bookings match your current search or status filter.</p>
+          <div className="py-20 text-center text-[#666666] space-y-2">
+            <span className="material-symbols-outlined text-4xl text-[#666666]/30 block">calendar_today</span>
+            <h3 className="font-serif text-lg text-[#1A1A1A] font-bold">No Reservations Found</h3>
+            <p className="text-xs text-[#666666]">No bookings match your current search or status filter.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#07130b] border-b border-[#e9c176]/10 text-[11px] uppercase tracking-wider text-[#a0998e]">
-                  <th className="py-3.5 px-4 font-semibold">Guest</th>
-                  <th className="py-3.5 px-4 font-semibold">Table</th>
-                  <th className="py-3.5 px-4 font-semibold">Date & Time</th>
-                  <th className="py-3.5 px-4 font-semibold text-center">Party</th>
-                  <th className="py-3.5 px-4 font-semibold">Preference</th>
-                  <th className="py-3.5 px-4 font-semibold">Status</th>
-                  <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
+                <tr className="bg-[#FAF8F4] border-b border-[#E8E4DE] text-[11px] uppercase tracking-wider text-[#666666]">
+                  <th className="py-4 px-4 font-semibold">Guest</th>
+                  <th className="py-4 px-4 font-semibold">Table</th>
+                  <th className="py-4 px-4 font-semibold">Date & Time</th>
+                  <th className="py-4 px-4 font-semibold text-center">Party Size</th>
+                  <th className="py-4 px-4 font-semibold">Preference</th>
+                  <th className="py-4 px-4 font-semibold">Status</th>
+                  <th className="py-4 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e9c176]/5 text-xs text-[#e6e2dd]">
+              <tbody className="divide-y divide-[#E8E4DE]/60 text-xs text-[#1A1A1A]">
                 {items.map((r) => (
                   <tr
                     key={r.id}
                     onClick={() => setActiveDrawerRes(r)}
-                    className="hover:bg-[#0e2217] transition-colors cursor-pointer group"
+                    className="hover:bg-[#FAF8F4] transition-colors cursor-pointer group"
                   >
-                    <td className="py-3.5 px-4 font-medium">
-                      <div className="text-[#e6e2dd] font-bold group-hover:text-[#e9c176] transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="font-semibold text-[#1A1A1A] group-hover:text-[#C5A059] transition-colors">
                         {r.name}
                       </div>
-                      <div className="text-[10px] text-[#a0998e] font-mono">{r.phone}</div>
+                      <div className="text-[11px] text-[#666666] font-mono">{r.phone}</div>
                     </td>
 
-                    <td className="py-3.5 px-4 whitespace-nowrap font-mono text-xs">
-                      <span className="px-2.5 py-1 rounded-lg bg-[#08170e] border border-[#e9c176]/20 text-[#e9c176] font-semibold">
+                    <td className="py-4 px-4 whitespace-nowrap font-mono text-xs">
+                      <span className="px-2.5 py-1 rounded-md bg-[#FAF8F4] border border-[#E8E4DE] text-[#1A1A1A] font-semibold">
                         {r.tableNumber || (r.table ? r.table.tableNumber : 'Auto')}
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-4 whitespace-nowrap">
-                      <div>{r.date || (r.reservationDate ? String(r.reservationDate).split('T')[0] : '—')}</div>
-                      <div className="text-[#e9c176] font-mono text-[11px]">{r.time || r.reservationTime}</div>
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <div className="font-medium">{r.date || (r.reservationDate ? String(r.reservationDate).split('T')[0] : '—')}</div>
+                      <div className="text-[#C5A059] font-mono text-[11px] font-semibold">{r.time || r.reservationTime}</div>
                     </td>
 
-                    <td className="py-3.5 px-4 text-center font-bold">{r.guests} Guests</td>
+                    <td className="py-4 px-4 text-center font-semibold">{r.guests} Guests</td>
 
-                    <td className="py-3.5 px-4 text-[#a0998e]">{r.seatingPreference || 'Indoor'}</td>
+                    <td className="py-4 px-4 text-[#666666]">{r.seatingPreference || 'Indoor'}</td>
 
-                    <td className="py-3.5 px-4 whitespace-nowrap">
+                    <td className="py-4 px-4 whitespace-nowrap">
                       <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider border ${getStatusBadge(r.status)}`}>
                         {r.status}
                       </span>
                     </td>
 
-                    <td className="py-3.5 px-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1.5">
+                    <td className="py-4 px-4 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-1">
                         {r.status !== 'CONFIRMED' && (
                           <button
                             onClick={() => handleStatusChange(r.id, 'CONFIRMED', r.name)}
                             disabled={isSubmitting}
-                            className="p-1.5 rounded-lg bg-emerald-950/60 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
                             title="Confirm Booking"
                           >
-                            <span className="material-symbols-outlined text-sm">check</span>
+                            <span className="material-symbols-outlined text-base">check</span>
                           </button>
                         )}
 
@@ -356,10 +359,10 @@ export default function AdminReservations({ setReservations: setParentReservatio
                           <button
                             onClick={() => handleStatusChange(r.id, 'COMPLETED', r.name)}
                             disabled={isSubmitting}
-                            className="p-1.5 rounded-lg bg-sky-950/60 text-sky-400 border border-sky-500/30 hover:bg-sky-500 hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-blue-700 hover:bg-blue-50 transition-colors cursor-pointer"
                             title="Mark Completed"
                           >
-                            <span className="material-symbols-outlined text-sm">task_alt</span>
+                            <span className="material-symbols-outlined text-base">task_alt</span>
                           </button>
                         )}
 
@@ -367,10 +370,10 @@ export default function AdminReservations({ setReservations: setParentReservatio
                           <button
                             onClick={() => handleStatusChange(r.id, 'CANCELLED', r.name)}
                             disabled={isSubmitting}
-                            className="p-1.5 rounded-lg bg-rose-950/60 text-rose-400 border border-rose-500/30 hover:bg-rose-500 hover:text-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-rose-700 hover:bg-rose-50 transition-colors cursor-pointer"
                             title="Cancel Booking"
                           >
-                            <span className="material-symbols-outlined text-sm">close</span>
+                            <span className="material-symbols-outlined text-base">close</span>
                           </button>
                         )}
 
@@ -380,10 +383,10 @@ export default function AdminReservations({ setReservations: setParentReservatio
                             setIsDeleteModalOpen(true);
                           }}
                           disabled={isSubmitting}
-                          className="p-1.5 rounded-lg bg-[#08170e] text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 transition-colors cursor-pointer"
+                          className="p-1.5 rounded-lg text-gray-500 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
                           title="Delete"
                         >
-                          <span className="material-symbols-outlined text-sm">delete</span>
+                          <span className="material-symbols-outlined text-base">delete</span>
                         </button>
                       </div>
                     </td>
@@ -396,29 +399,29 @@ export default function AdminReservations({ setReservations: setParentReservatio
 
         {/* Pagination Bar */}
         {!isLoading && totalPages > 1 && (
-          <div className="p-4 bg-[#07130b] border-t border-[#e9c176]/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#a0998e]">
+          <div className="p-4 bg-[#FAF8F4] border-t border-[#E8E4DE] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#666666]">
             <div>
-              Showing <strong className="text-[#e6e2dd]">{items.length}</strong> of{' '}
-              <strong className="text-[#e9c176]">{totalCount}</strong> reservations
+              Showing <strong className="text-[#1A1A1A]">{items.length}</strong> of{' '}
+              <strong className="text-[#1A1A1A]">{totalCount}</strong> reservations
             </div>
 
             <div className="flex items-center gap-2">
               <button
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                className="px-3 py-1.5 rounded-xl border border-[#e9c176]/20 text-[#e9c176] disabled:opacity-40 hover:bg-[#e9c176] hover:text-[#050d08] transition-all cursor-pointer font-semibold"
+                className="px-3.5 py-1.5 rounded-lg border border-[#E8E4DE] bg-white text-[#1A1A1A] disabled:opacity-40 hover:bg-[#FAF8F4] transition-all cursor-pointer font-semibold"
               >
                 ← Prev
               </button>
 
-              <span className="px-3 py-1.5 rounded-xl bg-[#08170e] border border-[#e9c176]/20 font-bold text-[#e6e2dd]">
+              <span className="px-3 py-1.5 rounded-lg bg-white border border-[#E8E4DE] font-bold text-[#1A1A1A]">
                 Page {currentPage} of {totalPages}
               </span>
 
               <button
                 disabled={currentPage >= totalPages}
                 onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                className="px-3 py-1.5 rounded-xl border border-[#e9c176]/20 text-[#e9c176] disabled:opacity-40 hover:bg-[#e9c176] hover:text-[#050d08] transition-all cursor-pointer font-semibold"
+                className="px-3.5 py-1.5 rounded-lg border border-[#E8E4DE] bg-white text-[#1A1A1A] disabled:opacity-40 hover:bg-[#FAF8F4] transition-all cursor-pointer font-semibold"
               >
                 Next →
               </button>
@@ -427,40 +430,40 @@ export default function AdminReservations({ setReservations: setParentReservatio
         )}
       </div>
 
-      {/* SLIDE-OVER DETAIL DRAWER */}
+      {/* BEAUTIFUL SIDE-OVER DRAWER (Warm White Editorial Style) */}
       {activeDrawerRes && (
         <div className="fixed inset-0 z-50 overflow-hidden select-none">
           {/* Backdrop */}
           <div
             onClick={() => setActiveDrawerRes(null)}
-            className="absolute inset-0 bg-black/75 backdrop-blur-sm animate-backdrop-in"
+            className="absolute inset-0 bg-black/40 backdrop-blur-xs animate-backdrop-in"
           />
 
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-md bg-[#09170e] border-l border-[#e9c176]/20 shadow-2xl p-6 md:p-8 flex flex-col justify-between animate-drawer-in overflow-y-auto custom-scrollbar">
+            <div className="w-screen max-w-md bg-white border-l border-[#E8E4DE] shadow-2xl p-6 md:p-8 flex flex-col justify-between animate-drawer-in overflow-y-auto custom-scrollbar">
               <div className="space-y-6">
                 {/* Header */}
-                <div className="flex justify-between items-start border-b border-[#e9c176]/10 pb-4">
+                <div className="flex justify-between items-start border-b border-[#E8E4DE] pb-4">
                   <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#e9c176]">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#C5A059]">
                       RESERVATION DETAILS
                     </span>
-                    <h3 className="font-serif text-2xl text-[#e6e2dd] font-bold mt-1">
+                    <h3 className="font-serif text-2xl text-[#1A1A1A] font-bold mt-1">
                       {activeDrawerRes.name}
                     </h3>
                   </div>
 
                   <button
                     onClick={() => setActiveDrawerRes(null)}
-                    className="p-1.5 text-[#a0998e] hover:text-[#e6e2dd] rounded-lg hover:bg-[#0f2417]"
+                    className="p-1.5 text-[#666666] hover:text-[#1A1A1A] rounded-lg hover:bg-[#FAF8F4]"
                   >
                     <span className="material-symbols-outlined text-xl">close</span>
                   </button>
                 </div>
 
-                {/* Status Indicator */}
-                <div className="flex items-center justify-between p-3 rounded-xl bg-[#08170e] border border-[#e9c176]/15">
-                  <span className="text-xs text-[#a0998e]">Current Status</span>
+                {/* Status Badge Indicator */}
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-[#FAF8F4] border border-[#E8E4DE]">
+                  <span className="text-xs text-[#666666] font-medium">Current Status</span>
                   <span className={`text-xs font-bold px-3 py-1 rounded-full border uppercase tracking-wider ${getStatusBadge(activeDrawerRes.status)}`}>
                     {activeDrawerRes.status}
                   </span>
@@ -468,68 +471,68 @@ export default function AdminReservations({ setReservations: setParentReservatio
 
                 {/* Details Section */}
                 <div className="space-y-4 text-xs">
-                  <div className="p-4 rounded-xl bg-[#08170e] border border-[#e9c176]/10 space-y-3">
+                  <div className="p-4 rounded-xl bg-[#FAF8F4] border border-[#E8E4DE] space-y-3">
                     <div>
-                      <span className="text-[10px] text-[#a0998e] uppercase tracking-wider block">Assigned Table</span>
-                      <span className="font-mono text-sm text-[#e9c176] font-bold">
+                      <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold block">Assigned Table</span>
+                      <span className="font-mono text-sm text-[#C5A059] font-bold">
                         {activeDrawerRes.tableNumber || (activeDrawerRes.table ? activeDrawerRes.table.tableNumber : 'Auto-Assigned')}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#e9c176]/10">
+                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#E8E4DE]">
                       <div>
-                        <span className="text-[10px] text-[#a0998e] uppercase tracking-wider block">Date</span>
-                        <span className="font-semibold text-[#e6e2dd]">
+                        <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold block">Date</span>
+                        <span className="font-semibold text-[#1A1A1A]">
                           {activeDrawerRes.date || (activeDrawerRes.reservationDate ? String(activeDrawerRes.reservationDate).split('T')[0] : '—')}
                         </span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-[#a0998e] uppercase tracking-wider block">Time Slot</span>
-                        <span className="font-mono text-[#e9c176] font-bold">
+                        <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold block">Time Slot</span>
+                        <span className="font-mono text-[#C5A059] font-bold">
                           {activeDrawerRes.time || activeDrawerRes.reservationTime}
                         </span>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#e9c176]/10">
+                    <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#E8E4DE]">
                       <div>
-                        <span className="text-[10px] text-[#a0998e] uppercase tracking-wider block">Party Size</span>
-                        <span className="font-bold text-[#e6e2dd]">{activeDrawerRes.guests} Guests</span>
+                        <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold block">Party Size</span>
+                        <span className="font-bold text-[#1A1A1A]">{activeDrawerRes.guests} Guests</span>
                       </div>
                       <div>
-                        <span className="text-[10px] text-[#a0998e] uppercase tracking-wider block">Seating</span>
-                        <span className="font-semibold text-[#e6e2dd]">{activeDrawerRes.seatingPreference || 'Indoor'}</span>
+                        <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold block">Seating</span>
+                        <span className="font-semibold text-[#1A1A1A]">{activeDrawerRes.seatingPreference || 'Indoor'}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Customer Contact */}
-                  <div className="p-4 rounded-xl bg-[#08170e] border border-[#e9c176]/10 space-y-2">
-                    <span className="text-[10px] text-[#a0998e] uppercase tracking-wider font-semibold block">Contact Info</span>
-                    <div className="flex justify-between items-center text-[#e6e2dd]">
-                      <span className="text-[#a0998e]">Phone:</span>
+                  <div className="p-4 rounded-xl bg-[#FAF8F4] border border-[#E8E4DE] space-y-2">
+                    <span className="text-[10px] text-[#666666] uppercase tracking-wider font-semibold block">Contact Info</span>
+                    <div className="flex justify-between items-center text-[#1A1A1A]">
+                      <span className="text-[#666666]">Phone:</span>
                       <span className="font-mono">{activeDrawerRes.phone}</span>
                     </div>
-                    <div className="flex justify-between items-center text-[#e6e2dd]">
-                      <span className="text-[#a0998e]">Email:</span>
-                      <span className="truncate max-w-[200px]">{activeDrawerRes.email}</span>
+                    <div className="flex justify-between items-center text-[#1A1A1A]">
+                      <span className="text-[#666666]">Email:</span>
+                      <span className="truncate max-w-[200px] font-medium">{activeDrawerRes.email}</span>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="pt-6 border-t border-[#e9c176]/10 space-y-2">
+              {/* Action Buttons Toolbar */}
+              <div className="pt-6 border-t border-[#E8E4DE] space-y-2">
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleStatusChange(activeDrawerRes.id, 'CONFIRMED', activeDrawerRes.name)}
-                    className="py-2.5 bg-emerald-950/80 text-emerald-400 border border-emerald-500/40 rounded-xl font-bold text-xs hover:bg-emerald-500 hover:text-white transition-all cursor-pointer"
+                    className="py-2.5 bg-emerald-700 text-white rounded-xl font-semibold text-xs hover:bg-emerald-800 transition-all cursor-pointer shadow-2xs"
                   >
                     Confirm
                   </button>
                   <button
                     onClick={() => handleStatusChange(activeDrawerRes.id, 'COMPLETED', activeDrawerRes.name)}
-                    className="py-2.5 bg-sky-950/80 text-sky-400 border border-sky-500/40 rounded-xl font-bold text-xs hover:bg-sky-500 hover:text-white transition-all cursor-pointer"
+                    className="py-2.5 bg-blue-700 text-white rounded-xl font-semibold text-xs hover:bg-blue-800 transition-all cursor-pointer shadow-2xs"
                   >
                     Complete
                   </button>
@@ -538,9 +541,9 @@ export default function AdminReservations({ setReservations: setParentReservatio
                 <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => handleOpenEdit(activeDrawerRes)}
-                    className="py-2.5 bg-[#08170e] border border-[#e9c176]/30 text-[#e9c176] rounded-xl font-semibold text-xs hover:bg-[#e9c176] hover:text-[#050d08] transition-all cursor-pointer flex items-center justify-center gap-1"
+                    className="py-2.5 bg-white border border-[#E8E4DE] text-[#1A1A1A] rounded-xl font-semibold text-xs hover:bg-[#FAF8F4] transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
-                    <span className="material-symbols-outlined text-sm">edit</span>
+                    <span className="material-symbols-outlined text-sm text-[#666666]">edit</span>
                     <span>Edit Details</span>
                   </button>
 
@@ -549,7 +552,7 @@ export default function AdminReservations({ setReservations: setParentReservatio
                       setResToDelete(activeDrawerRes);
                       setIsDeleteModalOpen(true);
                     }}
-                    className="py-2.5 bg-rose-950/80 text-rose-400 border border-rose-500/30 rounded-xl font-semibold text-xs hover:bg-rose-500 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1"
+                    className="py-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl font-semibold text-xs hover:bg-rose-100 transition-all cursor-pointer flex items-center justify-center gap-1.5"
                   >
                     <span className="material-symbols-outlined text-sm">delete</span>
                     <span>Delete</span>
@@ -563,11 +566,11 @@ export default function AdminReservations({ setReservations: setParentReservatio
 
       {/* EDIT MODAL */}
       {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#09170e] border border-[#e9c176]/30 rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl animate-scale">
-            <div className="flex justify-between items-center border-b border-[#e9c176]/10 pb-4">
-              <h3 className="font-serif text-lg text-[#e9c176] font-bold">Edit Reservation</h3>
-              <button onClick={() => setIsEditModalOpen(false)} className="text-[#a0998e] hover:text-[#e6e2dd]">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E8E4DE] rounded-2xl max-w-lg w-full p-6 space-y-6 shadow-2xl animate-scale">
+            <div className="flex justify-between items-center border-b border-[#E8E4DE] pb-4">
+              <h3 className="font-serif text-xl text-[#1A1A1A] font-bold">Edit Reservation</h3>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-[#666666] hover:text-[#1A1A1A]">
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
@@ -575,61 +578,61 @@ export default function AdminReservations({ setReservations: setParentReservatio
             <form onSubmit={handleSaveEdit} className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[#a0998e] mb-1 font-semibold">Name</label>
+                  <label className="block text-[#666666] mb-1 font-semibold">Name</label>
                   <input
                     type="text"
                     required
                     value={editForm.name}
                     onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2.5 text-[#e6e2dd] focus:outline-none custom-focus"
+                    className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-2.5 text-[#1A1A1A] focus:outline-none custom-focus"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#a0998e] mb-1 font-semibold">Phone</label>
+                  <label className="block text-[#666666] mb-1 font-semibold">Phone</label>
                   <input
                     type="text"
                     required
                     value={editForm.phone}
                     onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
-                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2.5 text-[#e6e2dd] focus:outline-none custom-focus font-mono"
+                    className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-2.5 text-[#1A1A1A] focus:outline-none custom-focus font-mono"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[#a0998e] mb-1 font-semibold">Email</label>
+                <label className="block text-[#666666] mb-1 font-semibold">Email</label>
                 <input
                   type="email"
                   required
                   value={editForm.email}
                   onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                  className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2.5 text-[#e6e2dd] focus:outline-none custom-focus"
+                  className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-2.5 text-[#1A1A1A] focus:outline-none custom-focus"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-[#a0998e] mb-1 font-semibold">Date</label>
+                  <label className="block text-[#666666] mb-1 font-semibold">Date</label>
                   <input
                     type="date"
                     required
                     value={editForm.date}
                     onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
-                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2 text-[#e6e2dd] focus:outline-none custom-focus"
+                    className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-2 text-[#1A1A1A] focus:outline-none custom-focus"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#a0998e] mb-1 font-semibold">Time</label>
+                  <label className="block text-[#666666] mb-1 font-semibold">Time</label>
                   <input
                     type="text"
                     required
                     value={editForm.time}
                     onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
-                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2 text-[#e6e2dd] focus:outline-none custom-focus font-mono"
+                    className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-2 text-[#1A1A1A] focus:outline-none custom-focus font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-[#a0998e] mb-1 font-semibold">Guests</label>
+                  <label className="block text-[#666666] mb-1 font-semibold">Guests</label>
                   <input
                     type="number"
                     min="1"
@@ -637,23 +640,23 @@ export default function AdminReservations({ setReservations: setParentReservatio
                     required
                     value={editForm.guests}
                     onChange={(e) => setEditForm({ ...editForm, guests: Number(e.target.value) })}
-                    className="w-full bg-[#08170e] border border-[#e9c176]/20 rounded-xl p-2 text-[#e6e2dd] focus:outline-none custom-focus"
+                    className="w-full bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-2 text-[#1A1A1A] focus:outline-none custom-focus"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-[#e9c176]/10">
+              <div className="flex justify-end gap-3 pt-4 border-t border-[#E8E4DE]">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-[#a0998e] hover:text-[#e6e2dd]"
+                  className="px-4 py-2 rounded-xl text-xs text-[#666666] hover:text-[#1A1A1A]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-[#e9c176] text-[#050d08] font-bold text-xs uppercase tracking-wider hover:bg-[#ffdea5] transition-all cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider hover:bg-[#B59049] transition-all cursor-pointer shadow-2xs"
                 >
                   Save Changes
                 </button>
@@ -665,28 +668,28 @@ export default function AdminReservations({ setReservations: setParentReservatio
 
       {/* DELETE MODAL */}
       {isDeleteModalOpen && resToDelete && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#09170e] border border-rose-500/30 rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl animate-scale">
-            <div className="w-12 h-12 rounded-full bg-rose-950 text-rose-400 border border-rose-500/40 flex items-center justify-center mx-auto">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#E8E4DE] rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-2xl animate-scale">
+            <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 border border-rose-200 flex items-center justify-center mx-auto">
               <span className="material-symbols-outlined text-2xl">warning</span>
             </div>
             <div>
-              <h3 className="font-serif text-lg text-[#e6e2dd] font-bold mb-1">Delete Reservation?</h3>
-              <p className="text-xs text-[#a0998e]">
-                Are you sure you want to delete reservation for <strong className="text-[#e9c176]">{resToDelete.name}</strong>?
+              <h3 className="font-serif text-lg text-[#1A1A1A] font-bold mb-1">Delete Reservation?</h3>
+              <p className="text-xs text-[#666666]">
+                Are you sure you want to delete reservation for <strong className="text-[#1A1A1A]">{resToDelete.name}</strong>?
               </p>
             </div>
 
             <div className="flex justify-center gap-3 pt-2">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="px-4 py-2 bg-[#08170e] border border-[#e9c176]/20 text-[#e6e2dd] rounded-xl text-xs"
+                className="px-4 py-2 bg-[#FAF8F4] border border-[#E8E4DE] text-[#1A1A1A] rounded-xl text-xs font-semibold"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmDelete}
-                className="px-5 py-2 bg-rose-500 text-white font-bold rounded-xl text-xs hover:bg-rose-600 transition-colors shadow-lg"
+                className="px-5 py-2 bg-rose-600 text-white font-bold rounded-xl text-xs hover:bg-rose-700 transition-colors shadow-2xs"
               >
                 Delete
               </button>
