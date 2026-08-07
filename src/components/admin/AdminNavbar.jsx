@@ -1,15 +1,24 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 export default function AdminNavbar({ setIsMobileOpen, activeTabTitle }) {
   const [showNotifications, setShowNotifications] = useState(false);
-  const { user } = useAuth();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const notifications = [
     { id: 1, title: 'New Reservation', desc: 'Drishti Virdi requested a table for 2', time: '10 min ago' },
     { id: 2, title: 'Contact Message', desc: 'Priya Malhotra sent a party inquiry', time: '45 min ago' },
     { id: 3, title: 'Reservation Confirmed', desc: 'Aarav Mehta confirmed for 8:00 PM', time: '2 hours ago' },
   ];
+
+  const handleLogout = async () => {
+    setShowProfileMenu(false);
+    await logout();
+    navigate('/admin', { replace: true });
+  };
 
   return (
     <header className="h-16 bg-[#FAF8F4]/90 backdrop-blur-md border-b border-[#E8E4DE] px-4 md:px-8 flex items-center justify-between sticky top-0 z-30 select-none">
@@ -29,7 +38,7 @@ export default function AdminNavbar({ setIsMobileOpen, activeTabTitle }) {
         </div>
       </div>
 
-      {/* Right: Operational Status, Search, Notifications & Profile */}
+      {/* Right: Operational Controls, Notifications & Profile Avatar Menu */}
       <div className="flex items-center gap-3 sm:gap-4">
         {/* Search Icon */}
         <button className="text-[#666666] hover:text-[#1A1A1A] p-1.5 rounded-lg hover:bg-[#EFE9DF] transition-colors cursor-pointer">
@@ -39,7 +48,10 @@ export default function AdminNavbar({ setIsMobileOpen, activeTabTitle }) {
         {/* Notifications Button */}
         <div className="relative">
           <button
-            onClick={() => setShowNotifications(!showNotifications)}
+            onClick={() => {
+              setShowNotifications(!showNotifications);
+              setShowProfileMenu(false);
+            }}
             className="w-8 h-8 rounded-xl border border-[#E8E4DE] bg-white flex items-center justify-center text-[#666666] hover:text-[#1A1A1A] hover:border-[#C5A059]/40 transition-all cursor-pointer relative shadow-2xs"
             title="Notifications"
           >
@@ -74,11 +86,78 @@ export default function AdminNavbar({ setIsMobileOpen, activeTabTitle }) {
           )}
         </div>
 
-        {/* User Info Header Badge */}
-        <div className="flex items-center gap-2.5 pl-2 border-l border-[#E8E4DE]">
-          <div className="w-7 h-7 rounded-full bg-[#C5A059] text-white font-bold text-xs flex items-center justify-center">
-            {(user?.name || 'Admin')[0].toUpperCase()}
-          </div>
+        {/* User Profile Avatar Entry Point with Dropdown */}
+        <div className="relative pl-2 border-l border-[#E8E4DE]">
+          <button
+            onClick={() => {
+              setShowProfileMenu(!showProfileMenu);
+              setShowNotifications(false);
+            }}
+            className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#EFE9DF]/60 transition-all cursor-pointer"
+            title="Account Menu"
+          >
+            <div className="w-8 h-8 rounded-full bg-[#C5A059] text-white font-bold text-xs flex items-center justify-center shadow-xs overflow-hidden">
+              {user?.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user?.name || 'Admin'} className="w-full h-full object-cover" />
+              ) : (
+                <span>{(user?.name || 'Admin')[0].toUpperCase()}</span>
+              )}
+            </div>
+            <span className="material-symbols-outlined text-sm text-[#666666]">expand_more</span>
+          </button>
+
+          {/* Admin Profile Dropdown Menu */}
+          {showProfileMenu && (
+            <div className="absolute right-0 mt-2 w-60 bg-white border border-[#E8E4DE] rounded-2xl p-2 shadow-2xl z-50 animate-fadeIn space-y-1">
+              <div className="px-3 py-2.5 border-b border-[#E8E4DE]">
+                <div className="text-xs font-bold text-[#1A1A1A] truncate">{user?.name || 'Administrator'}</div>
+                <div className="text-[10px] text-[#666666] truncate">{user?.email || 'admin@mayura.com'}</div>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  navigate('/admin/profile');
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#1A1A1A] hover:bg-[#FAF8F4] transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-base text-[#C5A059]">account_circle</span>
+                <span>My Profile</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  navigate('/admin/profile?tab=settings');
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#1A1A1A] hover:bg-[#FAF8F4] transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-base text-[#666666]">tune</span>
+                <span>Account Settings</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setShowProfileMenu(false);
+                  navigate('/admin/profile?tab=security');
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#1A1A1A] hover:bg-[#FAF8F4] transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-base text-[#666666]">security</span>
+                <span>Security</span>
+              </button>
+
+              <div className="border-t border-[#E8E4DE] pt-1">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">logout</span>
+                  <span>Logout</span>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

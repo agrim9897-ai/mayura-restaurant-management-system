@@ -8,6 +8,7 @@ import AdminTables from '../components/admin/AdminTables';
 import AdminContactMessages from '../components/admin/AdminContactMessages';
 import AdminMenuManagement from '../components/admin/AdminMenuManagement';
 import AdminRestaurantSettings from '../components/admin/AdminRestaurantSettings';
+import AdminProfile from '../components/admin/AdminProfile';
 import {
   fetchReservations,
   fetchReservationStats,
@@ -85,6 +86,8 @@ export default function Admin() {
         return 'Menu Catalog';
       case '/admin/settings':
         return 'Settings';
+      case '/admin/profile':
+        return 'My Profile';
       default:
         return 'Overview';
     }
@@ -168,6 +171,7 @@ export default function Admin() {
                 />
               }
             />
+            <Route path="profile" element={<AdminProfile />} />
             <Route path="*" element={<Navigate to="/admin/dashboard" replace />} />
           </Routes>
         </main>

@@ -14,6 +14,14 @@ model Admin {
   name                 String
   email                String    @unique
   password             String
+  phone                String?   @default("+91 98765 00000")
+  avatarUrl            String?
+  role                 String    @default("Admin")
+  status               String    @default("Active")
+  lastLogin            DateTime?
+  emailNotifications   Boolean   @default(true)
+  reservationNotifs    Boolean   @default(true)
+  preferredLanguage    String    @default("English (US)")
   resetPasswordToken   String?
   resetPasswordExpires DateTime?
   createdAt            DateTime  @default(now())

@@ -4,10 +4,13 @@ import {
   loginAdmin,
   logoutAdmin,
   getMe,
+  updateProfile,
+  changePassword,
   forgotPassword,
   resetPassword,
 } from "../controllers/auth.controller.js";
 import authMiddleware from "../middleware/auth.js";
+import upload from "../middleware/upload.js";
 
 const router = Router();
 
@@ -32,6 +35,12 @@ router.post("/logout", logoutAdmin);
 
 // GET    /api/admin/profile         → Get current admin profile (protected)
 router.get("/profile", authMiddleware, getMe);
+
+// PATCH  /api/admin/profile         → Update admin profile (name, phone, notifications, avatar)
+router.patch("/profile", authMiddleware, upload.single("avatar"), updateProfile);
+
+// PATCH  /api/admin/change-password → Change admin password with current password verification
+router.patch("/change-password", authMiddleware, changePassword);
 
 // POST   /api/admin/forgot-password → Request password reset link (rate-limited)
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);

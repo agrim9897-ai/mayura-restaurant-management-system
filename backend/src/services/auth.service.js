@@ -55,8 +55,84 @@ export async function findAdminByEmail(email) {
 export async function findAdminById(id) {
   return prisma.admin.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, createdAt: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      avatarUrl: true,
+      role: true,
+      status: true,
+      lastLogin: true,
+      emailNotifications: true,
+      reservationNotifs: true,
+      preferredLanguage: true,
+      createdAt: true,
+    },
   });
+}
+
+/**
+ * Update admin profile information.
+ */
+export async function updateAdminProfile(id, data) {
+  return prisma.admin.update({
+    where: { id },
+    data,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      avatarUrl: true,
+      role: true,
+      status: true,
+      lastLogin: true,
+      emailNotifications: true,
+      reservationNotifs: true,
+      preferredLanguage: true,
+      createdAt: true,
+    },
+  });
+}
+
+/**
+ * Change admin password with current password verification.
+ */
+export async function changeAdminPassword(id, { currentPassword, newPassword, confirmPassword }) {
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    throw new Error("All password fields are required.");
+  }
+
+  if (newPassword !== confirmPassword) {
+    throw new Error("New passwords do not match.");
+  }
+
+  const admin = await prisma.admin.findUnique({ where: { id } });
+  if (!admin) {
+    throw new Error("Admin not found.");
+  }
+
+  const isMatch = await comparePassword(currentPassword, admin.password);
+  if (!isMatch) {
+    throw new Error("Current password is incorrect.");
+  }
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?])[A-Za-z\d@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]{8,}$/;
+  if (!passwordRegex.test(newPassword)) {
+    throw new Error(
+      "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+    );
+  }
+
+  const hashedPassword = await hashPassword(newPassword);
+
+  await prisma.admin.update({
+    where: { id },
+    data: { password: hashedPassword },
+  });
+
+  return "Password changed successfully.";
 }
 
 /**

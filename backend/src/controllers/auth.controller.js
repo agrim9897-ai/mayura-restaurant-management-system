@@ -4,6 +4,8 @@ import ApiError from "../utils/ApiError.js";
 import {
   findAdminByEmail,
   findAdminById,
+  updateAdminProfile,
+  changeAdminPassword,
   comparePassword,
   signToken,
   requestPasswordReset,
@@ -45,10 +47,20 @@ export const loginAdmin = asyncHandler(async (req, res) => {
   // 3. Generate JWT
   const token = signToken(admin);
 
-  // 4. Set httpOnly cookie
+  // 4. Update lastLogin timestamp in database
+  try {
+    await prisma.admin.update({
+      where: { id: admin.id },
+      data: { lastLogin: new Date() },
+    });
+  } catch {
+    // Non-blocking
+  }
+
+  // 5. Set httpOnly cookie
   res.cookie("token", token, COOKIE_OPTIONS);
 
-  // 5. Return success with token in body
+  // 6. Return success with token in body
   res.status(200).json(
     new ApiResponse(200, {
       token,
@@ -56,6 +68,10 @@ export const loginAdmin = asyncHandler(async (req, res) => {
         id: admin.id,
         name: admin.name,
         email: admin.email,
+        phone: admin.phone,
+        avatarUrl: admin.avatarUrl,
+        role: admin.role || "Admin",
+        status: admin.status || "Active",
       },
     }, "Login successful")
   );
@@ -114,5 +130,45 @@ export const resetPassword = asyncHandler(async (req, res) => {
   }
 
   const message = await resetAdminPassword({ token, newPassword });
+  res.status(200).json(new ApiResponse(200, null, message));
+});
+
+/**
+ * PATCH /api/admin/profile
+ * Update profile details (Name, Phone, Preferences, Avatar).
+ */
+export const updateProfile = asyncHandler(async (req, res) => {
+  const { name, phone, emailNotifications, reservationNotifs, preferredLanguage, avatarUrl } = req.body;
+
+  const dataToUpdate = {};
+  if (name !== undefined) dataToUpdate.name = name.trim();
+  if (phone !== undefined) dataToUpdate.phone = phone.trim();
+  if (emailNotifications !== undefined) dataToUpdate.emailNotifications = Boolean(emailNotifications);
+  if (reservationNotifs !== undefined) dataToUpdate.reservationNotifs = Boolean(reservationNotifs);
+  if (preferredLanguage !== undefined) dataToUpdate.preferredLanguage = preferredLanguage;
+  if (avatarUrl !== undefined) dataToUpdate.avatarUrl = avatarUrl;
+
+  // Handle file upload if present
+  if (req.file) {
+    dataToUpdate.avatarUrl = `/uploads/${req.file.filename}`;
+  }
+
+  const updatedAdmin = await updateAdminProfile(req.admin.id, dataToUpdate);
+  res.status(200).json(new ApiResponse(200, updatedAdmin, "Profile updated successfully"));
+});
+
+/**
+ * PATCH /api/admin/change-password
+ * Change password with current password verification.
+ */
+export const changePassword = asyncHandler(async (req, res) => {
+  const { currentPassword, newPassword, confirmPassword } = req.body;
+
+  const message = await changeAdminPassword(req.admin.id, {
+    currentPassword,
+    newPassword,
+    confirmPassword,
+  });
+
   res.status(200).json(new ApiResponse(200, null, message));
 });
