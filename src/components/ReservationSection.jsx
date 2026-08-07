@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import CustomDatePicker from './CustomDatePicker';
 import CustomTimePicker from './CustomTimePicker';
-import reservationTableImg from '../../images/reservation_table.png';
+import reservationTableImg from '../../images/dining.jpg';
 
 export default function ReservationSection() {
   const [formData, setFormData] = useState({
@@ -85,11 +85,15 @@ export default function ReservationSection() {
       <div className="absolute left-1/4 top-1/2 w-[500px] h-[500px] bg-primary opacity-5 rounded-full blur-[160px] pointer-events-none" />
 
       <div className="grid grid-cols-1 md:grid-cols-12 gap-gutter items-stretch">
-        {/* Left Side (45% on desktop) */}
-        <div className="md:col-span-5 relative min-h-[450px] md:min-h-full rounded-12 overflow-hidden gold-border image-vignette reveal reveal-left group">
-          <div id="reserve-parallax-container" className="absolute inset-0 w-full h-[120%] -top-[10%]">
-            <div className="w-full h-full transition-transform duration-[2000ms] ease-out group-hover:scale-[1.05]">
-              <img alt="Reservation Table Setting" className="w-full h-full object-cover cinematic-img" src={reservationTableImg} />
+        {/* Left Side (Compact cropped dining image) */}
+        <div className="md:col-span-5 relative h-[320px] md:h-auto max-h-[460px] rounded-12 overflow-hidden gold-border reveal reveal-left group my-auto">
+          <div id="reserve-parallax-container" className="w-full h-full">
+            <div className="w-full h-full transition-transform duration-[1500ms] ease-out group-hover:scale-[1.04]">
+              <img
+                alt="Reservation Dining Ambience"
+                className="w-full h-full object-cover object-top cinematic-img"
+                src={reservationTableImg}
+              />
             </div>
           </div>
         </div>

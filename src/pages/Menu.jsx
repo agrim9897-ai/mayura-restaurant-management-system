@@ -125,13 +125,12 @@ export default function Menu() {
               </span>
             </a>
           </div>
-          <div className="relative w-full h-[50vh] md:h-[65vh] reveal reveal-right image-vignette">
+          <div className="relative w-full h-[50vh] md:h-[65vh] reveal reveal-right hero-image-wrapper">
             <img
               alt="Gourmet Indian dish"
-              className="w-full h-full object-cover cinematic-img hover:scale-[1.05]"
+              className="w-full h-full object-cover cinematic-img transition-transform duration-700 hover:scale-[1.03]"
               src={heroDishImg}
             />
-            <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0f1f15] to-transparent hidden md:block" />
           </div>
         </div>
       </section>
