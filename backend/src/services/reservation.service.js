@@ -48,7 +48,7 @@ export async function createReservation(data) {
 
   if (!availableTable) {
     throw new Error(
-      "Sorry, no tables are available for your requested party size, date, time slot, and seating preference. Please select another time or date."
+      "Sorry, no tables are available for your selected date and time. Please choose another time slot or contact the restaurant for assistance."
     );
   }
 
