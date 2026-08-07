@@ -17,6 +17,29 @@ model Admin {
   createdAt DateTime @default(now())
 }
 
+// ─── Table ──────────────────────────────────────
+model Table {
+  id           String          @id @default(uuid())
+  tableNumber  String          @unique
+  capacity     Int
+  location     TableLocation   @default(INDOOR)
+  status       TableStatus     @default(AVAILABLE)
+  reservations Reservation[]
+  createdAt    DateTime        @default(now())
+}
+
+enum TableLocation {
+  INDOOR
+  OUTDOOR
+}
+
+enum TableStatus {
+  AVAILABLE
+  RESERVED
+  OCCUPIED
+  MAINTENANCE
+}
+
 // ─── Reservation ────────────────────────────────
 model Reservation {
   id                String            @id @default(uuid())
@@ -29,6 +52,8 @@ model Reservation {
   occasion          String?
   seatingPreference String?
   status            ReservationStatus @default(PENDING)
+  tableId           String?
+  table             Table?            @relation(fields: [tableId], references: [id], onDelete: SetNull)
   createdAt         DateTime          @default(now())
 }
 
@@ -56,6 +81,9 @@ model MenuItem {
   isVeg       Boolean      @default(false)
   imageUrl    String?
   isAvailable Boolean      @default(true)
+  isFeatured  Boolean      @default(false)
+  prepTime    String?      @default("15-20 mins")
+  createdAt   DateTime     @default(now())
 }
 
 // ─── Contact ────────────────────────────────────
@@ -70,13 +98,27 @@ model ContactMessage {
 
 // ─── Settings ───────────────────────────────────
 model RestaurantSettings {
-  id             String  @id @default(uuid())
-  restaurantName String
-  phone          String?
-  email          String?
-  address        String?
-  instagram      String?
-  facebook       String?
-  openingTime    String?
-  closingTime    String?
+  id                     String  @id @default(uuid())
+  restaurantName         String  @default("Mayura Fine Cuisine")
+  tagline                String? @default("Authentic Royal Indian Dining")
+  description            String? @default("An extraordinary culinary journey blending royal Indian heritage with modern gastronomy.")
+  logoUrl                String?
+  phone                  String? @default("+91 98765 43210")
+  email                  String? @default("contact@mayurafinecuisine.com")
+  address                String? @default("Plot 42, Executive Enclave, Golf Course Road, Gurgaon, Haryana 122002")
+  openingTime            String? @default("11:00 AM")
+  closingTime            String? @default("11:30 PM")
+  weekendHours           String? @default("11:00 AM - 12:00 AM")
+  instagram              String? @default("https://instagram.com/mayurafinecuisine")
+  facebook               String? @default("https://facebook.com/mayurafinecuisine")
+  twitter                String? @default("https://twitter.com/mayura_cuisine")
+  tripadvisor            String? @default("https://tripadvisor.com/mayura")
+  maxGuestsPerTable      Int?    @default(12)
+  reservationNoticeHours Int?    @default(2)
+  advanceBookingDays     Int?    @default(30)
+  heroTitle              String? @default("Taste of Royal Heritage")
+  heroSubtitle           String? @default("Experience extraordinary flavors crafted with passion, tradition, and culinary artistry.")
+  heroImageUrl           String?
+  footerCopyright        String? @default("© 2026 Mayura Fine Cuisine. All rights reserved.")
+  footerAbout            String? @default("Mayura Fine Cuisine represents the pinnacle of royal Indian dining, offering authentic recipes crafted with finest ingredients.")
 }

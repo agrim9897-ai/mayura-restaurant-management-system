@@ -1,20 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loginAdmin } from '../../services/api/auth.service';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminLogin() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@mayurafinecuisine.com');
-  const [password, setPassword] = useState('••••••••••••');
-  const [isLoading, setIsLoading] = useState(false);
+  const { isAuthenticated, login, isLoading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e) => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      navigate('/admin/dashboard');
-    }, 500);
+    setIsSubmitting(true);
+    setErrorMsg('');
+
+    try {
+      const response = await loginAdmin({ email, password });
+      if (response && response.success && response.data) {
+        // Store token and user in AuthContext + localStorage
+        login(response.data.token, response.data.user);
+        navigate('/admin/dashboard', { replace: true });
+      } else {
+        setErrorMsg(response?.message || 'Invalid login credentials');
+      }
+    } catch (err) {
+      setErrorMsg(err.message || 'Login failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // Show nothing while checking existing session
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4 text-[#e9c176]">
+          <div className="w-12 h-12 rounded-full border-2 border-[#e9c176]/20 border-t-[#e9c176] animate-spin" />
+          <p className="text-xs uppercase tracking-[0.2em]">Checking Session...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4 relative overflow-hidden">
@@ -36,6 +71,12 @@ export default function AdminLogin() {
           </p>
         </div>
 
+        {errorMsg && (
+          <div className="mb-4 bg-red-950/40 border border-red-500/30 rounded-xl p-3 text-red-400 text-xs text-center">
+            {errorMsg}
+          </div>
+        )}
+
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -48,7 +89,7 @@ export default function AdminLogin() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@mayurafinecuisine.com"
+                placeholder="admin@mayura.com"
                 className="w-full h-12 bg-transparent px-4 pl-11 text-on-surface text-sm focus:outline-none"
               />
               <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
@@ -78,13 +119,13 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full py-4 bg-[#e9c176] text-[#0f1f15] font-semibold text-xs uppercase tracking-[0.2em] rounded-xl hover:bg-[#ffdea5] hover:shadow-[0_0_20px_rgba(233,193,118,0.35)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <>
                 <div className="w-4 h-4 rounded-full border-2 border-[#0f1f15]/20 border-t-[#0f1f15] animate-spin" />
-                <span>Entering Portal...</span>
+                <span>Authenticating...</span>
               </>
             ) : (
               <>

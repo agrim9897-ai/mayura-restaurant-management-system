@@ -7,8 +7,8 @@ export default function AdminDashboardOverview({ stats, reservations, messages }
   const cards = [
     {
       title: "Total Reservations",
-      value: stats.totalReservations,
-      subtext: "+14% from last week",
+      value: stats.totalReservations ?? 0,
+      subtext: "All time bookings",
       icon: "table_restaurant",
       color: "text-[#e9c176]",
       bg: "bg-[#e9c176]/10",
@@ -16,7 +16,7 @@ export default function AdminDashboardOverview({ stats, reservations, messages }
     },
     {
       title: "Pending Reservations",
-      value: stats.pendingReservations,
+      value: stats.pendingReservations ?? 0,
       subtext: "Requires review",
       icon: "hourglass_empty",
       color: "text-amber-400",
@@ -25,18 +25,36 @@ export default function AdminDashboardOverview({ stats, reservations, messages }
     },
     {
       title: "Today's Reservations",
-      value: stats.todayReservations,
-      subtext: "88% seating capacity",
+      value: stats.todayReservations ?? 0,
+      subtext: "Scheduled for today",
       icon: "calendar_today",
       color: "text-emerald-400",
       bg: "bg-emerald-400/10",
       border: "border-emerald-400/30",
     },
     {
-      title: "Contact Messages",
-      value: stats.contactMessages,
-      subtext: "4 unread inquiries",
-      icon: "mail",
+      title: "Confirmed",
+      value: stats.confirmedReservations ?? 0,
+      subtext: "Approved bookings",
+      icon: "check_circle",
+      color: "text-teal-400",
+      bg: "bg-teal-400/10",
+      border: "border-teal-400/30",
+    },
+    {
+      title: "Cancelled",
+      value: stats.cancelledReservations ?? 0,
+      subtext: "Declined or no-show",
+      icon: "cancel",
+      color: "text-rose-400",
+      bg: "bg-rose-400/10",
+      border: "border-rose-400/30",
+    },
+    {
+      title: "Completed",
+      value: stats.completedReservations ?? 0,
+      subtext: "Successfully served",
+      icon: "task_alt",
       color: "text-sky-400",
       bg: "bg-sky-400/10",
       border: "border-sky-400/30",
@@ -71,7 +89,7 @@ export default function AdminDashboardOverview({ stats, reservations, messages }
       </div>
 
       {/* Metric Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {cards.map((c, i) => (
           <div
             key={i}
@@ -132,7 +150,7 @@ export default function AdminDashboardOverview({ stats, reservations, messages }
                       <span className="block text-[10px] text-[#a0998e]">{r.email}</span>
                     </td>
                     <td className="py-3 px-3">
-                      {r.date} <span className="text-[#e9c176] font-semibold">@ {r.time}</span>
+                      {r.date || (r.reservationDate ? String(r.reservationDate).split('T')[0] : '—')} <span className="text-[#e9c176] font-semibold">@ {r.time || r.reservationTime || '—'}</span>
                     </td>
                     <td className="py-3 px-3 font-semibold">{r.guests} Guests</td>
                     <td className="py-3 px-3">

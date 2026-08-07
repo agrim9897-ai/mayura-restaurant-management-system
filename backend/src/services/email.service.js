@@ -20,12 +20,6 @@ const createTransporter = () => {
 
 /**
  * Sends a reservation confirmation email to the guest.
- *
- * NOTE: If email sending fails, it logs the error and resolves safely
- * so the database reservation is NOT affected or rolled back.
- *
- * @param {Object} reservation - The saved reservation object from Prisma
- * @returns {Promise<boolean>} True if sent successfully, false otherwise
  */
 export async function sendReservationConfirmation(reservation) {
   try {
@@ -38,7 +32,6 @@ export async function sendReservationConfirmation(reservation) {
       return false;
     }
 
-    // Format reservation date to readable string if it's a Date object
     const formattedDate =
       reservation.reservationDate instanceof Date
         ? reservation.reservationDate.toISOString().split("T")[0]
@@ -49,89 +42,22 @@ export async function sendReservationConfirmation(reservation) {
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Reservation Confirmation — Mayura Fine Cuisine</title>
+  <title>Reservation Confirmed — Mayura Fine Cuisine</title>
   <style>
-    body {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      background-color: #0f0e0c;
-      color: #e5e0d8;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background-color: #171614;
-      border: 1px solid #d4af37;
-      border-radius: 12px;
-      padding: 40px 30px;
-    }
-    .header {
-      text-align: center;
-      border-bottom: 1px solid #2a2721;
-      padding-bottom: 20px;
-      margin-bottom: 30px;
-    }
-    .logo-text {
-      color: #d4af37;
-      font-size: 26px;
-      font-weight: bold;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin: 0;
-    }
-    .subtitle {
-      color: #a0998e;
-      font-size: 13px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-top: 5px;
-    }
-    h2 {
-      color: #f0e6d2;
-      font-size: 20px;
-      margin-top: 0;
-    }
-    p {
-      line-height: 1.6;
-      color: #c5beb3;
-    }
-    .details-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 25px 0;
-      background-color: #0f0e0c;
-      border-radius: 8px;
-      overflow: hidden;
-      border: 1px solid #2a2721;
-    }
-    .details-table td {
-      padding: 12px 18px;
-      border-bottom: 1px solid #2a2721;
-      font-size: 14px;
-    }
-    .details-table tr:last-child td {
-      border-bottom: none;
-    }
-    .label {
-      color: #d4af37;
-      font-weight: 600;
-      width: 40%;
-    }
-    .value {
-      color: #ffffff;
-    }
-    .footer {
-      text-align: center;
-      margin-top: 35px;
-      padding-top: 20px;
-      border-top: 1px solid #2a2721;
-      color: #8a8377;
-      font-size: 12px;
-    }
-    .gold-accent {
-      color: #d4af37;
-    }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0f0e0c; color: #e5e0d8; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #171614; border: 1px solid #d4af37; border-radius: 12px; padding: 40px 30px; }
+    .header { text-align: center; border-bottom: 1px solid #2a2721; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo-text { color: #d4af37; font-size: 26px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
+    .subtitle { color: #a0998e; font-size: 13px; letter-spacing: 1px; text-transform: uppercase; margin-top: 5px; }
+    h2 { color: #f0e6d2; font-size: 20px; margin-top: 0; }
+    p { line-height: 1.6; color: #c5beb3; }
+    .details-table { width: 100%; border-collapse: collapse; margin: 25px 0; background-color: #0f0e0c; border-radius: 8px; overflow: hidden; border: 1px solid #2a2721; }
+    .details-table td { padding: 12px 18px; border-bottom: 1px solid #2a2721; font-size: 14px; }
+    .details-table tr:last-child td { border-bottom: none; }
+    .label { color: #d4af37; font-weight: 600; width: 40%; }
+    .value { color: #ffffff; }
+    .footer { text-align: center; margin-top: 35px; padding-top: 20px; border-top: 1px solid #2a2721; color: #8a8377; font-size: 12px; }
+    .gold-accent { color: #d4af37; }
   </style>
 </head>
 <body>
@@ -140,49 +66,20 @@ export async function sendReservationConfirmation(reservation) {
       <div class="logo-text">MAYURA</div>
       <div class="subtitle">Fine Cuisine</div>
     </div>
-
     <h2>Reservation Confirmed</h2>
     <p>Dear <strong class="gold-accent">${reservation.name}</strong>,</p>
-    <p>Thank you for choosing Mayura Fine Cuisine. We are delighted to confirm your table reservation. Here are the details of your upcoming visit:</p>
-
+    <p>Thank you for choosing Mayura Fine Cuisine. We are delighted to confirm your table reservation. Here are your booking details:</p>
     <table class="details-table">
-      <tr>
-        <td class="label">Guest Name</td>
-        <td class="value">${reservation.name}</td>
-      </tr>
-      <tr>
-        <td class="label">Reservation Date</td>
-        <td class="value">${formattedDate}</td>
-      </tr>
-      <tr>
-        <td class="label">Reservation Time</td>
-        <td class="value">${reservation.reservationTime}</td>
-      </tr>
-      <tr>
-        <td class="label">Number of Guests</td>
-        <td class="value">${reservation.guests} ${reservation.guests === 1 ? "Guest" : "Guests"}</td>
-      </tr>
-      <tr>
-        <td class="label">Occasion</td>
-        <td class="value">${reservation.occasion || "Standard Dining"}</td>
-      </tr>
-      ${
-        reservation.seatingPreference
-          ? `
-      <tr>
-        <td class="label">Seating Preference</td>
-        <td class="value">${reservation.seatingPreference}</td>
-      </tr>`
-          : ""
-      }
+      <tr><td class="label">Guest Name</td><td class="value">${reservation.name}</td></tr>
+      <tr><td class="label">Reservation Date</td><td class="value">${formattedDate}</td></tr>
+      <tr><td class="label">Reservation Time</td><td class="value">${reservation.reservationTime || reservation.time}</td></tr>
+      <tr><td class="label">Number of Guests</td><td class="value">${reservation.guests} Guests</td></tr>
+      <tr><td class="label">Occasion</td><td class="value">${reservation.occasion || "Standard Dining"}</td></tr>
+      ${reservation.seatingPreference ? `<tr><td class="label">Seating Preference</td><td class="value">${reservation.seatingPreference}</td></tr>` : ""}
     </table>
-
     <p>We look forward to creating an extraordinary culinary experience for you and your guests.</p>
-    <p>If you need to modify or cancel your reservation, please contact us directly at least 2 hours prior to your scheduled time.</p>
-
     <div class="footer">
       <p>Warm regards,<br><strong class="gold-accent">Mayura Fine Cuisine Team</strong></p>
-      <p style="margin-top: 15px;">Reservations are held for 15 minutes after scheduled time.</p>
     </div>
   </div>
 </body>
@@ -200,8 +97,189 @@ export async function sendReservationConfirmation(reservation) {
     console.log(`📧 Confirmation email successfully sent to ${reservation.email} (Message ID: ${info.messageId})`);
     return true;
   } catch (error) {
-    console.error(`⚠️  Failed to send confirmation email to ${reservation.email}:`, error.message);
-    // Do NOT throw error — reservation is already saved successfully in PostgreSQL
+    console.error(`⚠️ Failed to send confirmation email to ${reservation.email}:`, error.message);
+    return false;
+  }
+}
+
+/**
+ * Sends a reservation cancellation email to the guest.
+ */
+export async function sendReservationCancellation(reservation) {
+  try {
+    const transporter = createTransporter();
+    if (!transporter) return false;
+
+    const formattedDate =
+      reservation.reservationDate instanceof Date
+        ? reservation.reservationDate.toISOString().split("T")[0]
+        : String(reservation.reservationDate).split("T")[0];
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Reservation Cancelled — Mayura Fine Cuisine</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0f0e0c; color: #e5e0d8; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #171614; border: 1px solid #d4af37; border-radius: 12px; padding: 40px 30px; }
+    .header { text-align: center; border-bottom: 1px solid #2a2721; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo-text { color: #d4af37; font-size: 26px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
+    .footer { text-align: center; margin-top: 35px; padding-top: 20px; border-top: 1px solid #2a2721; color: #8a8377; font-size: 12px; }
+    .gold-accent { color: #d4af37; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-text">MAYURA</div>
+      <div style="color: #a0998e; font-size: 13px; text-transform: uppercase; margin-top: 5px;">Fine Cuisine</div>
+    </div>
+    <h2 style="color: #e57373;">Reservation Cancelled</h2>
+    <p>Dear <strong class="gold-accent">${reservation.name}</strong>,</p>
+    <p>Your table reservation for <strong>${formattedDate} at ${reservation.reservationTime || reservation.time}</strong> has been cancelled.</p>
+    <p>If this was a mistake or you wish to reschedule, please feel free to make a new booking on our website or contact us directly.</p>
+    <div class="footer">
+      <p>Warm regards,<br><strong class="gold-accent">Mayura Reservations Team</strong></p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const mailOptions = {
+      from: `"Mayura Fine Cuisine" <${config.email.user}>`,
+      to: reservation.email,
+      subject: `Reservation Cancellation Notice — Mayura Fine Cuisine`,
+      html: htmlContent,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`📧 Cancellation email sent to ${reservation.email} (ID: ${info.messageId})`);
+    return true;
+  } catch (error) {
+    console.error(`⚠️ Failed to send cancellation email to ${reservation.email}:`, error.message);
+    return false;
+  }
+}
+
+/**
+ * Sends a thank-you email when a reservation is marked as COMPLETED.
+ */
+export async function sendReservationCompletion(reservation) {
+  try {
+    const transporter = createTransporter();
+    if (!transporter) return false;
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Thank You for Dining with Us — Mayura Fine Cuisine</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0f0e0c; color: #e5e0d8; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #171614; border: 1px solid #d4af37; border-radius: 12px; padding: 40px 30px; }
+    .header { text-align: center; border-bottom: 1px solid #2a2721; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo-text { color: #d4af37; font-size: 26px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; margin: 0; }
+    .footer { text-align: center; margin-top: 35px; padding-top: 20px; border-top: 1px solid #2a2721; color: #8a8377; font-size: 12px; }
+    .gold-accent { color: #d4af37; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-text">MAYURA</div>
+      <div style="color: #a0998e; font-size: 13px; text-transform: uppercase; margin-top: 5px;">Fine Cuisine</div>
+    </div>
+    <h2 style="color: #d4af37;">Thank You for Dining with Us!</h2>
+    <p>Dear <strong class="gold-accent">${reservation.name}</strong>,</p>
+    <p>It was our absolute pleasure hosting you at Mayura Fine Cuisine. We hope your dining experience was memorable and delightful.</p>
+    <p>We look forward to welcoming you back soon for another extraordinary culinary journey.</p>
+    <div class="footer">
+      <p>Warmest regards,<br><strong class="gold-accent">Mayura Executive Chef & Team</strong></p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const mailOptions = {
+      from: `"Mayura Fine Cuisine" <${config.email.user}>`,
+      to: reservation.email,
+      subject: `Thank You for Dining with Us — Mayura Fine Cuisine`,
+      html: htmlContent,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`📧 Completion thank-you email sent to ${reservation.email} (ID: ${info.messageId})`);
+    return true;
+  } catch (error) {
+    console.error(`⚠️ Failed to send completion email to ${reservation.email}:`, error.message);
+    return false;
+  }
+}
+
+/**
+ * Sends a reply email to a customer inquiry from the admin dashboard inbox.
+ */
+export async function sendReplyEmail({ to, subject, replyText }) {
+  try {
+    const transporter = createTransporter();
+
+    if (!transporter) {
+      console.warn(`⚠️ Email service notice: EMAIL_USER / EMAIL_PASS not configured. Skipping reply to ${to}.`);
+      return false;
+    }
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${subject}</title>
+  <style>
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background-color: #0f0e0c; color: #e5e0d8; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background-color: #171614; border: 1px solid #d4af37; border-radius: 12px; padding: 40px 30px; }
+    .header { text-align: center; border-bottom: 1px solid #2a2721; padding-bottom: 20px; margin-bottom: 30px; }
+    .logo-text { color: #d4af37; font-size: 24px; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; }
+    .subtitle { color: #a0998e; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; margin-top: 4px; }
+    .content { color: #f0e6d2; font-size: 15px; line-height: 1.7; white-space: pre-line; margin-top: 20px; }
+    .footer { text-align: center; margin-top: 35px; padding-top: 20px; border-top: 1px solid #2a2721; color: #8a8377; font-size: 12px; }
+    .gold-accent { color: #d4af37; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-text">MAYURA</div>
+      <div class="subtitle">Fine Cuisine</div>
+    </div>
+    <div class="content">
+      ${replyText}
+    </div>
+    <div class="footer">
+      <p>Warm regards,<br><strong class="gold-accent">Mayura Guest Relations Team</strong></p>
+      <p style="margin-top: 10px;">Executive Enclave, Golf Course Road, Gurgaon</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    const mailOptions = {
+      from: `"Mayura Guest Relations" <${config.email.user}>`,
+      to,
+      subject,
+      html: htmlContent,
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`📧 Reply email sent to ${to} (ID: ${info.messageId})`);
+    return true;
+  } catch (error) {
+    console.error(`⚠️ Failed to send reply email to ${to}:`, error.message);
     return false;
   }
 }

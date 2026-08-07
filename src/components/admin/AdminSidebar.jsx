@@ -1,20 +1,24 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function AdminSidebar({ isMobileOpen, setIsMobileOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const navItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: 'space_dashboard' },
-    { path: '/admin/reservations', label: 'Reservations', icon: 'table_restaurant', badge: 12 },
-    { path: '/admin/contact', label: 'Contact Messages', icon: 'mail', badge: 19 },
+    { path: '/admin/tables', label: 'Table Management', icon: 'table_restaurant' },
+    { path: '/admin/reservations', label: 'Reservations', icon: 'book_online' },
+    { path: '/admin/contact', label: 'Contact Messages', icon: 'mail' },
     { path: '/admin/menu', label: 'Menu Management', icon: 'menu_book' },
     { path: '/admin/settings', label: 'Restaurant Settings', icon: 'settings' },
   ];
 
-  const handleLogout = () => {
-    navigate('/admin');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/admin', { replace: true });
   };
 
   return (

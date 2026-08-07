@@ -1,70 +1,104 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { fetchSettings } from '../services/api/settings.service';
 
 export default function Footer() {
-  const navigate = useNavigate();
+  const [settings, setSettings] = useState(null);
 
-  const scrollToTop = (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const data = await fetchSettings();
+        if (data) setSettings(data);
+      } catch (err) {
+        console.error('Footer settings fetch error:', err);
+      }
+    }
+    loadSettings();
+  }, []);
+
+  const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleLinkClick = (path, hash) => {
-    if (hash) {
-      navigate(path);
-      setTimeout(() => {
-        const el = document.querySelector(hash);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    } else {
-      navigate(path);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  const brandName = settings?.restaurantName || 'Mayura Fine Cuisine';
+  const phone = settings?.phone || '+91 98765 43210';
+  const email = settings?.email || 'contact@mayurafinecuisine.com';
+  const address = settings?.address || 'Plot 42, Executive Enclave, Golf Course Road, Gurgaon';
+  const openingTime = settings?.openingTime || '11:00 AM';
+  const closingTime = settings?.closingTime || '11:30 PM';
+  const weekendHours = settings?.weekendHours || '11:00 AM - 12:00 AM';
+  const copyright = settings?.footerCopyright || `© ${new Date().getFullYear()} ${brandName}. All Rights Reserved.`;
 
   return (
-    <footer id="contact" className="bg-surface border-t border-outline-variant mt-section-padding">
+    <footer id="footer-section" className="bg-surface border-t border-outline-variant mt-section-padding">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-gutter px-margin-mobile md:px-margin-desktop py-section-padding w-full max-w-container-max mx-auto">
         {/* Brand & Info */}
         <div className="md:col-span-1 reveal reveal-up">
-          <Link to="/" onClick={(e) => { e.preventDefault(); handleLinkClick('/', ''); }} className="font-display-lg text-headline-md text-primary block mb-4">
-            Mayura
+          <Link to="/" className="font-display-lg text-headline-md text-primary block mb-4">
+            {brandName}
           </Link>
-          <p className="font-body-md text-body-md text-on-surface-variant mb-2">Good Food | Good Mood</p>
-          <p className="font-body-md text-body-md text-on-surface-variant mb-6">Experience the art of fine dining.</p>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-2">
+            {settings?.tagline || 'Good Food | Good Mood'}
+          </p>
+          <p className="font-body-md text-body-md text-on-surface-variant mb-6 leading-relaxed">
+            {settings?.footerAbout || 'Experience the art of authentic royal Indian dining.'}
+          </p>
+
           <div className="flex gap-4 text-primary">
-            <a href="#" className="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300" aria-label="QR Code">
-              <span className="material-symbols-outlined">qr_code_2</span>
-            </a>
-            <a href="#" className="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300" aria-label="Gallery">
-              <span className="material-symbols-outlined">photo_camera</span>
-            </a>
+            {settings?.instagram && (
+              <a
+                href={settings.instagram}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300"
+                aria-label="Instagram"
+              >
+                <span className="material-symbols-outlined">photo_camera</span>
+              </a>
+            )}
+            {settings?.facebook && (
+              <a
+                href={settings.facebook}
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-primary-fixed-dim transition-colors transform hover:scale-110 duration-300"
+                aria-label="Facebook"
+              >
+                <span className="material-symbols-outlined">share</span>
+              </a>
+            )}
           </div>
         </div>
 
-        {/* Links */}
+        {/* Quick Links */}
         <div className="reveal reveal-up" style={{ transitionDelay: '100ms' }}>
           <h4 className="font-button text-button text-primary mb-6 uppercase tracking-[0.1em]">Quick Links</h4>
           <ul className="flex flex-col gap-3 font-body-md text-body-md">
             <li>
-              <button onClick={() => handleLinkClick('/', '')} className="text-on-surface-variant hover:text-primary transition-colors duration-300 text-left">
+              <Link to="/" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Home
-              </button>
+              </Link>
             </li>
             <li>
-              <button onClick={() => handleLinkClick('/experience', '')} className="text-on-surface-variant hover:text-primary transition-colors duration-300 text-left">
+              <Link to="/experience" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Experience
-              </button>
+              </Link>
             </li>
             <li>
-              <button onClick={() => handleLinkClick('/menu', '')} className="text-on-surface-variant hover:text-primary transition-colors duration-300 text-left">
+              <Link to="/menu" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Our Menu
-              </button>
+              </Link>
             </li>
             <li>
-              <button onClick={() => handleLinkClick('/', '#reserve')} className="text-on-surface-variant hover:text-primary transition-colors duration-300 text-left">
+              <Link to="/reservation" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Reservations
-              </button>
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
+                Contact Us
+              </Link>
             </li>
           </ul>
         </div>
@@ -73,8 +107,8 @@ export default function Footer() {
         <div className="reveal reveal-up" style={{ transitionDelay: '200ms' }}>
           <h4 className="font-button text-button text-primary mb-6 uppercase tracking-[0.1em]">Opening Hours</h4>
           <ul className="flex flex-col gap-3 font-body-md text-body-md text-on-surface-variant">
-            <li>Mon - Fri: 11:00 AM - 11:30 PM</li>
-            <li>Sat - Sun: 10:00 AM - 12:00 AM</li>
+            <li>Mon - Fri: {openingTime} - {closingTime}</li>
+            <li>Sat - Sun: {weekendHours}</li>
             <li className="mt-2 text-primary-fixed-dim">We are open all days.</li>
           </ul>
         </div>
@@ -83,15 +117,15 @@ export default function Footer() {
         <div className="reveal reveal-up" style={{ transitionDelay: '300ms' }}>
           <h4 className="font-button text-button text-primary mb-6 uppercase tracking-[0.1em]">Contact Us</h4>
           <ul className="flex flex-col gap-3 font-body-md text-body-md text-on-surface-variant">
-            <li>+91 98765 43210</li>
-            <li>hello@mayurafinecuisine.com</li>
-            <li className="mt-2">123, Green Avenue, New Delhi, India - 110001</li>
+            <li>{phone}</li>
+            <li>{email}</li>
+            <li className="mt-2 leading-relaxed">{address}</li>
           </ul>
         </div>
       </div>
 
       <div className="border-t border-outline-variant px-margin-mobile md:px-margin-desktop py-6 w-full max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center font-body-md text-body-md text-on-surface-variant text-sm">
-        <p>© 2025 Mayura Fine Cuisine. All Rights Reserved.</p>
+        <p>{copyright}</p>
         <button onClick={scrollToTop} className="hover:text-primary transition-colors mt-4 md:mt-0 flex items-center gap-1 group">
           Back to Top
           <span className="material-symbols-outlined text-sm transform group-hover:translate-y-[-2px] transition-transform duration-300">

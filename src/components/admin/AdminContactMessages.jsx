@@ -1,26 +1,94 @@
 import React, { useState } from 'react';
+import { markMessageAsRead, deleteMessage, replyToMessage } from '../../services/api/messages.service';
 
 export default function AdminContactMessages({ messages, setMessages }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedMessage, setSelectedMessage] = useState(null);
+  const [replyModalOpen, setReplyModalOpen] = useState(false);
+  const [replyText, setReplyText] = useState('');
+  const [replySubject, setReplySubject] = useState('');
+  const [isSendingReply, setIsSendingReply] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3500);
+  };
 
   const filtered = messages.filter((m) =>
-    m.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.message.toLowerCase().includes(searchTerm.toLowerCase())
+    (m.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (m.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (m.subject || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (m.message || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleOpenView = (msg) => {
+  const handleOpenView = async (msg) => {
     setSelectedMessage(msg);
-    // Mark as read in local state
-    setMessages((prev) =>
-      prev.map((item) => (item.id === msg.id ? { ...item, isRead: true } : item))
-    );
+    try {
+      await markMessageAsRead(msg.id);
+      setMessages((prev) =>
+        prev.map((item) => (item.id === msg.id ? { ...item, isRead: true } : item))
+      );
+    } catch {
+      // Keep local state update
+    }
+  };
+
+  const handleOpenReply = (msg) => {
+    setSelectedMessage(msg);
+    setReplySubject(`Re: ${msg.subject || 'Inquiry regarding Mayura Fine Cuisine'}`);
+    setReplyText(`Dear ${msg.name},\n\nThank you for reaching out to Mayura Fine Cuisine.\n\nWarm regards,\nMayura Management Team`);
+    setReplyModalOpen(true);
+  };
+
+  const handleSendReply = async (e) => {
+    e.preventDefault();
+    if (!selectedMessage || !replyText.trim()) return;
+
+    setIsSendingReply(true);
+    try {
+      const result = await replyToMessage(selectedMessage.id, {
+        email: selectedMessage.email,
+        subject: replySubject,
+        replyText: replyText.trim(),
+      });
+
+      showToast(result.message || `Reply sent to ${selectedMessage.email}`);
+      setReplyModalOpen(false);
+    } catch (err) {
+      showToast(`Failed to send reply: ${err.message}`);
+    } finally {
+      setIsSendingReply(false);
+    }
+  };
+
+  const handleDelete = async (id, e) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm('Are you sure you want to delete this message permanently?')) return;
+
+    try {
+      await deleteMessage(id);
+      setMessages((prev) => prev.filter((item) => item.id !== id));
+      if (selectedMessage && selectedMessage.id === id) {
+        setSelectedMessage(null);
+        setReplyModalOpen(false);
+      }
+      showToast('Message deleted successfully');
+    } catch (err) {
+      showToast(`Failed to delete message: ${err.message}`);
+    }
   };
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Toast Feedback */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 bg-[#e9c176] text-[#0f1f15] font-semibold text-xs px-5 py-3 rounded-xl shadow-2xl z-50 flex items-center gap-2 border border-white/20 animate-bounce">
+          <span className="material-symbols-outlined text-sm">check_circle</span>
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
       {/* Control Search Header */}
       <div className="bg-[#0d1c13] gold-border rounded-2xl p-6 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
         <div className="relative flex-1 max-w-md">
@@ -42,7 +110,7 @@ export default function AdminContactMessages({ messages, setMessages }) {
       </div>
 
       {/* Messages Table Card */}
-      <div className="bg-[#0d1c13] gold-border rounded-2xl overflow-hidden">
+      <div className="bg-[#0d1c13] gold-border rounded-2xl overflow-hidden shadow-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -82,7 +150,7 @@ export default function AdminContactMessages({ messages, setMessages }) {
                     <td className="py-4 px-4 text-[#a0998e]">{m.email}</td>
 
                     {/* Subject */}
-                    <td className="py-4 px-4 font-medium text-[#e9c176]">{m.subject}</td>
+                    <td className="py-4 px-4 font-medium text-[#e9c176]">{m.subject || 'General Inquiry'}</td>
 
                     {/* Message Preview */}
                     <td className="py-4 px-4 max-w-xs truncate text-[#c8c2b7]">{m.message}</td>
@@ -90,15 +158,33 @@ export default function AdminContactMessages({ messages, setMessages }) {
                     {/* Date */}
                     <td className="py-4 px-4 text-[#a0998e] whitespace-nowrap">{m.date}</td>
 
-                    {/* View Button */}
+                    {/* Actions */}
                     <td className="py-4 px-4 text-right">
-                      <button
-                        onClick={() => handleOpenView(m)}
-                        className="px-3.5 py-1.5 rounded-lg bg-[#122419] border border-[#e9c176]/30 text-[#e9c176] hover:bg-[#e9c176] hover:text-[#0f1f15] text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer inline-flex items-center gap-1"
-                      >
-                        <span className="material-symbols-outlined text-sm">visibility</span>
-                        <span>View</span>
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenView(m)}
+                          className="px-3 py-1.5 rounded-lg bg-[#122419] border border-[#e9c176]/30 text-[#e9c176] hover:bg-[#e9c176] hover:text-[#0f1f15] text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <span className="material-symbols-outlined text-sm">visibility</span>
+                          <span>View</span>
+                        </button>
+
+                        <button
+                          onClick={() => handleOpenReply(m)}
+                          className="p-1.5 rounded-lg bg-[#122419] border border-[#e9c176]/30 text-[#e9c176] hover:bg-[#e9c176] hover:text-[#0f1f15] transition-all cursor-pointer"
+                          title="Reply to Message"
+                        >
+                          <span className="material-symbols-outlined text-sm">reply</span>
+                        </button>
+
+                        <button
+                          onClick={(e) => handleDelete(m.id, e)}
+                          className="p-1.5 rounded-lg bg-[#122419] border border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-white transition-all cursor-pointer"
+                          title="Delete Message"
+                        >
+                          <span className="material-symbols-outlined text-sm">delete</span>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -108,17 +194,17 @@ export default function AdminContactMessages({ messages, setMessages }) {
         </div>
       </div>
 
-      {/* Message Preview Modal */}
-      {selectedMessage && (
+      {/* View Message Modal */}
+      {selectedMessage && !replyModalOpen && (
         <div className="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#0d1c13] gold-border rounded-2xl max-w-xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative animate-scale">
             <div className="flex items-center justify-between border-b border-[#e9c176]/15 pb-4">
               <div>
                 <span className="text-[10px] uppercase tracking-widest text-[#e9c176] font-bold">
-                  INQUIRY #{selectedMessage.id}
+                  INQUIRY #{selectedMessage.id.slice(0, 8)}
                 </span>
                 <h3 className="font-serif text-xl text-[#e6e2dd] font-bold mt-1">
-                  {selectedMessage.subject}
+                  {selectedMessage.subject || 'General Inquiry'}
                 </h3>
               </div>
               <button
@@ -148,9 +234,7 @@ export default function AdminContactMessages({ messages, setMessages }) {
 
             <div className="flex justify-between items-center pt-2">
               <button
-                onClick={() => {
-                  alert(`Replying to ${selectedMessage.email}`);
-                }}
+                onClick={() => handleOpenReply(selectedMessage)}
                 className="px-5 py-2.5 rounded-xl bg-[#e9c176] text-[#0f1f15] font-semibold text-xs uppercase tracking-wider hover:bg-[#ffdea5] transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <span className="material-symbols-outlined text-sm">reply</span>
@@ -164,6 +248,93 @@ export default function AdminContactMessages({ messages, setMessages }) {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send Reply Email Modal */}
+      {replyModalOpen && selectedMessage && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0d1c13] gold-border rounded-2xl max-w-xl w-full p-6 md:p-8 space-y-6 shadow-2xl relative animate-scale">
+            <div className="flex items-center justify-between border-b border-[#e9c176]/15 pb-4">
+              <div>
+                <span className="text-[10px] uppercase tracking-widest text-[#e9c176] font-bold">
+                  REPLY TO GUEST INQUIRY
+                </span>
+                <h3 className="font-serif text-xl text-[#e6e2dd] font-bold mt-1">
+                  Reply to {selectedMessage.name}
+                </h3>
+              </div>
+              <button
+                onClick={() => setReplyModalOpen(false)}
+                className="text-[#a0998e] hover:text-[#e9c176]"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleSendReply} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-[#a0998e] mb-1 font-medium">To Email</label>
+                <input
+                  type="email"
+                  readOnly
+                  value={selectedMessage.email}
+                  className="w-full bg-[#07140c] border border-[#e9c176]/20 rounded-xl p-3 text-[#e9c176] font-mono focus:outline-none cursor-not-allowed"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[#a0998e] mb-1 font-medium">Subject Line</label>
+                <input
+                  type="text"
+                  required
+                  value={replySubject}
+                  onChange={(e) => setReplySubject(e.target.value)}
+                  className="w-full bg-[#07140c] border border-[#e9c176]/30 rounded-xl p-3 text-[#e6e2dd] focus:outline-none custom-focus"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[#a0998e] mb-1 font-medium">Email Reply Content</label>
+                <textarea
+                  rows="6"
+                  required
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  placeholder="Type your response message here..."
+                  className="w-full bg-[#07140c] border border-[#e9c176]/30 rounded-xl p-3 text-[#e6e2dd] focus:outline-none custom-focus leading-relaxed resize-none"
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-[#e9c176]/15">
+                <button
+                  type="button"
+                  onClick={() => setReplyModalOpen(false)}
+                  className="px-5 py-2.5 rounded-xl border border-[#e9c176]/30 text-[#a0998e] hover:text-[#e6e2dd]"
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="submit"
+                  disabled={isSendingReply}
+                  className="px-6 py-2.5 rounded-xl bg-[#e9c176] text-[#0f1f15] font-bold uppercase tracking-wider hover:bg-[#ffdea5] transition-all cursor-pointer shadow-lg flex items-center gap-2 disabled:opacity-50"
+                >
+                  {isSendingReply ? (
+                    <>
+                      <div className="w-4 h-4 rounded-full border-2 border-[#0f1f15]/20 border-t-[#0f1f15] animate-spin" />
+                      <span>Sending Email...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-base">send</span>
+                      <span>Send Email Reply</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

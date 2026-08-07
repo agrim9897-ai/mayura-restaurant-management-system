@@ -29,26 +29,26 @@ body {
     background: rgba(233, 193, 118, 0.6);
 }
 
-/* Modern Scroll Reveal System */
+/* Modern Scroll Reveal System — Subtle & Ultra-Smooth */
 .reveal {
     opacity: 0;
-    transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
     will-change: transform, opacity;
 }
 .reveal-up {
-    transform: translateY(50px);
+    transform: translateY(14px);
 }
 .reveal-down {
-    transform: translateY(-50px);
+    transform: translateY(-14px);
 }
 .reveal-left {
-    transform: translateX(-50px);
+    transform: translateX(-14px);
 }
 .reveal-right {
-    transform: translateX(50px);
+    transform: translateX(14px);
 }
 .reveal-scale {
-    transform: scale(0.95);
+    transform: scale(0.985);
 }
 .reveal.active {
     opacity: 1;

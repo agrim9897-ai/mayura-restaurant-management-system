@@ -5,6 +5,7 @@ import {
   getReservationById,
   updateReservation,
   deleteReservation,
+  getReservationStats,
 } from "../controllers/reservation.controller.js";
 
 const router = Router();
@@ -14,6 +15,9 @@ router.post("/", createReservation);
 
 // GET    /api/reservations       → Get all reservations
 router.get("/", getAllReservations);
+
+// GET    /api/reservations/stats  → Get dashboard statistics (must be before /:id)
+router.get("/stats", getReservationStats);
 
 // GET    /api/reservations/:id   → Get one reservation
 router.get("/:id", getReservationById);

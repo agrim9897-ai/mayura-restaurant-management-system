@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { menuData, categoryTitles } from '../data/menuData';
+import React, { useState, useEffect, useMemo } from 'react';
+import { fetchMenuItems } from '../services/api/menu.service';
+import { menuData as fallbackMenuData, categoryTitles } from '../data/menuData';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import heroDishImg from '../../images/hero_dish.png';
 
@@ -8,9 +9,44 @@ export default function Menu() {
   const [vegFilter, setVegFilter] = useState('all');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [sortOption, setSortOption] = useState('default');
+  const [dishes, setDishes] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch live dishes from PostgreSQL via API
+  useEffect(() => {
+    async function loadDishes() {
+      setIsLoading(true);
+      try {
+        const res = await fetchMenuItems({ limit: 100 });
+        if (res && res.data && res.data.length > 0) {
+          const mapped = res.data.map((item) => ({
+            id: item.id,
+            name: item.name,
+            desc: item.description || '',
+            price: item.price,
+            type: item.isVeg ? 'veg' : 'non-veg',
+            cat: item.category || 'Main Course',
+            imageUrl: item.imageUrl,
+            badge: item.isFeatured ? "Chef's Special" : null,
+            isAvailable: item.isAvailable,
+          }));
+          setDishes(mapped);
+        } else {
+          setDishes(fallbackMenuData);
+        }
+      } catch (err) {
+        console.error('Failed to load menu items:', err);
+        setDishes(fallbackMenuData);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadDishes();
+  }, []);
 
   const filteredDishes = useMemo(() => {
-    let result = [...menuData];
+    let result = [...dishes];
 
     // Search filter
     if (searchQuery.trim() !== '') {
@@ -29,7 +65,10 @@ export default function Menu() {
 
     // Category filter
     if (selectedCategory !== 'all') {
-      result = result.filter((item) => item.cat === selectedCategory);
+      result = result.filter((item) =>
+        item.cat.toLowerCase() === selectedCategory.toLowerCase() ||
+        (categoryTitles[selectedCategory] && categoryTitles[selectedCategory].toLowerCase().includes(item.cat.toLowerCase()))
+      );
     }
 
     // Sort filter
@@ -42,9 +81,9 @@ export default function Menu() {
     }
 
     return result;
-  }, [searchQuery, vegFilter, selectedCategory, sortOption]);
+  }, [dishes, searchQuery, vegFilter, selectedCategory, sortOption]);
 
-  // Group dishes by category if category is "all" or single category
+  // Group dishes by category
   const groupedDishes = useMemo(() => {
     const groups = {};
     filteredDishes.forEach((dish) => {
@@ -55,6 +94,12 @@ export default function Menu() {
     });
     return groups;
   }, [filteredDishes]);
+
+  // Available unique categories for dropdown
+  const uniqueCategories = useMemo(() => {
+    const set = new Set(dishes.map((d) => d.cat));
+    return Array.from(set);
+  }, [dishes]);
 
   useScrollReveal([filteredDishes]);
 
@@ -119,27 +164,12 @@ export default function Menu() {
                 onChange={(e) => setSelectedCategory(e.target.value)}
                 className="w-full bg-surface-container-low border border-outline-variant/60 rounded-12 px-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary transition-colors cursor-pointer"
               >
-                <option value="all">All Categories (20)</option>
-                <option value="signature-starters">Signature Starters</option>
-                <option value="soups">Soups</option>
-                <option value="salads">Salads</option>
-                <option value="indian-main">Indian Main Course</option>
-                <option value="italian">Italian</option>
-                <option value="chinese-asian">Chinese & Asian</option>
-                <option value="continental">Continental</option>
-                <option value="seafood">Seafood</option>
-                <option value="breads">Breads</option>
-                <option value="rice-biryani">Rice & Biryani</option>
-                <option value="desserts">Desserts</option>
-                <option value="mocktails">Mocktails</option>
-                <option value="fresh-juices">Fresh Juices</option>
-                <option value="hot-beverages">Hot Beverages</option>
-                <option value="cold-beverages">Cold Beverages</option>
-                <option value="coffee-selection">Coffee Selection</option>
-                <option value="tea-collection">Tea Collection</option>
-                <option value="milkshakes">Milkshakes</option>
-                <option value="chef-signatures">Chef's Signature Specials</option>
-                <option value="seasonal-specials">Seasonal Specials</option>
+                <option value="all">All Categories ({dishes.length})</option>
+                {uniqueCategories.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
               </select>
             </div>
 
@@ -199,7 +229,12 @@ export default function Menu() {
 
         {/* Dynamic Menu Container */}
         <div id="menu-container" className="space-y-20">
-          {Object.keys(groupedDishes).length === 0 ? (
+          {isLoading ? (
+            <div className="py-20 text-center text-[#e9c176] flex flex-col items-center gap-3">
+              <div className="w-10 h-10 rounded-full border-2 border-[#e9c176]/20 border-t-[#e9c176] animate-spin" />
+              <span className="text-xs uppercase tracking-widest">Loading Live Menu...</span>
+            </div>
+          ) : Object.keys(groupedDishes).length === 0 ? (
             <div className="text-center py-20 bg-surface-container-lowest gold-border rounded-12">
               <span className="material-symbols-outlined text-5xl text-primary mb-4">search_off</span>
               <h3 className="font-headline-md text-xl text-primary mb-2">No Dishes Found</h3>
@@ -210,13 +245,12 @@ export default function Menu() {
           ) : (
             Object.keys(groupedDishes).map((catKey) => {
               const catDishes = groupedDishes[catKey];
-              const title = categoryTitles[catKey] || catKey;
 
               return (
                 <div key={catKey} className="menu-category-block">
                   <div className="flex items-center gap-4 mb-8 border-b border-outline-variant pb-4">
                     <h3 className="font-headline-md text-2xl text-primary tracking-wide">
-                      {title}
+                      {catKey}
                     </h3>
                     <span className="font-label-caps text-xs text-primary-fixed-dim bg-surface-container-low px-3 py-1 rounded-full border border-primary/20">
                       {catDishes.length} Items
@@ -226,9 +260,19 @@ export default function Menu() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
                     {catDishes.map((dish) => (
                       <div
-                        key={dish.name}
+                        key={dish.id || dish.name}
                         className="menu-item-row group flex items-start justify-between gap-4 p-4 rounded-12 hover:bg-surface-container-lowest/50 transition-all duration-300 reveal reveal-up"
                       >
+                        {dish.imageUrl && (
+                          <div className="w-20 h-20 rounded-12 overflow-hidden shrink-0 bg-surface-container-low">
+                            <img
+                              src={dish.imageUrl}
+                              alt={dish.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                          </div>
+                        )}
+
                         <div className="flex-1 pr-4">
                           <div className="flex items-center gap-3 mb-2">
                             {/* Veg / Non-Veg Indicator */}

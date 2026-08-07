@@ -1,38 +1,31 @@
 import asyncHandler from "../utils/asyncHandler.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
-import {
-  createReservationSchema,
-  updateReservationSchema,
-} from "../validators/reservation.validator.js";
 import * as reservationService from "../services/reservation.service.js";
-import { sendReservationConfirmation } from "../services/email.service.js";
+import {
+  sendReservationConfirmation,
+  sendReservationCancellation,
+  sendReservationCompletion,
+} from "../services/email.service.js";
 
 /**
  * POST /api/reservations
  * Create a new reservation.
  */
 export const createReservation = asyncHandler(async (req, res) => {
-  // Validate request body
-  const parsed = createReservationSchema.safeParse(req.body);
+  const { name, email, phone, reservationDate, reservationTime, guests } = req.body;
 
-  if (!parsed.success) {
-    const errors = parsed.error.issues.map((e) => ({
-      field: e.path.join("."),
-      message: e.message,
-    }));
-    throw new ApiError(400, "Validation failed", errors);
+  if (!name || !email || !phone || !reservationDate || !reservationTime || !guests) {
+    throw new ApiError(400, "Name, email, phone, date, time, and guests are required.");
   }
 
-  // 1. Save reservation to database
-  const reservation = await reservationService.createReservation(parsed.data);
+  const reservation = await reservationService.createReservation(req.body);
 
-  // 2. Send confirmation email (non-blocking / error-safe)
+  // Send confirmation email (non-blocking)
   sendReservationConfirmation(reservation).catch((err) => {
-    console.error("⚠️ Email dispatch error:", err.message);
+    console.error("⚠️ Confirmation email error:", err.message);
   });
 
-  // 3. Return 201 Created response
   res
     .status(201)
     .json(new ApiResponse(201, reservation, "Reservation created successfully"));
@@ -40,14 +33,23 @@ export const createReservation = asyncHandler(async (req, res) => {
 
 /**
  * GET /api/reservations
- * Get all reservations (newest first).
+ * Get all reservations with pagination, search, status/date filter, and sorting.
  */
 export const getAllReservations = asyncHandler(async (req, res) => {
-  const reservations = await reservationService.getAllReservations();
+  const { page, limit, search, status, date, sort } = req.query;
+
+  const result = await reservationService.getAllReservations({
+    page,
+    limit,
+    search,
+    status,
+    date,
+    sort,
+  });
 
   res
     .status(200)
-    .json(new ApiResponse(200, reservations, "Reservations fetched successfully"));
+    .json(new ApiResponse(200, result, "Reservations fetched successfully"));
 });
 
 /**
@@ -70,21 +72,11 @@ export const getReservationById = asyncHandler(async (req, res) => {
 
 /**
  * PUT /api/reservations/:id
- * Update reservation status.
+ * Update a reservation (supports status changes & field editing).
+ * Automatically sends appropriate email when status changes.
  */
 export const updateReservation = asyncHandler(async (req, res) => {
   const { id } = req.params;
-
-  // Validate request body
-  const parsed = updateReservationSchema.safeParse(req.body);
-
-  if (!parsed.success) {
-    const errors = parsed.error.issues.map((e) => ({
-      field: e.path.join("."),
-      message: e.message,
-    }));
-    throw new ApiError(400, "Validation failed", errors);
-  }
 
   // Check if reservation exists
   const existing = await reservationService.getReservationById(id);
@@ -92,14 +84,28 @@ export const updateReservation = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Reservation not found");
   }
 
-  const reservation = await reservationService.updateReservationStatus(
-    id,
-    parsed.data.status
-  );
+  const updated = await reservationService.updateReservation(id, req.body);
+
+  // Trigger Nodemailer emails on status transition
+  if (req.body.status && req.body.status !== existing.status) {
+    if (req.body.status === "CONFIRMED") {
+      sendReservationConfirmation(updated).catch((err) => {
+        console.error("⚠️ Confirmation email error:", err.message);
+      });
+    } else if (req.body.status === "CANCELLED") {
+      sendReservationCancellation(updated).catch((err) => {
+        console.error("⚠️ Cancellation email error:", err.message);
+      });
+    } else if (req.body.status === "COMPLETED") {
+      sendReservationCompletion(updated).catch((err) => {
+        console.error("⚠️ Completion email error:", err.message);
+      });
+    }
+  }
 
   res
     .status(200)
-    .json(new ApiResponse(200, reservation, "Reservation updated successfully"));
+    .json(new ApiResponse(200, updated, "Reservation updated successfully"));
 });
 
 /**
@@ -109,7 +115,6 @@ export const updateReservation = asyncHandler(async (req, res) => {
 export const deleteReservation = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  // Check if reservation exists
   const existing = await reservationService.getReservationById(id);
   if (!existing) {
     throw new ApiError(404, "Reservation not found");
@@ -120,4 +125,16 @@ export const deleteReservation = asyncHandler(async (req, res) => {
   res
     .status(200)
     .json(new ApiResponse(200, null, "Reservation deleted successfully"));
+});
+
+/**
+ * GET /api/reservations/stats
+ * Get live reservation statistics for the admin dashboard.
+ */
+export const getReservationStats = asyncHandler(async (req, res) => {
+  const stats = await reservationService.getReservationStats();
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, stats, "Reservation stats fetched successfully"));
 });

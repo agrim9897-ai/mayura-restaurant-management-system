@@ -3,9 +3,14 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollProgress from './components/ScrollProgress';
+import PageTransition from './components/PageTransition';
+import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider } from './context/AuthContext';
 import Home from './pages/Home';
 import Menu from './pages/Menu';
 import Experience from './pages/Experience';
+import Reservation from './pages/Reservation';
+import Contact from './pages/Contact';
 import AdminLogin from './components/admin/AdminLogin';
 import Admin from './pages/Admin';
 
@@ -37,21 +42,32 @@ function MainLayout() {
       {!isAdminRoute && <ScrollProgress />}
       {!isAdminRoute && <Navbar />}
       <ScrollToTop />
-      <Routes>
-        {/* Public Customer Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/menu" element={<Menu />} />
-        <Route path="/experience" element={<Experience />} />
+      <PageTransition>
+        <Routes>
+          {/* Public Customer Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/experience" element={<Experience />} />
+          <Route path="/menu" element={<Menu />} />
+          <Route path="/reservation" element={<Reservation />} />
+          <Route path="/contact" element={<Contact />} />
 
-        {/* Admin Login Route */}
-        <Route path="/admin" element={<AdminLogin />} />
+          {/* Admin Login Route (public) */}
+          <Route path="/admin" element={<AdminLogin />} />
 
-        {/* Admin Dashboard Routes */}
-        <Route path="/admin/*" element={<Admin />} />
+          {/* Admin Dashboard Routes (protected) */}
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* Fallback Catch-all */}
-        <Route path="*" element={<Home />} />
-      </Routes>
+          {/* Fallback Catch-all */}
+          <Route path="*" element={<Home />} />
+        </Routes>
+      </PageTransition>
       {!isAdminRoute && <Footer />}
     </>
   );
@@ -60,7 +76,9 @@ function MainLayout() {
 export default function App() {
   return (
     <Router>
-      <MainLayout />
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
     </Router>
   );
 }

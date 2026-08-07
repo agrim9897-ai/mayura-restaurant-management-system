@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { fetchSettings } from '../services/api/settings.service';
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const location = useLocation();
+  const [settings, setSettings] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -19,19 +20,23 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const handleNavClick = (path, hash) => {
-    setMobileMenuOpen(false);
-    if (location.pathname !== path) {
-      navigate(path + (hash || ''));
-    } else if (hash) {
-      const el = document.querySelector(hash);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+  useEffect(() => {
+    async function loadSettings() {
+      try {
+        const data = await fetchSettings();
+        if (data) setSettings(data);
+      } catch (err) {
+        console.error('Navbar settings fetch error:', err);
       }
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+    loadSettings();
+  }, []);
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
   };
+
+  const brandName = settings?.restaurantName || 'Mayura';
 
   return (
     <>
@@ -41,66 +46,72 @@ export default function Navbar() {
           isScrolled ? 'nav-scrolled' : ''
         }`}
       >
-        <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto">
+        <div className="flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full max-w-container-max mx-auto">
           {/* Brand Logo */}
           <Link
             to="/"
-            onClick={() => handleNavClick('/', '')}
-            className="font-display-lg text-headline-md text-primary-fixed-dim hover:text-primary transition-colors duration-300"
+            onClick={closeMobileMenu}
+            className="font-display-lg text-headline-md text-primary-fixed-dim hover:text-primary transition-colors duration-300 flex items-center gap-3"
           >
-            Mayura
+            {settings?.logoUrl ? (
+              <img src={settings.logoUrl} alt={brandName} className="h-10 w-auto object-contain" />
+            ) : (
+              <span>{brandName}</span>
+            )}
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-gutter">
-            <Link
+            <NavLink
               to="/"
-              onClick={() => handleNavClick('/', '')}
-              className={`nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
-                location.pathname === '/' && !location.hash
-                  ? 'text-primary'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
+              end
+              className={({ isActive }) =>
+                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
+                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+                }`
+              }
             >
               Home
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/experience"
-              onClick={() => handleNavClick('/experience', '')}
-              className={`nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
-                location.pathname === '/experience'
-                  ? 'text-primary'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
+              className={({ isActive }) =>
+                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
+                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+                }`
+              }
             >
               Experience
-            </Link>
+            </NavLink>
 
-            <Link
+            <NavLink
               to="/menu"
-              onClick={() => handleNavClick('/menu', '')}
-              className={`nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
-                location.pathname === '/menu'
-                  ? 'text-primary'
-                  : 'text-on-surface-variant hover:text-primary'
-              }`}
+              className={({ isActive }) =>
+                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
+                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+                }`
+              }
             >
               Our Menu
-            </Link>
+            </NavLink>
 
-            <button
-              onClick={() => handleNavClick('/', '#contact')}
-              className="nav-link font-button text-button uppercase tracking-[0.1em] text-on-surface-variant hover:text-primary transition-colors duration-300"
+            <NavLink
+              to="/contact"
+              className={({ isActive }) =>
+                `nav-link font-button text-button uppercase tracking-[0.1em] transition-colors duration-300 ${
+                  isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+                }`
+              }
             >
               Contact
-            </button>
+            </NavLink>
           </div>
 
-          {/* CTA */}
+          {/* CTA Reserve Table */}
           <div className="hidden md:block">
             <button
-              onClick={() => handleNavClick('/', '#reserve')}
+              onClick={() => navigate('/reservation')}
               className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary font-button text-button uppercase tracking-[0.1em] rounded-12 hover:bg-primary hover:text-on-primary hover:shadow-[0_0_15px_rgba(233,193,118,0.3)] transition-all duration-300 hover:scale-[1.03]"
             >
               Reserve a Table
@@ -125,7 +136,7 @@ export default function Navbar() {
         }`}
       >
         <button
-          onClick={() => setMobileMenuOpen(false)}
+          onClick={closeMobileMenu}
           className="absolute top-8 right-margin-mobile text-primary focus:outline-none"
           aria-label="Close Menu"
         >
@@ -133,45 +144,60 @@ export default function Navbar() {
         </button>
 
         <div className="flex flex-col items-center gap-8 text-center">
-          <Link
+          <NavLink
             to="/"
-            onClick={() => handleNavClick('/', '')}
-            className={`text-2xl uppercase tracking-[0.2em] font-display-lg ${
-              location.pathname === '/' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-            }`}
+            end
+            onClick={closeMobileMenu}
+            className={({ isActive }) =>
+              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
+                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+              }`
+            }
           >
             Home
-          </Link>
+          </NavLink>
 
-          <Link
+          <NavLink
             to="/experience"
-            onClick={() => handleNavClick('/experience', '')}
-            className={`text-2xl uppercase tracking-[0.2em] font-display-lg ${
-              location.pathname === '/experience' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-            }`}
+            onClick={closeMobileMenu}
+            className={({ isActive }) =>
+              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
+                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+              }`
+            }
           >
             Experience
-          </Link>
+          </NavLink>
 
-          <Link
+          <NavLink
             to="/menu"
-            onClick={() => handleNavClick('/menu', '')}
-            className={`text-2xl uppercase tracking-[0.2em] font-display-lg ${
-              location.pathname === '/menu' ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
-            }`}
+            onClick={closeMobileMenu}
+            className={({ isActive }) =>
+              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
+                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+              }`
+            }
           >
             Our Menu
-          </Link>
+          </NavLink>
 
-          <button
-            onClick={() => handleNavClick('/', '#contact')}
-            className="text-2xl uppercase tracking-[0.2em] font-display-lg text-on-surface-variant hover:text-primary"
+          <NavLink
+            to="/contact"
+            onClick={closeMobileMenu}
+            className={({ isActive }) =>
+              `text-2xl uppercase tracking-[0.2em] font-display-lg ${
+                isActive ? 'text-primary' : 'text-on-surface-variant hover:text-primary'
+              }`
+            }
           >
             Contact
-          </button>
+          </NavLink>
 
           <button
-            onClick={() => handleNavClick('/', '#reserve')}
+            onClick={() => {
+              closeMobileMenu();
+              navigate('/reservation');
+            }}
             className="mt-4 inline-flex items-center justify-center px-8 py-4 border border-primary text-primary font-button text-button uppercase tracking-[0.15em] rounded-12 hover:bg-primary hover:text-on-primary transition-all duration-300"
           >
             Reserve a Table
