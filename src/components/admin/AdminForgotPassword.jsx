@@ -32,59 +32,56 @@ export default function AdminForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#e9c176]/10 rounded-full blur-[140px] pointer-events-none" />
-
-      {/* Forgot Password Card */}
-      <div className="w-full max-w-md bg-[#0d1c13] gold-border rounded-2xl p-8 md:p-10 shadow-2xl relative z-10 animate-fadeIn">
-        {/* Header Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-[#e9c176]/40 bg-[#14281c] mb-4 text-[#e9c176] shadow-[0_0_15px_rgba(233,193,118,0.15)]">
-            <span className="material-symbols-outlined text-3xl">lock_reset</span>
+    <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center p-4 select-none">
+      {/* Centered Luxury Card */}
+      <div className="w-full max-w-md bg-white border border-[#E8E4DE] rounded-2xl p-8 md:p-10 shadow-xl space-y-6">
+        {/* Editorial Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#FAF8F4] border border-[#E8E4DE] text-[#C5A059] mb-1">
+            <span className="material-symbols-outlined text-2xl">lock_reset</span>
           </div>
-          <h1 className="font-headline-lg text-2xl md:text-3xl text-[#e9c176] tracking-wider font-serif">
-            FORGOT PASSWORD
+          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A] tracking-tight">
+            Reset Password
           </h1>
-          <p className="text-xs uppercase tracking-[0.25em] text-[#a0998e] mt-1 font-sans">
-            MAYURA ADMIN RECOVERY
+          <p className="text-xs uppercase tracking-widest text-[#666666] font-medium">
+            Account Access Recovery
           </p>
         </div>
 
-        <p className="text-xs text-[#a0998e] leading-relaxed mb-6 text-center">
-          Enter your registered admin email address below. We will send you a secure, single-use password reset link valid for <strong>15 minutes</strong>.
+        <p className="text-xs text-[#666666] leading-relaxed text-center">
+          Enter your registered admin email address. We will send you a secure reset link valid for <strong>15 minutes</strong>.
         </p>
 
         {successMsg && (
-          <div className="mb-6 bg-emerald-950/50 border border-emerald-500/40 rounded-xl p-4 text-emerald-400 text-xs text-center space-y-1">
-            <span className="material-symbols-outlined text-2xl block mx-auto text-emerald-400 mb-1">mark_email_read</span>
-            <p className="font-semibold">{successMsg}</p>
-            <p className="text-[11px] text-emerald-400/80 pt-1">Please check your email inbox and follow the instructions.</p>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-emerald-800 text-xs text-center space-y-1">
+            <span className="material-symbols-outlined text-2xl block mx-auto text-emerald-600 mb-1">mark_email_read</span>
+            <p className="font-bold">{successMsg}</p>
+            <p className="text-[11px] text-emerald-700/80 pt-1">Please check your email inbox and follow the link.</p>
           </div>
         )}
 
         {errorMsg && (
-          <div className="mb-6 bg-red-950/40 border border-red-500/30 rounded-xl p-3 text-red-400 text-xs text-center">
+          <div className="bg-rose-50 border border-rose-200 rounded-xl p-3.5 text-rose-700 text-xs text-center font-medium">
             {errorMsg}
           </div>
         )}
 
         {!successMsg && (
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block text-xs uppercase tracking-wider text-[#e9c176] mb-2 font-medium">
+              <label className="block text-[#666666] mb-1.5 font-semibold">
                 Registered Admin Email
               </label>
-              <div className="relative custom-focus border border-[#e9c176]/30 rounded-xl bg-[#08140c] transition-all">
+              <div className="relative">
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@mayura.com"
-                  className="w-full h-12 bg-transparent px-4 pl-11 text-on-surface text-sm focus:outline-none"
+                  className="w-full h-11 bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl px-3.5 pl-10 text-[#1A1A1A] text-xs focus:outline-none custom-focus font-medium"
                 />
-                <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
+                <span className="material-symbols-outlined absolute left-3 top-3 text-sm text-[#666666]">
                   mail
                 </span>
               </div>
@@ -93,11 +90,11 @@ export default function AdminForgotPassword() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 bg-[#e9c176] text-[#0f1f15] font-semibold text-xs uppercase tracking-[0.2em] rounded-xl hover:bg-[#ffdea5] hover:shadow-[0_0_20px_rgba(233,193,118,0.35)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full py-3 bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#B59049] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs disabled:opacity-50 mt-2"
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-4 h-4 rounded-full border-2 border-[#0f1f15]/20 border-t-[#0f1f15] animate-spin" />
+                  <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                   <span>Dispatching Link...</span>
                 </>
               ) : (
@@ -110,8 +107,8 @@ export default function AdminForgotPassword() {
           </form>
         )}
 
-        <div className="mt-8 text-center text-xs text-[#a0998e] border-t border-[#e9c176]/10 pt-6">
-          <Link to="/admin" className="text-[#e9c176] hover:underline font-semibold flex items-center justify-center gap-1">
+        <div className="text-center text-xs text-[#666666] border-t border-[#E8E4DE] pt-4">
+          <Link to="/admin" className="text-[#C5A059] hover:underline font-semibold flex items-center justify-center gap-1">
             <span className="material-symbols-outlined text-sm">arrow_back</span>
             <span>Back to Admin Login</span>
           </Link>

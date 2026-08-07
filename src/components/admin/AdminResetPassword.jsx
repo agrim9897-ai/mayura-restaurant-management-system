@@ -61,16 +61,16 @@ export default function AdminResetPassword() {
 
   if (!token) {
     return (
-      <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4 relative overflow-hidden">
-        <div className="w-full max-w-md bg-[#0d1c13] gold-border rounded-2xl p-8 shadow-2xl text-center space-y-4">
-          <span className="material-symbols-outlined text-4xl text-rose-400">error</span>
-          <h2 className="font-serif text-xl text-[#e6e2dd] font-bold">Invalid Reset Link</h2>
-          <p className="text-xs text-[#a0998e]">
+      <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center p-4 select-none">
+        <div className="w-full max-w-md bg-white border border-[#E8E4DE] rounded-2xl p-8 shadow-xl text-center space-y-4">
+          <span className="material-symbols-outlined text-4xl text-rose-500">error</span>
+          <h2 className="font-serif text-xl text-[#1A1A1A] font-bold">Invalid Reset Link</h2>
+          <p className="text-xs text-[#666666]">
             No password reset token was provided in the link. Please request a new password reset link.
           </p>
           <Link
             to="/admin/forgot-password"
-            className="inline-block px-6 py-3 bg-[#e9c176] text-[#0f1f15] font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#ffdea5] transition-all"
+            className="inline-block px-6 py-2.5 bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#B59049] transition-all"
           >
             Request New Link
           </Link>
@@ -80,55 +80,52 @@ export default function AdminResetPassword() {
   }
 
   return (
-    <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#e9c176]/10 rounded-full blur-[140px] pointer-events-none" />
-
-      {/* Reset Password Card */}
-      <div className="w-full max-w-md bg-[#0d1c13] gold-border rounded-2xl p-8 md:p-10 shadow-2xl relative z-10 animate-fadeIn">
-        {/* Header Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-[#e9c176]/40 bg-[#14281c] mb-4 text-[#e9c176] shadow-[0_0_15px_rgba(233,193,118,0.15)]">
-            <span className="material-symbols-outlined text-3xl">key</span>
+    <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center p-4 select-none">
+      {/* Centered Luxury Card */}
+      <div className="w-full max-w-md bg-white border border-[#E8E4DE] rounded-2xl p-8 md:p-10 shadow-xl space-y-6">
+        {/* Editorial Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#FAF8F4] border border-[#E8E4DE] text-[#C5A059] mb-1">
+            <span className="material-symbols-outlined text-2xl">key</span>
           </div>
-          <h1 className="font-headline-lg text-2xl md:text-3xl text-[#e9c176] tracking-wider font-serif">
-            RESET PASSWORD
+          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A] tracking-tight">
+            New Password
           </h1>
-          <p className="text-xs uppercase tracking-[0.25em] text-[#a0998e] mt-1 font-sans">
-            SET NEW ADMIN CREDENTIALS
+          <p className="text-xs uppercase tracking-widest text-[#666666] font-medium">
+            Set Secure Admin Password
           </p>
         </div>
 
         {errorMsg && (
-          <div className="mb-6 bg-red-950/40 border border-red-500/30 rounded-xl p-3 text-red-400 text-xs text-center">
+          <div className="bg-rose-50 border border-rose-200 rounded-xl p-3.5 text-rose-700 text-xs text-center font-medium">
             {errorMsg}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {/* New Password */}
           <div>
-            <label className="block text-xs uppercase tracking-wider text-[#e9c176] mb-2 font-medium">
+            <label className="block text-[#666666] mb-1.5 font-semibold">
               New Password
             </label>
-            <div className="relative custom-focus border border-[#e9c176]/30 rounded-xl bg-[#08140c] transition-all">
+            <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="New strong password..."
-                className="w-full h-12 bg-transparent px-4 pl-11 pr-11 text-on-surface text-sm focus:outline-none"
+                className="w-full h-11 bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl px-3.5 pl-10 pr-10 text-[#1A1A1A] text-xs focus:outline-none custom-focus font-medium"
               />
-              <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
+              <span className="material-symbols-outlined absolute left-3 top-3 text-sm text-[#666666]">
                 lock
               </span>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-3 text-sm text-[#a0998e] hover:text-[#e9c176]"
+                className="absolute right-3 top-3 text-sm text-[#666666] hover:text-[#1A1A1A] transition-colors cursor-pointer"
               >
-                <span className="material-symbols-outlined">
+                <span className="material-symbols-outlined text-base">
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </span>
               </button>
@@ -137,66 +134,66 @@ export default function AdminResetPassword() {
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-xs uppercase tracking-wider text-[#e9c176] mb-2 font-medium">
+            <label className="block text-[#666666] mb-1.5 font-semibold">
               Confirm New Password
             </label>
-            <div className="relative custom-focus border border-[#e9c176]/30 rounded-xl bg-[#08140c] transition-all">
+            <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Repeat new password..."
-                className="w-full h-12 bg-transparent px-4 pl-11 text-on-surface text-sm focus:outline-none"
+                className="w-full h-11 bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl px-3.5 pl-10 text-[#1A1A1A] text-xs focus:outline-none custom-focus font-medium"
               />
-              <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
+              <span className="material-symbols-outlined absolute left-3 top-3 text-sm text-[#666666]">
                 verified_user
               </span>
             </div>
           </div>
 
           {/* Live Validation Checklist */}
-          <div className="bg-[#07140c] border border-[#e9c176]/20 rounded-xl p-4 space-y-2 text-[11px]">
-            <span className="text-[#a0998e] font-semibold uppercase tracking-wider block mb-1">
+          <div className="bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl p-3.5 space-y-2 text-[11px]">
+            <span className="text-[#666666] font-semibold uppercase tracking-wider block mb-1">
               Password Requirements:
             </span>
             <div className="grid grid-cols-2 gap-1.5">
-              <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-400' : 'text-[#a0998e]'}`}>
+              <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-700 font-semibold' : 'text-[#666666]'}`}>
                 <span className="material-symbols-outlined text-sm">
                   {hasMinLength ? 'check_circle' : 'radio_button_unchecked'}
                 </span>
                 <span>8+ Characters</span>
               </div>
 
-              <div className={`flex items-center gap-1.5 ${hasUppercase ? 'text-emerald-400' : 'text-[#a0998e]'}`}>
+              <div className={`flex items-center gap-1.5 ${hasUppercase ? 'text-emerald-700 font-semibold' : 'text-[#666666]'}`}>
                 <span className="material-symbols-outlined text-sm">
                   {hasUppercase ? 'check_circle' : 'radio_button_unchecked'}
                 </span>
                 <span>Uppercase (A-Z)</span>
               </div>
 
-              <div className={`flex items-center gap-1.5 ${hasLowercase ? 'text-emerald-400' : 'text-[#a0998e]'}`}>
+              <div className={`flex items-center gap-1.5 ${hasLowercase ? 'text-emerald-700 font-semibold' : 'text-[#666666]'}`}>
                 <span className="material-symbols-outlined text-sm">
                   {hasLowercase ? 'check_circle' : 'radio_button_unchecked'}
                 </span>
                 <span>Lowercase (a-z)</span>
               </div>
 
-              <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-400' : 'text-[#a0998e]'}`}>
+              <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-700 font-semibold' : 'text-[#666666]'}`}>
                 <span className="material-symbols-outlined text-sm">
                   {hasNumber ? 'check_circle' : 'radio_button_unchecked'}
                 </span>
                 <span>Number (0-9)</span>
               </div>
 
-              <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-emerald-400' : 'text-[#a0998e]'}`}>
+              <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-emerald-700 font-semibold' : 'text-[#666666]'}`}>
                 <span className="material-symbols-outlined text-sm">
                   {hasSpecial ? 'check_circle' : 'radio_button_unchecked'}
                 </span>
                 <span>Special Char (@$!%*)</span>
               </div>
 
-              <div className={`flex items-center gap-1.5 ${passwordsMatch ? 'text-emerald-400' : 'text-[#a0998e]'}`}>
+              <div className={`flex items-center gap-1.5 ${passwordsMatch ? 'text-emerald-700 font-semibold' : 'text-[#666666]'}`}>
                 <span className="material-symbols-outlined text-sm">
                   {passwordsMatch ? 'check_circle' : 'radio_button_unchecked'}
                 </span>
@@ -208,11 +205,11 @@ export default function AdminResetPassword() {
           <button
             type="submit"
             disabled={isSubmitting || !isFormValid}
-            className="w-full py-4 bg-[#e9c176] text-[#0f1f15] font-semibold text-xs uppercase tracking-[0.2em] rounded-xl hover:bg-[#ffdea5] hover:shadow-[0_0_20px_rgba(233,193,118,0.35)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3 bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#B59049] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs disabled:opacity-50 mt-2"
           >
             {isSubmitting ? (
               <>
-                <div className="w-4 h-4 rounded-full border-2 border-[#0f1f15]/20 border-t-[#0f1f15] animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                 <span>Updating Password...</span>
               </>
             ) : (
@@ -224,8 +221,8 @@ export default function AdminResetPassword() {
           </button>
         </form>
 
-        <div className="mt-8 text-center text-xs text-[#a0998e] border-t border-[#e9c176]/10 pt-6">
-          <Link to="/admin" className="text-[#e9c176] hover:underline font-semibold">
+        <div className="text-center text-xs text-[#666666] border-t border-[#E8E4DE] pt-4">
+          <Link to="/admin" className="text-[#C5A059] hover:underline font-semibold">
             Cancel and Return to Login
           </Link>
         </div>

@@ -45,100 +45,99 @@ export default function AdminLogin() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-4 text-[#e9c176]">
-          <div className="w-12 h-12 rounded-full border-2 border-[#e9c176]/20 border-t-[#e9c176] animate-spin" />
-          <p className="text-xs uppercase tracking-[0.2em]">Checking Session...</p>
+      <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3 text-[#666666]">
+          <div className="w-8 h-8 rounded-full border-2 border-[#E8E4DE] border-t-[#C5A059] animate-spin" />
+          <p className="text-xs font-semibold tracking-wider uppercase text-[#1A1A1A]">Checking Session...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Background Radial Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[#e9c176]/10 rounded-full blur-[140px] pointer-events-none" />
-
-      {/* Login Card */}
-      <div className="w-full max-w-md bg-[#0d1c13] gold-border rounded-2xl p-8 md:p-10 shadow-2xl relative z-10">
-        {/* Header Branding */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border border-[#e9c176]/40 bg-[#14281c] mb-4 text-[#e9c176] shadow-[0_0_15px_rgba(233,193,118,0.15)]">
-            <span className="material-symbols-outlined text-3xl">restaurant</span>
+    <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center p-4 select-none">
+      {/* Centered Luxury Card */}
+      <div className="w-full max-w-md bg-white border border-[#E8E4DE] rounded-2xl p-8 md:p-10 shadow-xl space-y-6">
+        {/* Minimal Editorial Branding Header */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#FAF8F4] border border-[#E8E4DE] text-[#C5A059] mb-1">
+            <span className="material-symbols-outlined text-2xl">restaurant</span>
           </div>
-          <h1 className="font-headline-lg text-2xl md:text-3xl text-[#e9c176] tracking-wider font-serif">
-            MAYURA
+          <h1 className="font-serif text-3xl font-bold text-[#1A1A1A] tracking-tight">
+            Mayura
           </h1>
-          <p className="text-xs uppercase tracking-[0.25em] text-[#a0998e] mt-1 font-sans">
-            FINE CUISINE • ADMIN PORTAL
+          <p className="text-xs uppercase tracking-widest text-[#666666] font-medium">
+            Admin Portal Access
           </p>
         </div>
 
+        {/* Success Alert */}
         {successMsg && (
-          <div className="mb-4 bg-emerald-950/50 border border-emerald-500/40 rounded-xl p-3 text-emerald-400 text-xs text-center flex items-center justify-center gap-2 font-medium">
-            <span className="material-symbols-outlined text-sm">check_circle</span>
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-emerald-800 text-xs text-center flex items-center justify-center gap-2 font-medium">
+            <span className="material-symbols-outlined text-base text-emerald-600">check_circle</span>
             <span>{successMsg}</span>
           </div>
         )}
 
+        {/* Error Alert */}
         {errorMsg && (
-          <div className="mb-4 bg-red-950/40 border border-red-500/30 rounded-xl p-3 text-red-400 text-xs text-center">
+          <div className="bg-rose-50 border border-rose-200 rounded-xl p-3.5 text-rose-700 text-xs text-center font-medium">
             {errorMsg}
           </div>
         )}
 
         {/* Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block text-xs uppercase tracking-wider text-[#e9c176] mb-2 font-medium">
-              Admin Email
+            <label className="block text-[#666666] mb-1.5 font-semibold">
+              Admin Email Address
             </label>
-            <div className="relative custom-focus border border-[#e9c176]/30 rounded-xl bg-[#08140c] transition-all">
+            <div className="relative">
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@mayura.com"
-                className="w-full h-12 bg-transparent px-4 pl-11 text-on-surface text-sm focus:outline-none"
+                className="w-full h-11 bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl px-3.5 pl-10 text-[#1A1A1A] text-xs focus:outline-none custom-focus font-medium"
               />
-              <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
+              <span className="material-symbols-outlined absolute left-3 top-3 text-sm text-[#666666]">
                 mail
               </span>
             </div>
           </div>
 
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-xs uppercase tracking-wider text-[#e9c176] font-medium">
+            <div className="flex justify-between items-center mb-1.5">
+              <label className="text-[#666666] font-semibold">
                 Password
               </label>
               <Link
                 to="/admin/forgot-password"
-                className="text-xs text-[#e9c176] hover:underline font-medium"
+                className="text-xs text-[#C5A059] hover:underline font-semibold"
               >
                 Forgot Password?
               </Link>
             </div>
-            <div className="relative custom-focus border border-[#e9c176]/30 rounded-xl bg-[#08140c] transition-all">
+            <div className="relative">
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full h-12 bg-transparent px-4 pl-11 pr-11 text-on-surface text-sm focus:outline-none"
+                className="w-full h-11 bg-[#FAF8F4] border border-[#E8E4DE] rounded-xl px-3.5 pl-10 pr-10 text-[#1A1A1A] text-xs focus:outline-none custom-focus font-medium"
               />
-              <span className="material-symbols-outlined absolute left-3.5 top-3 text-sm text-[#a0998e]">
+              <span className="material-symbols-outlined absolute left-3 top-3 text-sm text-[#666666]">
                 lock
               </span>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-3 text-sm text-[#a0998e] hover:text-[#e9c176] transition-colors cursor-pointer"
+                className="absolute right-3 top-3 text-sm text-[#666666] hover:text-[#1A1A1A] transition-colors cursor-pointer"
                 title={showPassword ? "Hide password" : "Show password"}
               >
-                <span className="material-symbols-outlined">
+                <span className="material-symbols-outlined text-base">
                   {showPassword ? 'visibility_off' : 'visibility'}
                 </span>
               </button>
@@ -148,23 +147,24 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-4 bg-[#e9c176] text-[#0f1f15] font-semibold text-xs uppercase tracking-[0.2em] rounded-xl hover:bg-[#ffdea5] hover:shadow-[0_0_20px_rgba(233,193,118,0.35)] transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-3 bg-[#C5A059] text-white font-bold text-xs uppercase tracking-wider rounded-xl hover:bg-[#B59049] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer shadow-2xs disabled:opacity-50 mt-2"
           >
             {isSubmitting ? (
               <>
-                <div className="w-4 h-4 rounded-full border-2 border-[#0f1f15]/20 border-t-[#0f1f15] animate-spin" />
+                <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
                 <span>Authenticating...</span>
               </>
             ) : (
               <>
-                <span>Enter Admin Dashboard</span>
+                <span>Sign In to Dashboard</span>
                 <span className="material-symbols-outlined text-sm">arrow_forward</span>
               </>
             )}
           </button>
         </form>
 
-        <div className="mt-8 text-center text-xs text-[#a0998e]/70 border-t border-[#e9c176]/10 pt-6">
+        {/* Footer info */}
+        <div className="text-center text-[11px] text-[#666666]/70 border-t border-[#E8E4DE] pt-4">
           Mayura Restaurant Management System v1.0
         </div>
       </div>
