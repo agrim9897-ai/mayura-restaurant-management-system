@@ -62,8 +62,21 @@ app.use(cookieParser());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // ──────────────────────────────────────────────
-//  API Routes
+//  Root & API Routes
 // ──────────────────────────────────────────────
+
+// Root welcoming endpoint for Render health checks and root GET/HEAD requests
+app.get("/", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Mayura Fine Cuisine Backend API",
+    status: "Healthy",
+    endpoints: "/api",
+  });
+});
+app.head("/", (_req, res) => {
+  res.status(200).end();
+});
 
 app.use("/api", routes);
 
