@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
+import bcrypt from "bcrypt";
 
 dotenv.config();
 
@@ -17,15 +18,40 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 /**
- * Verifies that the database connection is working.
- * Logs the result but does NOT crash the server if DB is unreachable,
- * so the health check endpoint can still report the status.
+ * Ensures at least one default admin account exists in the database.
+ * If no admin is found, automatically seeds admin@mayura.com / Admin@123.
+ */
+export async function ensureDefaultAdmin() {
+  try {
+    const adminCount = await prisma.admin.count();
+    if (adminCount === 0) {
+      const hashedPassword = await bcrypt.hash("Admin@123", 12);
+      await prisma.admin.create({
+        data: {
+          name: "Admin Manager",
+          email: "admin@mayura.com",
+          password: hashedPassword,
+          role: "Admin",
+          status: "Active",
+          phone: "+91 98765 00000",
+        },
+      });
+      console.log("🌱 Default admin account seeded: admin@mayura.com / Admin@123");
+    }
+  } catch (error) {
+    console.error("⚠️ Default admin auto-seed warning:", error.message);
+  }
+}
+
+/**
+ * Verifies that the database connection is working and ensures default admin is seeded.
  * @returns {Promise<boolean>}
  */
 export async function connectDatabase() {
   try {
     await pool.query("SELECT 1");
     console.log("✅ Database connected successfully");
+    await ensureDefaultAdmin();
     return true;
   } catch (error) {
     console.error("⚠️  Database connection failed:", error.message);
