@@ -6,13 +6,14 @@ import {
   updateTable,
   deleteTable,
 } from "../controllers/table.controller.js";
+import authMiddleware from "../middleware/auth.js";
 
 const router = Router();
 
 router.get("/", getTables);
 router.get("/:id", getTableById);
-router.post("/", createTable);
-router.put("/:id", updateTable);
-router.delete("/:id", deleteTable);
+router.post("/", authMiddleware, createTable);
+router.put("/:id", authMiddleware, updateTable);
+router.delete("/:id", authMiddleware, deleteTable);
 
 export default router;

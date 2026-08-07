@@ -21,10 +21,15 @@ export const createReservation = asyncHandler(async (req, res) => {
 
   const reservation = await reservationService.createReservation(req.body);
 
-  // Send confirmation email (non-blocking)
-  sendReservationConfirmation(reservation).catch((err) => {
-    console.error("⚠️ Confirmation email error:", err.message);
-  });
+  // Dispatch confirmation email to guest
+  try {
+    const emailSent = await sendReservationConfirmation(reservation);
+    if (!emailSent) {
+      console.warn(`⚠️ Confirmation email notice: Email could not be delivered to ${reservation.email}`);
+    }
+  } catch (emailErr) {
+    console.error("⚠️ Confirmation email dispatch error:", emailErr.message);
+  }
 
   res
     .status(201)
@@ -88,18 +93,16 @@ export const updateReservation = asyncHandler(async (req, res) => {
 
   // Trigger Nodemailer emails on status transition
   if (req.body.status && req.body.status !== existing.status) {
-    if (req.body.status === "CONFIRMED") {
-      sendReservationConfirmation(updated).catch((err) => {
-        console.error("⚠️ Confirmation email error:", err.message);
-      });
-    } else if (req.body.status === "CANCELLED") {
-      sendReservationCancellation(updated).catch((err) => {
-        console.error("⚠️ Cancellation email error:", err.message);
-      });
-    } else if (req.body.status === "COMPLETED") {
-      sendReservationCompletion(updated).catch((err) => {
-        console.error("⚠️ Completion email error:", err.message);
-      });
+    try {
+      if (req.body.status === "CONFIRMED") {
+        await sendReservationConfirmation(updated);
+      } else if (req.body.status === "CANCELLED") {
+        await sendReservationCancellation(updated);
+      } else if (req.body.status === "COMPLETED") {
+        await sendReservationCompletion(updated);
+      }
+    } catch (emailErr) {
+      console.error("⚠️ Status update email dispatch error:", emailErr.message);
     }
   }
 
