@@ -39,36 +39,12 @@ function MainLayout() {
   const location = useLocation();
   const isAdminRoute = location.pathname.startsWith('/admin');
 
-  if (isAdminRoute) {
-    return (
-      <>
-        <ScrollToTop />
-        <Routes>
-          {/* Admin Auth Routes (public) */}
-          <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
-          <Route path="/admin/reset-password" element={<AdminResetPassword />} />
-
-          {/* Admin Dashboard Routes (protected) */}
-          <Route
-            path="/admin/*"
-            element={
-              <ProtectedRoute>
-                <Admin />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col justify-between bg-surface">
-      <ScrollProgress />
-      <Navbar />
+      {!isAdminRoute && <ScrollProgress />}
+      {!isAdminRoute && <Navbar />}
       <ScrollToTop />
-      <div className="flex-1 flex flex-col">
+      <main className="flex-1 w-full flex flex-col">
         <PageTransition>
           <Routes>
             {/* Public Customer Routes */}
@@ -78,12 +54,27 @@ function MainLayout() {
             <Route path="/reservation" element={<Reservation />} />
             <Route path="/contact" element={<Contact />} />
 
+            {/* Admin Auth Routes (public) */}
+            <Route path="/admin" element={<AdminLogin />} />
+            <Route path="/admin/forgot-password" element={<AdminForgotPassword />} />
+            <Route path="/admin/reset-password" element={<AdminResetPassword />} />
+
+            {/* Admin Dashboard Routes (protected) */}
+            <Route
+              path="/admin/*"
+              element={
+                <ProtectedRoute>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Fallback Catch-all */}
             <Route path="*" element={<Home />} />
           </Routes>
         </PageTransition>
-      </div>
-      <Footer />
+      </main>
+      {!isAdminRoute && <Footer />}
     </div>
   );
 }
