@@ -1,5 +1,3 @@
-// Prisma Schema for Mayura Restaurant Backend
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,9 +5,9 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
-// ─── Admin ──────────────────────────────────────
+
 model Admin {
-  id                   String    @id @default(uuid())
+  id                   String    @id @default(dbgenerated("(uuid_generate_v4())::text"))
   name                 String
   email                String    @unique
   password             String
@@ -26,32 +24,18 @@ model Admin {
   createdAt            DateTime  @default(now())
 }
 
-// ─── Table ──────────────────────────────────────
 model Table {
-  id           String          @id @default(uuid())
-  tableNumber  String          @unique
+  id           String        @id @default(dbgenerated("(uuid_generate_v4())::text"))
+  tableNumber  String        @unique
   capacity     Int
-  location     TableLocation   @default(INDOOR)
-  status       TableStatus     @default(AVAILABLE)
+  location     TableLocation @default(INDOOR)
+  status       TableStatus   @default(AVAILABLE)
+  createdAt    DateTime      @default(now())
   reservations Reservation[]
-  createdAt    DateTime        @default(now())
 }
 
-enum TableLocation {
-  INDOOR
-  OUTDOOR
-}
-
-enum TableStatus {
-  AVAILABLE
-  RESERVED
-  OCCUPIED
-  MAINTENANCE
-}
-
-// ─── Reservation ────────────────────────────────
 model Reservation {
-  id                String            @id @default(uuid())
+  id                String            @id @default(dbgenerated("(uuid_generate_v4())::text"))
   name              String
   email             String
   phone             String
@@ -62,28 +46,21 @@ model Reservation {
   seatingPreference String?
   status            ReservationStatus @default(PENDING)
   tableId           String?
-  table             Table?            @relation(fields: [tableId], references: [id], onDelete: SetNull)
   createdAt         DateTime          @default(now())
+  table             Table?            @relation(fields: [tableId], references: [id])
+
+  @@index([tableId])
 }
 
-enum ReservationStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}
-
-// ─── Menu ───────────────────────────────────────
 model MenuCategory {
-  id    String     @id @default(uuid())
+  id    String     @id @default(dbgenerated("(uuid_generate_v4())::text"))
   name  String
   items MenuItem[]
 }
 
 model MenuItem {
-  id          String       @id @default(uuid())
+  id          String       @id @default(dbgenerated("(uuid_generate_v4())::text"))
   categoryId  String
-  category    MenuCategory @relation(fields: [categoryId], references: [id])
   name        String
   description String?
   price       Float
@@ -93,11 +70,13 @@ model MenuItem {
   isFeatured  Boolean      @default(false)
   prepTime    String?      @default("15-20 mins")
   createdAt   DateTime     @default(now())
+  category    MenuCategory @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
 }
 
-// ─── Contact ────────────────────────────────────
 model ContactMessage {
-  id        String   @id @default(uuid())
+  id        String   @id @default(dbgenerated("(uuid_generate_v4())::text"))
   name      String
   email     String
   phone     String?
@@ -105,9 +84,8 @@ model ContactMessage {
   createdAt DateTime @default(now())
 }
 
-// ─── Settings ───────────────────────────────────
 model RestaurantSettings {
-  id                     String  @id @default(uuid())
+  id                     String  @id @default(dbgenerated("(uuid_generate_v4())::text"))
   restaurantName         String  @default("Mayura Fine Cuisine")
   tagline                String? @default("Authentic Royal Indian Dining")
   description            String? @default("An extraordinary culinary journey blending royal Indian heritage with modern gastronomy.")
@@ -130,4 +108,23 @@ model RestaurantSettings {
   heroImageUrl           String?
   footerCopyright        String? @default("© 2026 Mayura Fine Cuisine. All rights reserved.")
   footerAbout            String? @default("Mayura Fine Cuisine represents the pinnacle of royal Indian dining, offering authentic recipes crafted with finest ingredients.")
+}
+
+enum TableLocation {
+  INDOOR
+  OUTDOOR
+}
+
+enum TableStatus {
+  AVAILABLE
+  RESERVED
+  OCCUPIED
+  MAINTENANCE
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
 }

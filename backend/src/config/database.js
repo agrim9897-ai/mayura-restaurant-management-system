@@ -6,10 +6,27 @@ import bcrypt from "bcrypt";
 
 dotenv.config();
 
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL || "postgresql://postgres:Agrim%4011@localhost:5432/mayura_db?schema=public";
 
-// Create a native pg connection pool
-const pool = new pg.Pool({ connectionString });
+// Clean up incompatible connection parameters for remote poolers
+if (connectionString.includes("&channel_binding=require")) {
+  connectionString = connectionString.replace("&channel_binding=require", "");
+}
+if (connectionString.includes("?channel_binding=require")) {
+  connectionString = connectionString.replace("?channel_binding=require", "?");
+}
+
+const isRemoteDb =
+  connectionString.includes("neon.tech") ||
+  connectionString.includes("onrender.com") ||
+  connectionString.includes("amazonaws.com") ||
+  connectionString.includes("sslmode=require");
+
+// Create a native pg connection pool with SSL options if connecting to remote DB
+const pool = new pg.Pool({
+  connectionString,
+  ...(isRemoteDb ? { ssl: { rejectUnauthorized: false } } : {}),
+});
 
 // Create the Prisma adapter using the pg pool
 const adapter = new PrismaPg(pool);
@@ -55,7 +72,6 @@ export async function connectDatabase() {
     return true;
   } catch (error) {
     console.error("⚠️  Database connection failed:", error.message);
-    console.error("   The server will start, but database features won't work.");
     console.error("   Update DATABASE_URL in .env with correct credentials.\n");
     return false;
   }

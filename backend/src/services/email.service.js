@@ -1,19 +1,40 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 import config from "../config/index.js";
+
+// Ensure environment variables are fresh
+dotenv.config();
+
+/**
+ * Gets the current active email sender address.
+ */
+function getEmailUser() {
+  return process.env.EMAIL_USER || config.email.user;
+}
+
+/**
+ * Gets the current active email password.
+ */
+function getEmailPass() {
+  return process.env.EMAIL_PASS || config.email.pass;
+}
 
 /**
  * Creates Nodemailer transporter for Gmail SMTP using env credentials.
  */
 const createTransporter = () => {
-  if (!config.email.user || !config.email.pass || config.email.user.includes("your_gmail")) {
+  const user = getEmailUser();
+  const pass = getEmailPass();
+
+  if (!user || !pass || user.includes("your_gmail")) {
     return null;
   }
 
   return nodemailer.createTransport({
     service: "gmail",
     auth: {
-      user: config.email.user,
-      pass: config.email.pass,
+      user: user.trim(),
+      pass: pass.trim(),
     },
   });
 };
@@ -24,6 +45,7 @@ const createTransporter = () => {
 export async function sendReservationConfirmation(reservation) {
   try {
     const transporter = createTransporter();
+    const currentUser = getEmailUser();
 
     if (!transporter) {
       console.warn(
@@ -87,14 +109,14 @@ export async function sendReservationConfirmation(reservation) {
     `;
 
     const mailOptions = {
-      from: `"Mayura Fine Cuisine" <${config.email.user}>`,
+      from: `"Mayura Fine Cuisine" <${currentUser}>`,
       to: reservation.email,
       subject: `Table Reservation Confirmed — Mayura Fine Cuisine`,
       html: htmlContent,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Confirmation email successfully sent to ${reservation.email} (Message ID: ${info.messageId})`);
+    console.log(`📧 Confirmation email successfully sent from ${currentUser} to ${reservation.email} (Message ID: ${info.messageId})`);
     return true;
   } catch (error) {
     console.error(`⚠️ Failed to send confirmation email to ${reservation.email}:`, error.message);
@@ -108,6 +130,7 @@ export async function sendReservationConfirmation(reservation) {
 export async function sendReservationCancellation(reservation) {
   try {
     const transporter = createTransporter();
+    const currentUser = getEmailUser();
     if (!transporter) return false;
 
     const formattedDate =
@@ -149,14 +172,14 @@ export async function sendReservationCancellation(reservation) {
     `;
 
     const mailOptions = {
-      from: `"Mayura Fine Cuisine" <${config.email.user}>`,
+      from: `"Mayura Fine Cuisine" <${currentUser}>`,
       to: reservation.email,
       subject: `Reservation Cancellation Notice — Mayura Fine Cuisine`,
       html: htmlContent,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Cancellation email sent to ${reservation.email} (ID: ${info.messageId})`);
+    console.log(`📧 Cancellation email sent from ${currentUser} to ${reservation.email} (ID: ${info.messageId})`);
     return true;
   } catch (error) {
     console.error(`⚠️ Failed to send cancellation email to ${reservation.email}:`, error.message);
@@ -170,6 +193,7 @@ export async function sendReservationCancellation(reservation) {
 export async function sendReservationCompletion(reservation) {
   try {
     const transporter = createTransporter();
+    const currentUser = getEmailUser();
     if (!transporter) return false;
 
     const htmlContent = `
@@ -206,14 +230,14 @@ export async function sendReservationCompletion(reservation) {
     `;
 
     const mailOptions = {
-      from: `"Mayura Fine Cuisine" <${config.email.user}>`,
+      from: `"Mayura Fine Cuisine" <${currentUser}>`,
       to: reservation.email,
       subject: `Thank You for Dining with Us — Mayura Fine Cuisine`,
       html: htmlContent,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Completion thank-you email sent to ${reservation.email} (ID: ${info.messageId})`);
+    console.log(`📧 Completion thank-you email sent from ${currentUser} to ${reservation.email} (ID: ${info.messageId})`);
     return true;
   } catch (error) {
     console.error(`⚠️ Failed to send completion email to ${reservation.email}:`, error.message);
@@ -227,6 +251,7 @@ export async function sendReservationCompletion(reservation) {
 export async function sendReplyEmail({ to, subject, replyText }) {
   try {
     const transporter = createTransporter();
+    const currentUser = getEmailUser();
 
     if (!transporter) {
       console.warn(`⚠️ Email service notice: EMAIL_USER / EMAIL_PASS not configured. Skipping reply to ${to}.`);
@@ -269,14 +294,14 @@ export async function sendReplyEmail({ to, subject, replyText }) {
     `;
 
     const mailOptions = {
-      from: `"Mayura Guest Relations" <${config.email.user}>`,
+      from: `"Mayura Guest Relations" <${currentUser}>`,
       to,
       subject,
       html: htmlContent,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Reply email sent to ${to} (ID: ${info.messageId})`);
+    console.log(`📧 Reply email sent from ${currentUser} to ${to} (ID: ${info.messageId})`);
     return true;
   } catch (error) {
     console.error(`⚠️ Failed to send reply email to ${to}:`, error.message);
@@ -290,6 +315,7 @@ export async function sendReplyEmail({ to, subject, replyText }) {
 export async function sendPasswordResetEmail({ to, resetUrl }) {
   try {
     const transporter = createTransporter();
+    const currentUser = getEmailUser();
 
     if (!transporter) {
       console.warn(`⚠️ Email service notice: EMAIL_USER / EMAIL_PASS not configured. Skipping password reset email for ${to}.`);
@@ -349,14 +375,14 @@ export async function sendPasswordResetEmail({ to, resetUrl }) {
     `;
 
     const mailOptions = {
-      from: `"Mayura Security" <${config.email.user}>`,
+      from: `"Mayura Security" <${currentUser}>`,
       to,
       subject: `Reset Your Admin Password — Mayura Fine Cuisine`,
       html: htmlContent,
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log(`📧 Password reset email sent to ${to} (Message ID: ${info.messageId})`);
+    console.log(`📧 Password reset email sent from ${currentUser} to ${to} (Message ID: ${info.messageId})`);
     return true;
   } catch (error) {
     console.error(`⚠️ Failed to send password reset email to ${to}:`, error.message);

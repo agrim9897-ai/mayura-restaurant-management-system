@@ -5,14 +5,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+// Use DIRECT_URL for Prisma CLI commands (db pull, migrate, validate) to bypass transaction pooler
+const directUrl = process.env.DIRECT_URL || process.env.DATABASE_URL;
+
+const pool = new pg.Pool({ connectionString: directUrl });
 const adapter = new PrismaPg(pool);
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
 
   datasource: {
-    url: process.env.DATABASE_URL,
+    url: directUrl,
   },
 
   migrate: {
