@@ -11,6 +11,8 @@ import {
 /**
  * POST /api/reservations
  * Create a new reservation.
+ * Returns HTTP 201 immediately after saving to DB and table assignment,
+ * then dispatches confirmation email asynchronously in background.
  */
 export const createReservation = asyncHandler(async (req, res) => {
   const { name, email, phone, reservationDate, reservationTime, guests } = req.body;
@@ -19,21 +21,34 @@ export const createReservation = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Name, email, phone, date, time, and guests are required.");
   }
 
-  const reservation = await reservationService.createReservation(req.body);
-
-  // Dispatch confirmation email to guest
+  // 1. Validate, check table availability & save to database (blocking & safe)
+  let reservation;
   try {
-    const emailSent = await sendReservationConfirmation(reservation);
-    if (!emailSent) {
-      console.warn(`⚠️ Confirmation email notice: Email could not be delivered to ${reservation.email}`);
-    }
-  } catch (emailErr) {
-    console.error("⚠️ Confirmation email dispatch error:", emailErr.message);
+    reservation = await reservationService.createReservation(req.body);
+  } catch (err) {
+    throw new ApiError(
+      400,
+      err.message ||
+        "Sorry, no tables are available for your selected date and time. Please choose another time slot or contact the restaurant."
+    );
   }
 
+  // 2. Immediately send success response to frontend (Instant UI response)
   res
     .status(201)
-    .json(new ApiResponse(201, reservation, "Reservation created successfully"));
+    .json(new ApiResponse(201, reservation, "Reservation confirmed successfully."));
+
+  // 3. Asynchronously dispatch confirmation email in background (Non-blocking)
+  setImmediate(async () => {
+    try {
+      const emailSent = await sendReservationConfirmation(reservation);
+      if (!emailSent) {
+        console.warn(`⚠️ Background email notice: Could not deliver email to ${reservation.email}`);
+      }
+    } catch (emailErr) {
+      console.error("⚠️ Background email dispatch error:", emailErr.message);
+    }
+  });
 });
 
 /**
@@ -78,7 +93,7 @@ export const getReservationById = asyncHandler(async (req, res) => {
 /**
  * PUT /api/reservations/:id
  * Update a reservation (supports status changes & field editing).
- * Automatically sends appropriate email when status changes.
+ * Returns HTTP response immediately and dispatches status emails asynchronously in background.
  */
 export const updateReservation = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -91,24 +106,27 @@ export const updateReservation = asyncHandler(async (req, res) => {
 
   const updated = await reservationService.updateReservation(id, req.body);
 
-  // Trigger Nodemailer emails on status transition
-  if (req.body.status && req.body.status !== existing.status) {
-    try {
-      if (req.body.status === "CONFIRMED") {
-        await sendReservationConfirmation(updated);
-      } else if (req.body.status === "CANCELLED") {
-        await sendReservationCancellation(updated);
-      } else if (req.body.status === "COMPLETED") {
-        await sendReservationCompletion(updated);
-      }
-    } catch (emailErr) {
-      console.error("⚠️ Status update email dispatch error:", emailErr.message);
-    }
-  }
-
+  // Send response immediately
   res
     .status(200)
     .json(new ApiResponse(200, updated, "Reservation updated successfully"));
+
+  // Trigger Nodemailer emails asynchronously on status transition
+  if (req.body.status && req.body.status !== existing.status) {
+    setImmediate(async () => {
+      try {
+        if (req.body.status === "CONFIRMED") {
+          await sendReservationConfirmation(updated);
+        } else if (req.body.status === "CANCELLED") {
+          await sendReservationCancellation(updated);
+        } else if (req.body.status === "COMPLETED") {
+          await sendReservationCompletion(updated);
+        }
+      } catch (emailErr) {
+        console.error("⚠️ Background status update email error:", emailErr.message);
+      }
+    });
+  }
 });
 
 /**

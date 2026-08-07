@@ -116,9 +116,9 @@ export default function ReservationSection() {
                     <div className="w-16 h-16 rounded-full border border-primary flex items-center justify-center mb-6 text-primary animate-scale">
                       <span className="material-symbols-outlined text-4xl">check</span>
                     </div>
-                    <h3 className="font-headline-md text-primary mb-4">Reservation Requested</h3>
+                    <h3 className="font-headline-md text-primary mb-4">Reservation Confirmed Successfully</h3>
                     <p id="success-details" className="font-body-md text-on-surface-variant max-w-sm mb-8 leading-relaxed">
-                      Thank you, <strong>{formData.name}</strong>. We have received your request for <strong>{formData.guests}</strong> guests on <strong>{formData.date}</strong> at <strong>{formData.time}</strong>. A confirmation has been sent to <strong>{formData.email}</strong>.
+                      Thank you, <strong>{formData.name}</strong>. Your reservation for <strong>{formData.guests}</strong> guests on <strong>{formData.date}</strong> at <strong>{formData.time}</strong> has been confirmed successfully. A confirmation email is on its way to <strong>{formData.email}</strong>.
                     </p>
                     <button
                       type="button"
