@@ -20,8 +20,8 @@ function getEmailPass() {
 }
 
 /**
- * Creates Nodemailer transporter for Gmail SMTP forcing IPv4 (family: 4)
- * to prevent ENETUNREACH IPv6 routing errors on cloud platforms like Render.
+ * Creates Nodemailer transporter for Gmail SMTP on Port 587 STARTTLS forcing IPv4 (family: 4)
+ * to prevent ENETUNREACH and Port 465 timeout errors on cloud platforms like Render.
  */
 const createTransporter = () => {
   const user = getEmailUser();
@@ -33,16 +33,17 @@ const createTransporter = () => {
 
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    family: 4, // Force IPv4 resolution to prevent ENETUNREACH on IPv6-disabled host networks
+    port: 587,
+    secure: false,
+    requireTLS: true,
+    family: 4, // Force IPv4 resolution to prevent ENETUNREACH & timeout on cloud networks
     auth: {
       user: user.trim(),
       pass: pass.trim(),
     },
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 15000,
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000,
   });
 };
 
