@@ -10,6 +10,11 @@ const adapter = new PrismaPg(pool);
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
+
+  datasource: {
+    url: process.env.DATABASE_URL,
+  },
+
   migrate: {
     adapter: async () => adapter,
   },
