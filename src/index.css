@@ -7,40 +7,38 @@ html {
 }
 
 body {
-    background-color: #050d08;
-    background-image: radial-gradient(circle at top right, rgba(233, 193, 118, 0.04), transparent 45%),
-                      radial-gradient(circle at bottom left, rgba(233, 193, 118, 0.03), transparent 45%);
-    background-attachment: fixed;
-    color: #e6e2dd;
+    background-color: #FAF8F4;
+    color: #1A1A1A;
     font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
 }
 
-/* Custom Scrollbar */
+/* Custom Minimal Scrollbar */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
 }
 ::-webkit-scrollbar-track {
-    background: #06100a;
+    background: #FAF8F4;
 }
 ::-webkit-scrollbar-thumb {
-    background: rgba(233, 193, 118, 0.2);
+    background: #E0D9CE;
     border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(233, 193, 118, 0.4);
+    background: #C5A059;
 }
 
-/* Commercial SaaS Panel Card Style */
+/* Editorial Minimal Warm White Card */
 .saas-card {
-    background-color: #0a160f;
-    border: 1px solid rgba(233, 193, 118, 0.12);
+    background-color: #FFFFFF;
+    border: 1px solid #E8E4DE;
     border-radius: 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
     transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 .saas-card:hover {
-    border-color: rgba(233, 193, 118, 0.25);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border-color: #D9D2C7;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
 /* Slide-Over Drawer Keyframe Animations */
@@ -59,66 +57,25 @@ body {
     animation: fadeInBackdrop 0.25s ease forwards;
 }
 
-/* Shimmer Skeleton Loader */
+/* Warm Shimmer Skeleton Loader */
 @keyframes skeletonShimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
 }
 .skeleton-box {
-    background: linear-gradient(90deg, #0b1810 25%, #132419 37%, #0b1810 63%);
+    background: linear-gradient(90deg, #F5F1E8 25%, #EFEBE0 37%, #F5F1E8 63%);
     background-size: 200% 100%;
     animation: skeletonShimmer 1.8s infinite ease-in-out;
     border-radius: 8px;
 }
 
-/* Modern Scroll Reveal System */
-.reveal {
-    opacity: 0;
-    transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-    will-change: transform, opacity;
-}
-.reveal-up { transform: translateY(14px); }
-.reveal-down { transform: translateY(-14px); }
-.reveal-left { transform: translateX(-14px); }
-.reveal-right { transform: translateX(14px); }
-.reveal-scale { transform: scale(0.985); }
-.reveal.active {
-    opacity: 1;
-    transform: translate(0) scale(1);
-}
-
-/* Nav link underline slide animation */
-.nav-link { position: relative; }
-.nav-link::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    transform: scaleX(0);
-    height: 1.5px;
-    bottom: -2px;
-    left: 0;
-    background-color: #e9c176;
-    transform-origin: bottom right;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.nav-link:hover::after {
-    transform: scaleX(1);
-    transform-origin: bottom left;
-}
-
-/* Subtle Gold Border */
-.gold-border {
-    border: 1px solid rgba(233, 193, 118, 0.15);
-    transition: border-color 0.3s ease;
-}
-
 /* Focus Ring */
 .custom-focus:focus-within {
-    border-color: #e9c176 !important;
-    box-shadow: 0 0 0 3px rgba(233, 193, 118, 0.12);
+    border-color: #C5A059 !important;
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
 }
 
-/* Custom autofill style override */
+/* Custom autofill override */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
@@ -128,8 +85,8 @@ textarea:-webkit-autofill:focus,
 select:-webkit-autofill,
 select:-webkit-autofill:hover,
 select:-webkit-autofill:focus {
-    -webkit-text-fill-color: #e6e2dd !important;
-    -webkit-box-shadow: 0 0 0px 1000px #06100a inset !important;
-    box-shadow: 0 0 0px 1000px #06100a inset !important;
+    -webkit-text-fill-color: #1A1A1A !important;
+    -webkit-box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
+    box-shadow: 0 0 0px 1000px #FFFFFF inset !important;
     transition: background-color 5000s ease-in-out 0s;
 }

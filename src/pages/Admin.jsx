@@ -74,35 +74,35 @@ export default function Admin() {
   const getPageTitle = (path) => {
     switch (path) {
       case '/admin/dashboard':
-        return 'Dashboard Overview';
+        return 'Overview';
       case '/admin/tables':
-        return 'Table & Occupancy Management';
+        return 'Floor Plan & Tables';
       case '/admin/reservations':
-        return 'Reservation Management';
+        return 'Reservations';
       case '/admin/contact':
-        return 'Contact Messages & Inquiries';
+        return 'Contact Messages';
       case '/admin/menu':
-        return 'Menu Management';
+        return 'Menu Catalog';
       case '/admin/settings':
-        return 'Restaurant Settings';
+        return 'Settings';
       default:
-        return 'Admin Portal';
+        return 'Overview';
     }
   };
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#07120c] flex items-center justify-center p-4">
-        <div className="flex flex-col items-center gap-4 text-[#e9c176]">
-          <div className="w-12 h-12 rounded-full border-2 border-[#e9c176]/20 border-t-[#e9c176] animate-spin" />
-          <p className="font-label-caps text-xs uppercase tracking-[0.2em]">Loading Dashboard Data...</p>
+      <div className="min-h-screen bg-[#FAF8F4] flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-3 text-[#1A1A1A]">
+          <div className="w-10 h-10 rounded-full border-2 border-[#C5A059]/30 border-t-[#C5A059] animate-spin" />
+          <p className="text-xs uppercase tracking-[0.2em] font-semibold text-[#666666]">Loading Operations...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#07120c] text-[#e6e2dd] flex overflow-hidden">
+    <div className="min-h-screen bg-[#FAF8F4] text-[#1A1A1A] flex overflow-hidden">
       {/* Sidebar */}
       <AdminSidebar
         isMobileOpen={isMobileOpen}
@@ -110,7 +110,7 @@ export default function Admin() {
       />
 
       {/* Main Area */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar">
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto custom-scrollbar bg-[#FAF8F4]">
         {/* Navbar */}
         <AdminNavbar
           setIsMobileOpen={setIsMobileOpen}
