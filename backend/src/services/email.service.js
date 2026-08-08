@@ -1,92 +1,70 @@
-import { Resend } from "resend";
 import dotenv from "dotenv";
 import config from "../config/index.js";
 
 // Ensure environment variables are fresh
 dotenv.config();
 
-let resendClientInstance = null;
-
 /**
- * Gets or initializes the Resend client instance.
+ * Gets sender address object for Brevo API.
  */
-function getResendClient() {
-  const apiKey = process.env.RESEND_API_KEY || config.email?.resendApiKey;
-  if (!apiKey || !apiKey.trim()) {
-    return null;
-  }
-  if (!resendClientInstance) {
-    resendClientInstance = new Resend(apiKey.trim());
-  }
-  return resendClientInstance;
+function getSenderInfo(fromName = "Mayura Fine Cuisine") {
+  const senderEmail =
+    process.env.BREVO_SENDER_EMAIL ||
+    config.email?.brevoSenderEmail ||
+    process.env.EMAIL_USER ||
+    config.email?.user ||
+    "aimodel422@gmail.com";
+
+  return {
+    name: fromName,
+    email: senderEmail.trim(),
+  };
 }
 
 /**
- * Resolves the sender email address based on Resend domain restrictions.
- * Resend free tier requires onboarding@resend.dev unless a custom domain is verified.
- */
-function getSenderAddress(fromName = "Mayura Fine Cuisine") {
-  const customFrom = (process.env.RESEND_FROM_EMAIL || config.email?.resendFromEmail || "").trim();
-  const userEmail = (process.env.EMAIL_USER || config.email?.user || "").trim();
-
-  // If a full formatted "From" header is provided (e.g., "Mayura <reservations@yourdomain.com>"), use directly
-  if (customFrom.includes("<") && customFrom.includes(">")) {
-    return customFrom;
-  }
-
-  // If RESEND_FROM_EMAIL is set (e.g., "reservations@yourdomain.com"), format with display name
-  if (customFrom && customFrom !== "onboarding@resend.dev") {
-    return `"${fromName}" <${customFrom}>`;
-  }
-
-  // If EMAIL_USER is set to a custom domain (non-gmail/yahoo/placeholder), use it
-  if (
-    userEmail &&
-    !userEmail.endsWith("@gmail.com") &&
-    !userEmail.endsWith("@yahoo.com") &&
-    !userEmail.includes("your_gmail")
-  ) {
-    return `"${fromName}" <${userEmail}>`;
-  }
-
-  // Default fallback for Resend testing mode
-  return `"${fromName}" <onboarding@resend.dev>`;
-}
-
-/**
- * Core reusable email sending helper via Resend HTTP API.
+ * Core reusable email sending helper via Brevo HTTP API.
  */
 export async function sendEmail({ to, subject, html, fromName = "Mayura Fine Cuisine" }) {
-  const apiKey = process.env.RESEND_API_KEY || config.email?.resendApiKey;
+  const apiKey = process.env.BREVO_API_KEY || config.email?.brevoApiKey;
   if (!apiKey || !apiKey.trim()) {
-    console.warn(`⚠️ Email service notice: RESEND_API_KEY not configured in .env. Skipping email to ${to}.`);
+    console.warn(`⚠️ Email service notice: BREVO_API_KEY not configured in .env. Skipping email to ${to}.`);
     return { success: false, reason: "MISSING_API_KEY" };
   }
 
-  const resend = getResendClient();
-  const from = getSenderAddress(fromName);
+  const sender = getSenderInfo(fromName);
+  const recipientList = Array.isArray(to)
+    ? to.map((email) => ({ email: email.trim() }))
+    : [{ email: to.trim() }];
 
   try {
-    const response = await resend.emails.send({
-      from,
-      to: Array.isArray(to) ? to : [to],
-      subject,
-      html,
+    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        "api-key": apiKey.trim(),
+      },
+      body: JSON.stringify({
+        sender,
+        to: recipientList,
+        subject,
+        htmlContent: html,
+      }),
     });
 
-    if (response.error) {
-      console.error(
-        `❌ Resend API Error sending to ${to}:`,
-        response.error.message || JSON.stringify(response.error)
-      );
-      return { success: false, error: response.error };
+    const data = await response.json();
+
+    if (!response.ok || data.code) {
+      const errorMsg = data.message || `HTTP ${response.status} ${response.statusText}`;
+      console.error(`❌ Brevo API Error sending to ${to}: ${errorMsg}`);
+      return { success: false, error: errorMsg, code: data.code };
     }
 
-    const emailId = response.data?.id;
-    console.log(`📧 Email successfully sent via Resend API to ${to} (Resend ID: ${emailId})`);
-    return { success: true, id: emailId, data: response.data };
+    const messageId = data.messageId;
+    console.log(`📧 Email successfully sent via Brevo API to ${to} (Message ID: ${messageId})`);
+    return { success: true, messageId, data };
   } catch (error) {
-    console.error(`❌ Unexpected error sending email via Resend to ${to}:`, error.message || error);
+    console.error(`❌ Unexpected error sending email via Brevo to ${to}:`, error.message || error);
     return { success: false, error: error.message };
   }
 }
