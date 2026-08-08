@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 import { useParallax } from '../hooks/useParallax';
+import GemstoneShowcase from '../components/GemstoneShowcase';
 
 import grandArrivalImg from '../../images/4.jpg';
 import theWelcomeImg from '../../images/reception.jpg';
@@ -150,6 +151,9 @@ export default function Experience() {
           </div>
         </div>
       </section>
+
+      {/* Gemstone Video Showcase */}
+      <GemstoneShowcase />
 
       {/* Chapter 9: Evening Ambience */}
       <section className="min-h-screen flex items-center justify-center relative overflow-hidden py-24 border-b border-outline-variant/20">
