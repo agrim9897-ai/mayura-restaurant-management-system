@@ -109,6 +109,7 @@ export async function createProduct(req, res) {
       images = [],
       videoUrl,
       videoDescription,
+      videoAspectRatio = "16:9",
       specifications,
       isAvailable = true,
       isFeatured = false,
@@ -134,6 +135,7 @@ export async function createProduct(req, res) {
         videoUrl: videoUrl ? videoUrl.trim() : null,
         videoId: parsedVideoId,
         videoDescription: videoDescription ? videoDescription.trim() : null,
+        videoAspectRatio: videoAspectRatio || "16:9",
         specifications: typeof specifications === "object" ? JSON.stringify(specifications) : specifications,
         isAvailable: Boolean(isAvailable),
         isFeatured: Boolean(isFeatured),
@@ -170,6 +172,7 @@ export async function updateProduct(req, res) {
       images,
       videoUrl,
       videoDescription,
+      videoAspectRatio,
       specifications,
       isAvailable,
       isFeatured,
@@ -195,6 +198,7 @@ export async function updateProduct(req, res) {
     if (imageUrl !== undefined) updateData.imageUrl = imageUrl ? imageUrl.trim() : null;
     if (images !== undefined) updateData.images = Array.isArray(images) ? images : [];
     if (videoDescription !== undefined) updateData.videoDescription = videoDescription ? videoDescription.trim() : null;
+    if (videoAspectRatio !== undefined) updateData.videoAspectRatio = videoAspectRatio || "16:9";
     if (specifications !== undefined) updateData.specifications = typeof specifications === "object" ? JSON.stringify(specifications) : specifications;
     if (isAvailable !== undefined) updateData.isAvailable = Boolean(isAvailable);
     if (isFeatured !== undefined) updateData.isFeatured = Boolean(isFeatured);

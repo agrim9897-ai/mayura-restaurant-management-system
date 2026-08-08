@@ -65,6 +65,7 @@ export default function ProductManagement() {
       imageUrl: '',
       videoUrl: '',
       videoDescription: '',
+      videoAspectRatio: '16:9',
       specificationsText: 'Origin: Royal Ceylon\nCut: Oval Brilliant\nClarity: VVS1\nCarat: 4.25 ct',
       isAvailable: true,
       isFeatured: false,
@@ -94,6 +95,7 @@ export default function ProductManagement() {
       imageUrl: product.imageUrl || '',
       videoUrl: product.videoUrl || '',
       videoDescription: product.videoDescription || '',
+      videoAspectRatio: product.videoAspectRatio || '16:9',
       specificationsText: specsText,
       isAvailable: product.isAvailable !== false,
       isFeatured: Boolean(product.isFeatured),
@@ -145,6 +147,7 @@ export default function ProductManagement() {
       imageUrl: formData.imageUrl.trim() || null,
       videoUrl: formData.videoUrl.trim() || null,
       videoDescription: formData.videoDescription.trim() || null,
+      videoAspectRatio: formData.videoAspectRatio || '16:9',
       specifications: JSON.stringify(specsObj),
       isAvailable: formData.isAvailable,
       isFeatured: formData.isFeatured,
@@ -493,13 +496,50 @@ export default function ProductManagement() {
                   )}
                 </div>
 
+                {/* Aspect Ratio Selector (16:9 Landscape vs 9:16 Vertical / Shorts) */}
+                <div>
+                  <label className="block text-xs font-label-caps text-primary-fixed-dim mb-1">
+                    Video Format / Aspect Ratio
+                  </label>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, videoAspectRatio: '16:9' })}
+                      className={`flex-1 py-2 px-3 rounded-8 text-xs font-button border transition-all flex items-center justify-center gap-1.5 ${
+                        (formData.videoAspectRatio || '16:9') === '16:9'
+                          ? 'bg-primary text-on-primary border-primary font-semibold shadow-md'
+                          : 'bg-surface-container text-on-surface-variant border-outline-variant/60 hover:text-primary'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-sm">tv</span>
+                      16:9 Landscape (Standard)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({ ...formData, videoAspectRatio: '9:16' })}
+                      className={`flex-1 py-2 px-3 rounded-8 text-xs font-button border transition-all flex items-center justify-center gap-1.5 ${
+                        formData.videoAspectRatio === '9:16'
+                          ? 'bg-primary text-on-primary border-primary font-semibold shadow-md'
+                          : 'bg-surface-container text-on-surface-variant border-outline-variant/60 hover:text-primary'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-sm">smartphone</span>
+                      9:16 Vertical (Shorts / Reel)
+                    </button>
+                  </div>
+                </div>
+
                 {/* Live Video Preview in Admin Form */}
                 {videoValidation.isValid && videoValidation.videoId && (
                   <div className="space-y-2 pt-2 border-t border-outline-variant/20">
                     <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-                      ✓ Valid YouTube Video ID: {videoValidation.videoId} (Live Preview)
+                      ✓ Valid YouTube Video ID: {videoValidation.videoId} (Live {formData.videoAspectRatio || '16:9'} Preview)
                     </span>
-                    <div className="w-full aspect-video rounded-8 overflow-hidden bg-black max-w-sm mx-auto shadow-md">
+                    <div className={`w-full overflow-hidden bg-black mx-auto shadow-md ${
+                      formData.videoAspectRatio === '9:16'
+                        ? 'aspect-[9/16] max-w-[220px] rounded-16 border-2 border-primary/40'
+                        : 'aspect-video max-w-sm rounded-8 border border-outline-variant/40'
+                    }`}>
                       <iframe
                         src={getSafeYouTubeEmbedUrl(videoValidation.videoId)}
                         title="Admin Live Video Preview"

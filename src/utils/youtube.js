@@ -84,12 +84,21 @@ export function validateAndExtractYouTubeUrl(url) {
   }
 
   if (extractedId && YOUTUBE_ID_REGEX.test(extractedId)) {
-    return { isValid: true, videoId: extractedId, error: null };
+    const isShorts = parsedUrl ? parsedUrl.pathname.includes('/shorts/') : false;
+    return {
+      isValid: true,
+      videoId: extractedId,
+      isShorts,
+      suggestedRatio: isShorts ? '9:16' : '16:9',
+      error: null,
+    };
   }
 
   return {
     isValid: false,
     videoId: null,
+    isShorts: false,
+    suggestedRatio: '16:9',
     error: "Could not extract a valid 11-character YouTube Video ID from this link.",
   };
 }

@@ -201,8 +201,12 @@ export default function ProductDetail() {
               </h2>
             </div>
 
-            <div className="max-w-4xl mx-auto bg-surface-container-lowest gold-border rounded-12 p-4 shadow-2xl gold-glow overflow-hidden mb-8">
-              <div className="relative w-full aspect-video rounded-8 overflow-hidden bg-black">
+            <div className={`mx-auto bg-surface-container-lowest gold-border rounded-12 p-3.5 shadow-2xl gold-glow overflow-hidden mb-8 ${
+              product.videoAspectRatio === '9:16' ? 'max-w-[340px] md:max-w-[380px]' : 'max-w-4xl'
+            }`}>
+              <div className={`relative w-full overflow-hidden bg-black ${
+                product.videoAspectRatio === '9:16' ? 'aspect-[9/16] rounded-16' : 'aspect-video rounded-8'
+              }`}>
                 <iframe
                   src={safeEmbedUrl}
                   title={`${product.title} YouTube Video`}

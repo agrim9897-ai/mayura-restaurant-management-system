@@ -69,6 +69,7 @@ model MenuItem {
   videoUrl         String?
   videoId          String?
   videoDescription String?
+  videoAspectRatio String?      @default("16:9")
   isAvailable      Boolean      @default(true)
   isFeatured       Boolean      @default(false)
   prepTime         String?      @default("15-20 mins")
@@ -143,6 +144,7 @@ model Product {
   videoUrl         String?
   videoId          String?
   videoDescription String?
+  videoAspectRatio String?  @default("16:9")
   specifications   String?
   isAvailable      Boolean  @default(true)
   isFeatured       Boolean  @default(false)
