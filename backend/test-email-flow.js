@@ -1,4 +1,4 @@
-import { sendReservationConfirmation } from "./src/services/email.service.js";
+import { sendReservationConfirmation, sendEmail } from "./src/services/email.service.js";
 
 async function testEmailService() {
   console.log("--- Testing Email Service direct call with mock reservation ---");
@@ -6,7 +6,7 @@ async function testEmailService() {
   const mockReservation = {
     id: "test-uuid-1234",
     name: "John Doe",
-    email: "testguest@example.com",
+    email: "delivered@resend.dev", // Resend test recipient or user email
     phone: "9876543210",
     reservationDate: new Date("2026-08-20"),
     reservationTime: "19:30",
@@ -18,7 +18,7 @@ async function testEmailService() {
   };
 
   const result = await sendReservationConfirmation(mockReservation);
-  console.log("Email dispatch completed cleanly. Result:", result);
+  console.log("Email dispatch completed. Success status:", result);
 }
 
 testEmailService();

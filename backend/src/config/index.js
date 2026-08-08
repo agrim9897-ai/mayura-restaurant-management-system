@@ -11,7 +11,8 @@ const config = {
   },
   email: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    resendApiKey: process.env.RESEND_API_KEY,
+    resendFromEmail: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
   },
 };
 
