@@ -128,3 +128,22 @@ enum ReservationStatus {
   CANCELLED
   COMPLETED
 }
+
+model Product {
+  id               String   @id @default(dbgenerated("(uuid_generate_v4())::text"))
+  title            String
+  description      String?
+  category         String?  @default("General")
+  price            Float?   @default(0)
+  imageUrl         String?
+  images           String[] @default([])
+  videoUrl         String?
+  videoId          String?
+  videoDescription String?
+  specifications   String?
+  isAvailable      Boolean  @default(true)
+  isFeatured       Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+

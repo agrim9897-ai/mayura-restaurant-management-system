@@ -11,6 +11,8 @@ import Menu from './pages/Menu';
 import Experience from './pages/Experience';
 import Reservation from './pages/Reservation';
 import Contact from './pages/Contact';
+import Products from './pages/Products';
+import ProductDetail from './pages/ProductDetail';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminForgotPassword from './components/admin/AdminForgotPassword';
 import AdminResetPassword from './components/admin/AdminResetPassword';
@@ -49,6 +51,8 @@ function MainLayout() {
           <Routes>
             {/* Public Customer Routes */}
             <Route path="/" element={<Home />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
             <Route path="/experience" element={<Experience />} />
             <Route path="/menu" element={<Menu />} />
             <Route path="/reservation" element={<Reservation />} />

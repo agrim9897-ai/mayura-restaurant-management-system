@@ -9,6 +9,7 @@ import AdminContactMessages from '../components/admin/AdminContactMessages';
 import AdminMenuManagement from '../components/admin/AdminMenuManagement';
 import AdminRestaurantSettings from '../components/admin/AdminRestaurantSettings';
 import AdminProfile from '../components/admin/AdminProfile';
+import ProductManagement from '../components/admin/ProductManagement';
 import {
   fetchReservations,
   fetchReservationStats,
@@ -76,6 +77,8 @@ export default function Admin() {
     switch (path) {
       case '/admin/dashboard':
         return 'Overview';
+      case '/admin/products':
+        return 'Products Management';
       case '/admin/tables':
         return 'Floor Plan & Tables';
       case '/admin/reservations':
@@ -133,6 +136,7 @@ export default function Admin() {
                 />
               }
             />
+            <Route path="products" element={<ProductManagement />} />
             <Route path="tables" element={<AdminTables />} />
             <Route
               path="reservations"

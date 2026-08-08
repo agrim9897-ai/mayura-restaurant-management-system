@@ -82,6 +82,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link to="/products" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
+                Products Showcase
+              </Link>
+            </li>
+            <li>
               <Link to="/experience" className="text-on-surface-variant hover:text-primary transition-colors duration-300">
                 Experience
               </Link>

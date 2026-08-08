@@ -64,6 +64,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-gutter">
             {[
               { to: '/', label: 'Home' },
+              { to: '/products', label: 'Products' },
               { to: '/experience', label: 'Experience' },
               { to: '/menu', label: 'Our Menu' },
               { to: '/contact', label: 'Contact' },
@@ -130,6 +131,7 @@ export default function Navbar() {
         <div className="flex flex-col items-center gap-8 text-center">
           {[
             { to: '/', label: 'Home' },
+            { to: '/products', label: 'Products' },
             { to: '/experience', label: 'Experience' },
             { to: '/menu', label: 'Our Menu' },
             { to: '/contact', label: 'Contact' },

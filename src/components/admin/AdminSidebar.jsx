@@ -9,6 +9,7 @@ export default function AdminSidebar({ isMobileOpen, setIsMobileOpen }) {
 
   const navItems = [
     { path: '/admin/dashboard', label: 'Dashboard', icon: 'grid_view' },
+    { path: '/admin/products', label: 'Products', icon: 'inventory_2' },
     { path: '/admin/reservations', label: 'Reservations', icon: 'calendar_today' },
     { path: '/admin/tables', label: 'Floor Plan', icon: 'apps' },
     { path: '/admin/menu', label: 'Menu', icon: 'restaurant_menu' },
