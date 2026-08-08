@@ -59,18 +59,21 @@ model MenuCategory {
 }
 
 model MenuItem {
-  id          String       @id @default(dbgenerated("(uuid_generate_v4())::text"))
-  categoryId  String
-  name        String
-  description String?
-  price       Float
-  isVeg       Boolean      @default(false)
-  imageUrl    String?
-  isAvailable Boolean      @default(true)
-  isFeatured  Boolean      @default(false)
-  prepTime    String?      @default("15-20 mins")
-  createdAt   DateTime     @default(now())
-  category    MenuCategory @relation(fields: [categoryId], references: [id])
+  id               String       @id @default(dbgenerated("(uuid_generate_v4())::text"))
+  categoryId       String
+  name             String
+  description      String?
+  price            Float
+  isVeg            Boolean      @default(false)
+  imageUrl         String?
+  videoUrl         String?
+  videoId          String?
+  videoDescription String?
+  isAvailable      Boolean      @default(true)
+  isFeatured       Boolean      @default(false)
+  prepTime         String?      @default("15-20 mins")
+  createdAt        DateTime     @default(now())
+  category         MenuCategory @relation(fields: [categoryId], references: [id])
 
   @@index([categoryId])
 }

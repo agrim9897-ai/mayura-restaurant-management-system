@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchProductById } from '../services/api/products.service';
-import { extractYouTubeId } from '../utils/youtube';
+import { extractYouTubeId, getSafeYouTubeEmbedUrl } from '../utils/youtube';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -81,8 +81,8 @@ export default function ProductDetail() {
     }
   }
 
-  // Extract YouTube ID
-  const youtubeId = product.videoId || extractYouTubeId(product.videoUrl);
+  // Extract YouTube ID & safe embed URL
+  const safeEmbedUrl = getSafeYouTubeEmbedUrl(product.videoId || product.videoUrl);
 
   // Gallery images array
   const allImages = [
@@ -189,8 +189,8 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        {/* Product Video Section (Rendered conditionally ONLY if YouTube video exists) */}
-        {youtubeId && (
+        {/* Product Video Section (Rendered conditionally ONLY if valid safe YouTube Embed URL exists) */}
+        {safeEmbedUrl && (
           <section id="product-video-section" className="mt-16 pt-16 border-t border-outline-variant/30">
             <div className="text-center mb-10">
               <p className="font-label-caps text-label-caps text-primary-fixed-dim tracking-[0.2em] mb-2 uppercase">
@@ -204,7 +204,7 @@ export default function ProductDetail() {
             <div className="max-w-4xl mx-auto bg-surface-container-lowest gold-border rounded-12 p-4 shadow-2xl gold-glow overflow-hidden mb-8">
               <div className="relative w-full aspect-video rounded-8 overflow-hidden bg-black">
                 <iframe
-                  src={`https://www.youtube.com/embed/${youtubeId}?rel=0&autoplay=0`}
+                  src={safeEmbedUrl}
                   title={`${product.title} YouTube Video`}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen

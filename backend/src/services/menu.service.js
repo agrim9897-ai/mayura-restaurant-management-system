@@ -1,4 +1,5 @@
 import prisma from "../config/database.js";
+import { extractYouTubeId } from "../utils/youtube.js";
 
 /**
  * Get or create a MenuCategory by name.
@@ -127,6 +128,9 @@ export async function getAllMenuItems(options = {}) {
     isFeatured: item.isFeatured,
     prepTime: item.prepTime || "15-20 mins",
     imageUrl: item.imageUrl,
+    videoUrl: item.videoUrl,
+    videoId: item.videoId,
+    videoDescription: item.videoDescription,
     createdAt: item.createdAt,
   }));
 
@@ -145,6 +149,9 @@ export async function getAllMenuItems(options = {}) {
 export async function createMenuItem(data) {
   const category = await getOrCreateCategory(data.category || "Main Course");
 
+  const cleanVideoUrl = data.videoUrl ? data.videoUrl.trim() : null;
+  const parsedVideoId = cleanVideoUrl ? extractYouTubeId(cleanVideoUrl) : null;
+
   const item = await prisma.menuItem.create({
     data: {
       name: data.name,
@@ -156,6 +163,9 @@ export async function createMenuItem(data) {
       isFeatured: data.isFeatured === "true" || data.isFeatured === true,
       prepTime: data.prepTime || "15-20 mins",
       imageUrl: data.imageUrl || "",
+      videoUrl: cleanVideoUrl,
+      videoId: parsedVideoId,
+      videoDescription: data.videoDescription ? data.videoDescription.trim() : null,
     },
     include: {
       category: true,
@@ -174,6 +184,9 @@ export async function createMenuItem(data) {
     isFeatured: item.isFeatured,
     prepTime: item.prepTime,
     imageUrl: item.imageUrl,
+    videoUrl: item.videoUrl,
+    videoId: item.videoId,
+    videoDescription: item.videoDescription,
   };
 }
 
@@ -191,6 +204,13 @@ export async function updateMenuItem(id, data) {
   if (data.isFeatured !== undefined) updateData.isFeatured = data.isFeatured === "true" || data.isFeatured === true;
   if (data.prepTime !== undefined) updateData.prepTime = data.prepTime;
   if (data.imageUrl !== undefined) updateData.imageUrl = data.imageUrl;
+  if (data.videoDescription !== undefined) updateData.videoDescription = data.videoDescription ? data.videoDescription.trim() : null;
+
+  if (data.videoUrl !== undefined) {
+    const cleanVideoUrl = data.videoUrl ? data.videoUrl.trim() : null;
+    updateData.videoUrl = cleanVideoUrl;
+    updateData.videoId = cleanVideoUrl ? extractYouTubeId(cleanVideoUrl) : null;
+  }
 
   if (data.category) {
     const category = await getOrCreateCategory(data.category);
@@ -217,6 +237,9 @@ export async function updateMenuItem(id, data) {
     isFeatured: item.isFeatured,
     prepTime: item.prepTime,
     imageUrl: item.imageUrl,
+    videoUrl: item.videoUrl,
+    videoId: item.videoId,
+    videoDescription: item.videoDescription,
   };
 }
 

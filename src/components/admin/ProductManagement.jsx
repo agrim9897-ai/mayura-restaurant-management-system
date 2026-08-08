@@ -5,7 +5,7 @@ import {
   updateProduct,
   deleteProduct,
 } from '../../services/api/products.service';
-import { extractYouTubeId } from '../../utils/youtube';
+import { validateAndExtractYouTubeUrl, getSafeYouTubeEmbedUrl } from '../../utils/youtube';
 
 export default function ProductManagement() {
   const [products, setProducts] = useState([]);
@@ -114,6 +114,14 @@ export default function ProductManagement() {
       return;
     }
 
+    if (formData.videoUrl.trim()) {
+      const videoValidation = validateAndExtractYouTubeUrl(formData.videoUrl);
+      if (!videoValidation.isValid) {
+        setErrorMsg(videoValidation.error || 'Please enter a valid YouTube URL.');
+        return;
+      }
+    }
+
     setIsSubmitting(true);
     setErrorMsg('');
     setSuccessMsg('');
@@ -197,8 +205,10 @@ export default function ProductManagement() {
     return Array.from(set);
   }, [products]);
 
-  // Extract preview YouTube ID
-  const previewYouTubeId = extractYouTubeId(formData.videoUrl);
+  // Extract and validate YouTube URL
+  const videoValidation = useMemo(() => {
+    return validateAndExtractYouTubeUrl(formData.videoUrl);
+  }, [formData.videoUrl]);
 
   return (
     <div className="space-y-6">
@@ -465,23 +475,33 @@ export default function ProductManagement() {
                     type="text"
                     value={formData.videoUrl}
                     onChange={(e) => setFormData({ ...formData, videoUrl: e.target.value })}
-                    placeholder="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
-                    className="w-full bg-surface-container border border-outline-variant/60 rounded-8 px-3 py-2 text-sm text-on-surface focus:border-primary"
+                    placeholder="Paste YouTube video link (e.g. https://www.youtube.com/watch?v=... or https://youtu.be/...)"
+                    className={`w-full bg-surface-container border rounded-8 px-3 py-2 text-sm text-on-surface focus:outline-none transition-colors ${
+                      formData.videoUrl.trim() && !videoValidation.isValid
+                        ? 'border-red-500 focus:border-red-400'
+                        : 'border-outline-variant/60 focus:border-primary'
+                    }`}
                   />
-                  <span className="text-[11px] text-on-surface-variant/70 mt-1 block">
-                    Paste any YouTube URL (watch, shorts, or share link). Leave empty to remove video.
-                  </span>
+                  {formData.videoUrl.trim() !== '' && !videoValidation.isValid ? (
+                    <span className="text-xs text-red-400 font-semibold mt-1.5 flex items-center gap-1">
+                      ⚠️ {videoValidation.error || 'Invalid YouTube URL. Please enter a valid youtube.com or youtu.be link.'}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-on-surface-variant/70 mt-1 block">
+                      Paste any YouTube link (watch, shorts, or share link). Leave empty to remove video.
+                    </span>
+                  )}
                 </div>
 
                 {/* Live Video Preview in Admin Form */}
-                {previewYouTubeId && (
-                  <div className="space-y-2">
+                {videoValidation.isValid && videoValidation.videoId && (
+                  <div className="space-y-2 pt-2 border-t border-outline-variant/20">
                     <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-                      ✓ Valid YouTube ID detected: {previewYouTubeId} (Live Preview Below)
+                      ✓ Valid YouTube Video ID: {videoValidation.videoId} (Live Preview)
                     </span>
-                    <div className="w-full aspect-video rounded-8 overflow-hidden bg-black max-w-sm mx-auto">
+                    <div className="w-full aspect-video rounded-8 overflow-hidden bg-black max-w-sm mx-auto shadow-md">
                       <iframe
-                        src={`https://www.youtube.com/embed/${previewYouTubeId}?rel=0`}
+                        src={getSafeYouTubeEmbedUrl(videoValidation.videoId)}
                         title="Admin Live Video Preview"
                         className="w-full h-full border-0"
                       />
