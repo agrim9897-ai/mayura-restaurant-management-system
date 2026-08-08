@@ -26,24 +26,31 @@ function getResendClient() {
  * Resend free tier requires onboarding@resend.dev unless a custom domain is verified.
  */
 function getSenderAddress(fromName = "Mayura Fine Cuisine") {
-  const customFrom = process.env.RESEND_FROM_EMAIL || config.email?.resendFromEmail;
-  const userEmail = process.env.EMAIL_USER || config.email?.user;
+  const customFrom = (process.env.RESEND_FROM_EMAIL || config.email?.resendFromEmail || "").trim();
+  const userEmail = (process.env.EMAIL_USER || config.email?.user || "").trim();
 
-  let email = customFrom;
-  if (!email || email.includes("onboarding@resend.dev")) {
-    if (
-      userEmail &&
-      !userEmail.endsWith("@gmail.com") &&
-      !userEmail.endsWith("@yahoo.com") &&
-      !userEmail.includes("your_gmail")
-    ) {
-      email = userEmail.trim();
-    } else {
-      email = "onboarding@resend.dev";
-    }
+  // If a full formatted "From" header is provided (e.g., "Mayura <reservations@yourdomain.com>"), use directly
+  if (customFrom.includes("<") && customFrom.includes(">")) {
+    return customFrom;
   }
 
-  return `"${fromName}" <${email.trim()}>`;
+  // If RESEND_FROM_EMAIL is set (e.g., "reservations@yourdomain.com"), format with display name
+  if (customFrom && customFrom !== "onboarding@resend.dev") {
+    return `"${fromName}" <${customFrom}>`;
+  }
+
+  // If EMAIL_USER is set to a custom domain (non-gmail/yahoo/placeholder), use it
+  if (
+    userEmail &&
+    !userEmail.endsWith("@gmail.com") &&
+    !userEmail.endsWith("@yahoo.com") &&
+    !userEmail.includes("your_gmail")
+  ) {
+    return `"${fromName}" <${userEmail}>`;
+  }
+
+  // Default fallback for Resend testing mode
+  return `"${fromName}" <onboarding@resend.dev>`;
 }
 
 /**
