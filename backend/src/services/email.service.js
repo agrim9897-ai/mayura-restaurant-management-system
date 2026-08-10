@@ -50,6 +50,42 @@ export async function sendEmail({ to, subject, html, fromName = "Mayura Fine Cui
 
     if (!response.ok || data.statusCode || data.error) {
       const errorMsg = data.message || data.error?.message || `HTTP ${response.status} ${response.statusText}`;
+
+      // Handle Resend testing restriction when using onboarding@resend.dev with unverified domain
+      if (
+        errorMsg.includes("You can only send testing emails") ||
+        (data.name === "validation_error" && errorMsg.includes("testing emails"))
+      ) {
+        const testRecipient = process.env.RESEND_TEST_RECIPIENT || process.env.EMAIL_USER || "agrim9897@gmail.com";
+        const targetRecipientStr = recipientList.join(", ");
+
+        if (!recipientList.includes(testRecipient.trim())) {
+          console.warn(
+            `⚠️ Resend Test Mode Notice: Resend onboarding@resend.dev permits sending only to registered account owner (${testRecipient}). Redirecting dispatch to ${testRecipient}...`
+          );
+
+          const retryResponse = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${apiKey.trim()}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from,
+              to: [testRecipient],
+              subject: `[Dev Test for ${targetRecipientStr}] ${subject}`,
+              html: `<div style="background: #2a2000; color: #ffeb3b; padding: 12px 16px; border-radius: 6px; font-family: sans-serif; font-size: 13px; margin-bottom: 20px;">⚠️ <strong>Resend Development Notice:</strong> Original recipient was <code>${targetRecipientStr}</code>. Redirected to account owner <code>${testRecipient}</code> due to unverified Resend domain testing restriction.</div>${html}`,
+            }),
+          });
+
+          const retryData = await retryResponse.json();
+          if (retryResponse.ok && !retryData.statusCode && !retryData.error) {
+            console.log(`📧 Dev email successfully redirected via Resend API to ${testRecipient} (ID: ${retryData.id})`);
+            return { success: true, messageId: retryData.id, data: retryData, redirected: true };
+          }
+        }
+      }
+
       console.error(`❌ Resend API Error sending to ${to}: ${errorMsg}`);
       return { success: false, error: errorMsg, details: data };
     }
