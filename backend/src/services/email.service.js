@@ -12,9 +12,16 @@ let transporter = null;
  */
 export function getTransporter() {
   const host = process.env.SMTP_HOST || config.email?.smtpHost || "smtp.gmail.com";
-  const port = parseInt(process.env.SMTP_PORT || config.email?.smtpPort || 465, 10);
-  const secureEnv = process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE : config.email?.smtpSecure;
-  const secure = secureEnv !== undefined ? String(secureEnv) === "true" : port === 465;
+  let port = parseInt(process.env.SMTP_PORT || config.email?.smtpPort || 465, 10);
+  let secureEnv = process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE : config.email?.smtpSecure;
+  let secure = secureEnv !== undefined ? String(secureEnv) === "true" : port === 465;
+
+  // Render & Cloud Compatibility: Force Port 465 SSL for Gmail SMTP to prevent IPv6 / STARTTLS ENETUNREACH on cloud containers
+  if (host === "smtp.gmail.com" && (port === 587 || !secure)) {
+    port = 465;
+    secure = true;
+  }
+
   const user = process.env.SMTP_USER || process.env.EMAIL_USER || config.email?.smtpUser;
   const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || config.email?.smtpPass;
 
@@ -23,7 +30,11 @@ export function getTransporter() {
       host,
       port,
       secure,
-      family: 4,
+      family: 4, // Force IPv4 to avoid ENETUNREACH on IPv6-less cloud containers
+      tls: {
+        rejectUnauthorized: false,
+        servername: host,
+      },
       auth: {
         user,
         pass,
