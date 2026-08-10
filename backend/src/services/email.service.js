@@ -56,7 +56,9 @@ export async function sendEmail({ to, subject, html, fromName = "Mayura Fine Cui
         errorMsg.includes("You can only send testing emails") ||
         (data.name === "validation_error" && errorMsg.includes("testing emails"))
       ) {
-        const testRecipient = process.env.RESEND_TEST_RECIPIENT || process.env.EMAIL_USER || "agrim9897@gmail.com";
+        // Extract exact allowed owner email address from Resend error message if present
+        const match = errorMsg.match(/\(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\)/);
+        const testRecipient = (match && match[1]) ? match[1] : (process.env.RESEND_TEST_RECIPIENT || "agrim9897@gmail.com");
         const targetRecipientStr = recipientList.join(", ");
 
         if (!recipientList.includes(testRecipient.trim())) {

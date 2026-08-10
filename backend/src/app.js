@@ -65,6 +65,8 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 //  Root & API Routes
 // ──────────────────────────────────────────────
 
+app.get("/favicon.ico", (_req, res) => res.status(204).end());
+
 // Root welcoming endpoint for Render health checks and root GET/HEAD requests
 app.get("/", (_req, res) => {
   res.status(200).json({
