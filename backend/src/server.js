@@ -1,10 +1,14 @@
 import app from "./app.js";
 import config from "./config/index.js";
 import { connectDatabase, disconnectDatabase } from "./config/database.js";
+import { verifySmtpConnection } from "./services/email.service.js";
 
 const startServer = async () => {
   // Verify database connection before accepting requests
   await connectDatabase();
+
+  // Verify Gmail SMTP authentication
+  await verifySmtpConnection();
 
   const server = app.listen(config.port, () => {
     console.log(`\n🚀 Mayura Backend running on http://localhost:${config.port}`);

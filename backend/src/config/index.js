@@ -10,9 +10,11 @@ const config = {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   },
   email: {
-    user: process.env.EMAIL_USER,
-    resendApiKey: process.env.RESEND_API_KEY,
-    resendFromEmail: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+    smtpHost: process.env.SMTP_HOST || "smtp.gmail.com",
+    smtpPort: parseInt(process.env.SMTP_PORT, 10) || 465,
+    smtpSecure: process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE === "true" : true,
+    smtpUser: process.env.SMTP_USER || process.env.EMAIL_USER,
+    smtpPass: process.env.SMTP_PASS || process.env.EMAIL_PASS,
   },
 };
 

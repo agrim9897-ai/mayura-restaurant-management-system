@@ -1,103 +1,106 @@
 import dotenv from "dotenv";
+import nodemailer from "nodemailer";
 import config from "../config/index.js";
 
 // Ensure environment variables are fresh
 dotenv.config();
 
-/**
- * Gets sender address string for Resend API.
- */
-function getSenderString(fromName = "Mayura Fine Cuisine") {
-  const senderEmail =
-    process.env.RESEND_FROM_EMAIL ||
-    config.email?.resendFromEmail ||
-    "onboarding@resend.dev";
+let transporter = null;
 
-  return `${fromName} <${senderEmail.trim()}>`;
+/**
+ * Lazy initializer for Nodemailer SMTP transporter.
+ */
+export function getTransporter() {
+  const host = process.env.SMTP_HOST || config.email?.smtpHost || "smtp.gmail.com";
+  const port = parseInt(process.env.SMTP_PORT || config.email?.smtpPort || 465, 10);
+  const secureEnv = process.env.SMTP_SECURE !== undefined ? process.env.SMTP_SECURE : config.email?.smtpSecure;
+  const secure = secureEnv !== undefined ? String(secureEnv) === "true" : port === 465;
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER || config.email?.smtpUser;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || config.email?.smtpPass;
+
+  if (!transporter) {
+    transporter = nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      family: 4,
+      auth: {
+        user,
+        pass,
+      },
+    });
+  }
+  return transporter;
 }
 
 /**
- * Core reusable email sending helper via Resend HTTP API.
+ * Startup SMTP connection verification check using transporter.verify()
  */
-export async function sendEmail({ to, subject, html, fromName = "Mayura Fine Cuisine" }) {
-  const apiKey = process.env.RESEND_API_KEY || config.email?.resendApiKey;
-  if (!apiKey || !apiKey.trim()) {
-    console.warn(`⚠️ Email service notice: RESEND_API_KEY not configured in .env. Skipping email to ${to}.`);
-    return { success: false, reason: "MISSING_API_KEY" };
+export async function verifySmtpConnection() {
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER || config.email?.smtpUser;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || config.email?.smtpPass;
+
+  if (!user || !pass) {
+    console.warn("⚠️ Email service notice: SMTP credentials (SMTP_USER/SMTP_PASS) not configured in .env.");
+    return false;
   }
 
-  const from = getSenderString(fromName);
-  const recipientList = Array.isArray(to)
-    ? to.map((email) => email.trim())
-    : [to.trim()];
+  try {
+    const transport = getTransporter();
+    await transport.verify();
+    console.log("✅ Gmail SMTP connection verified successfully.");
+    return true;
+  } catch (error) {
+    console.error("❌ Gmail SMTP connection verification failed:", error.message || "Authentication error");
+    return false;
+  }
+}
+
+/**
+ * Centralized email sending helper via Nodemailer & Gmail SMTP.
+ */
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+  attachments,
+  fromName = "Mayura Fine Cuisine",
+}) {
+  const user = process.env.SMTP_USER || process.env.EMAIL_USER || config.email?.smtpUser;
+  const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS || config.email?.smtpPass;
+
+  if (!user || !pass) {
+    console.warn(`⚠️ Email service notice: SMTP credentials not configured in .env. Skipping email to ${to}.`);
+    return { success: false, reason: "MISSING_SMTP_CREDENTIALS" };
+  }
+
+  const from = `"${fromName}" <${user}>`;
+  const recipientList = Array.isArray(to) ? to.join(", ") : to;
 
   try {
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey.trim()}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: recipientList,
-        subject,
-        html,
-      }),
-    });
+    const transport = getTransporter();
+    const mailOptions = {
+      from,
+      to: recipientList,
+      subject,
+      html,
+    };
 
-    const data = await response.json();
-
-    if (!response.ok || data.statusCode || data.error) {
-      const errorMsg = data.message || data.error?.message || `HTTP ${response.status} ${response.statusText}`;
-
-      // Handle Resend testing restriction when using onboarding@resend.dev with unverified domain
-      if (
-        errorMsg.includes("You can only send testing emails") ||
-        (data.name === "validation_error" && errorMsg.includes("testing emails"))
-      ) {
-        // Extract exact allowed owner email address from Resend error message if present
-        const match = errorMsg.match(/\(([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\)/);
-        const testRecipient = (match && match[1]) ? match[1] : (process.env.RESEND_TEST_RECIPIENT || "agrim9897@gmail.com");
-        const targetRecipientStr = recipientList.join(", ");
-
-        if (!recipientList.includes(testRecipient.trim())) {
-          console.warn(
-            `⚠️ Resend Test Mode Notice: Resend onboarding@resend.dev permits sending only to registered account owner (${testRecipient}). Redirecting dispatch to ${testRecipient}...`
-          );
-
-          const retryResponse = await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${apiKey.trim()}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              from,
-              to: [testRecipient],
-              subject: `[Dev Test for ${targetRecipientStr}] ${subject}`,
-              html: `<div style="background: #2a2000; color: #ffeb3b; padding: 12px 16px; border-radius: 6px; font-family: sans-serif; font-size: 13px; margin-bottom: 20px;">⚠️ <strong>Resend Development Notice:</strong> Original recipient was <code>${targetRecipientStr}</code>. Redirected to account owner <code>${testRecipient}</code> due to unverified Resend domain testing restriction.</div>${html}`,
-            }),
-          });
-
-          const retryData = await retryResponse.json();
-          if (retryResponse.ok && !retryData.statusCode && !retryData.error) {
-            console.log(`📧 Dev email successfully redirected via Resend API to ${testRecipient} (ID: ${retryData.id})`);
-            return { success: true, messageId: retryData.id, data: retryData, redirected: true };
-          }
-        }
-      }
-
-      console.error(`❌ Resend API Error sending to ${to}: ${errorMsg}`);
-      return { success: false, error: errorMsg, details: data };
+    if (text) {
+      mailOptions.text = text;
     }
 
-    const messageId = data.id;
-    console.log(`📧 Email successfully sent via Resend API to ${to} (ID: ${messageId})`);
-    return { success: true, messageId, data };
+    if (attachments && Array.isArray(attachments)) {
+      mailOptions.attachments = attachments;
+    }
+
+    const info = await transport.sendMail(mailOptions);
+    console.log(`📧 Email successfully sent via Gmail SMTP to ${recipientList} (ID: ${info.messageId})`);
+    return { success: true, messageId: info.messageId, data: info };
   } catch (error) {
-    console.error(`❌ Unexpected error sending email via Resend to ${to}:`, error.message || error);
-    return { success: false, error: error.message };
+    console.error(`❌ Email delivery failed for recipient ${recipientList}:`, error.message || "SMTP error");
+    return { success: false, error: "Email delivery failed" };
   }
 }
 

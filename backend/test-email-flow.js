@@ -1,24 +1,33 @@
-import { sendReservationConfirmation, sendEmail } from "./src/services/email.service.js";
+import { sendEmail, verifySmtpConnection } from "./src/services/email.service.js";
 
-async function testEmailService() {
-  console.log("--- Testing Email Service direct call with mock reservation ---");
+async function testGmailSmtpService() {
+  console.log("--- 1. Testing Gmail SMTP Connection Verification ---");
+  const isVerified = await verifySmtpConnection();
+  
+  if (!isVerified) {
+    console.error("❌ Verification failed. Aborting email test.");
+    process.exit(1);
+  }
 
-  const mockReservation = {
-    id: "test-uuid-1234",
-    name: "John Doe",
-    email: "delivered@resend.dev", // Resend test recipient or user email
-    phone: "9876543210",
-    reservationDate: new Date("2026-08-20"),
-    reservationTime: "19:30",
-    guests: 4,
-    occasion: "Anniversary",
-    seatingPreference: "Window",
-    status: "PENDING",
-    createdAt: new Date(),
-  };
+  const recipient = process.argv[2] || "agrim9897@gmail.com";
+  console.log(`\n--- 2. Sending Test Email via Gmail SMTP to ${recipient} ---`);
+  
+  const result = await sendEmail({
+    to: recipient,
+    subject: "Mayura SMTP Test",
+    text: "This is a test email from Mayura using Gmail SMTP.",
+    html: "<div style='font-family: Arial, sans-serif; padding: 20px; border: 1px solid #d4af37;'><h2 style='color: #d4af37;'>Mayura Fine Cuisine</h2><p>This is a test email from Mayura using Gmail SMTP.</p></div>",
+    fromName: "Mayura Fine Cuisine",
+  });
 
-  const result = await sendReservationConfirmation(mockReservation);
-  console.log("Email dispatch completed. Success status:", result);
+  console.log("\n--- 3. Email Dispatch Result ---");
+  console.log("Success:", result.success);
+  if (result.messageId) {
+    console.log("Message ID:", result.messageId);
+  }
+  if (result.error) {
+    console.error("Error:", result.error);
+  }
 }
 
-testEmailService();
+testGmailSmtpService();
