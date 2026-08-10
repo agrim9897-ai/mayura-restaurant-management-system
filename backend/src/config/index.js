@@ -11,8 +11,8 @@ const config = {
   },
   email: {
     user: process.env.EMAIL_USER,
-    brevoApiKey: process.env.BREVO_API_KEY,
-    brevoSenderEmail: process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_USER,
+    resendApiKey: process.env.RESEND_API_KEY,
+    resendFromEmail: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
   },
 };
 

@@ -5,66 +5,60 @@ import config from "../config/index.js";
 dotenv.config();
 
 /**
- * Gets sender address object for Brevo API.
+ * Gets sender address string for Resend API.
  */
-function getSenderInfo(fromName = "Mayura Fine Cuisine") {
+function getSenderString(fromName = "Mayura Fine Cuisine") {
   const senderEmail =
-    process.env.BREVO_SENDER_EMAIL ||
-    config.email?.brevoSenderEmail ||
-    process.env.EMAIL_USER ||
-    config.email?.user ||
-    "aimodel422@gmail.com";
+    process.env.RESEND_FROM_EMAIL ||
+    config.email?.resendFromEmail ||
+    "onboarding@resend.dev";
 
-  return {
-    name: fromName,
-    email: senderEmail.trim(),
-  };
+  return `${fromName} <${senderEmail.trim()}>`;
 }
 
 /**
- * Core reusable email sending helper via Brevo HTTP API.
+ * Core reusable email sending helper via Resend HTTP API.
  */
 export async function sendEmail({ to, subject, html, fromName = "Mayura Fine Cuisine" }) {
-  const apiKey = process.env.BREVO_API_KEY || config.email?.brevoApiKey;
+  const apiKey = process.env.RESEND_API_KEY || config.email?.resendApiKey;
   if (!apiKey || !apiKey.trim()) {
-    console.warn(`⚠️ Email service notice: BREVO_API_KEY not configured in .env. Skipping email to ${to}.`);
+    console.warn(`⚠️ Email service notice: RESEND_API_KEY not configured in .env. Skipping email to ${to}.`);
     return { success: false, reason: "MISSING_API_KEY" };
   }
 
-  const sender = getSenderInfo(fromName);
+  const from = getSenderString(fromName);
   const recipientList = Array.isArray(to)
-    ? to.map((email) => ({ email: email.trim() }))
-    : [{ email: to.trim() }];
+    ? to.map((email) => email.trim())
+    : [to.trim()];
 
   try {
-    const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+    const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
-        accept: "application/json",
-        "content-type": "application/json",
-        "api-key": apiKey.trim(),
+        Authorization: `Bearer ${apiKey.trim()}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        sender,
+        from,
         to: recipientList,
         subject,
-        htmlContent: html,
+        html,
       }),
     });
 
     const data = await response.json();
 
-    if (!response.ok || data.code) {
-      const errorMsg = data.message || `HTTP ${response.status} ${response.statusText}`;
-      console.error(`❌ Brevo API Error sending to ${to}: ${errorMsg}`);
-      return { success: false, error: errorMsg, code: data.code };
+    if (!response.ok || data.statusCode || data.error) {
+      const errorMsg = data.message || data.error?.message || `HTTP ${response.status} ${response.statusText}`;
+      console.error(`❌ Resend API Error sending to ${to}: ${errorMsg}`);
+      return { success: false, error: errorMsg, details: data };
     }
 
-    const messageId = data.messageId;
-    console.log(`📧 Email successfully sent via Brevo API to ${to} (Message ID: ${messageId})`);
+    const messageId = data.id;
+    console.log(`📧 Email successfully sent via Resend API to ${to} (ID: ${messageId})`);
     return { success: true, messageId, data };
   } catch (error) {
-    console.error(`❌ Unexpected error sending email via Brevo to ${to}:`, error.message || error);
+    console.error(`❌ Unexpected error sending email via Resend to ${to}:`, error.message || error);
     return { success: false, error: error.message };
   }
 }
